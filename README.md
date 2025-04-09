@@ -3,6 +3,9 @@
 
 # 환경
 FrontEnd - React.js
+<br/>
 BackEnd - Java
+<br/>
 DB - MySQL
-NAS - 
+<br/>
+Server - Ubuntu & 아파치 
