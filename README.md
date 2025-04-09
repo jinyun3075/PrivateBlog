@@ -4,7 +4,7 @@
 # 환경
 FrontEnd - React.js
 <br/>
-BackEnd - Java
+BackEnd: Java - 21, SpringBoot - 3.4.4
 <br/>
 DB - MySQL
 <br/>
