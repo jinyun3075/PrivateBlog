@@ -8,4 +8,4 @@ BackEnd: Java - 21, SpringBoot - 3.4.4
 <br/>
 DB - MySQL
 <br/>
-Server - Ubuntu & 아파치 
+WAS - Nginx
