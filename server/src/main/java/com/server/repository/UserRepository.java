@@ -1,4 +1,4 @@
-package com.server.repository.user;
+package com.server.repository;
 import com.server.domain.info.Intro;
 
 import org.springframework.data.jpa.repository.JpaRepository;
