@@ -3,12 +3,10 @@ package com.server.domain;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
-import com.server.util.BaseEntity;
-
 import jakarta.persistence.*;
 
 @Entity
-public class Posts extends BaseEntity{
+public class Contents{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -17,6 +15,13 @@ public class Posts extends BaseEntity{
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Tag tag;
 
-    @Column(nullable = false, length = 1000)
-    private String title;
+    @ManyToOne
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private Posts posts;
+
+    @Column(nullable = false, length = 50000)
+    private String content;
 }
+
+
+
