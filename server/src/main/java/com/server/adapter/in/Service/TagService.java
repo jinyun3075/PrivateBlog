@@ -23,9 +23,13 @@ public class TagService implements BaseService<TagDTO, Tag> {
 
     @Override
     public TagDTO update(TagDTO t) {
-        return null;
-    }
+        Tag domain = tagRepository.findById(t.getId())
+            .orElse(null);
+        
+        domain.update(entityToDomain(t));
 
+        return domainToEntity(tagRepository.save(domain));
+    }    
     @Override
     public void delete(Long id) {
         tagRepository.deleteById(id);
@@ -33,12 +37,17 @@ public class TagService implements BaseService<TagDTO, Tag> {
 
     @Override
     public TagDTO findById(Long id) {
-        return null;
+        return tagRepository.findById(id)
+                .map(this::domainToEntity)
+                .orElse(null);
     }
 
     @Override
     public List<TagDTO> findAll() {
-        return null;
+        return tagRepository.findAll()
+                .stream()
+                .map(this::domainToEntity)
+                .toList();
     }
 
     @Override

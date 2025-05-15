@@ -1,7 +1,5 @@
 package com.server.domain;
 
-import java.sql.Date;
-
 import com.server.util.BaseEntity;
 
 import jakarta.persistence.*;
@@ -29,4 +27,10 @@ public class Tag extends BaseEntity{
 
     @Column(nullable = false, length = 1)
     private char use_yn;
+
+    public void update(Tag tag) {
+        this.name = tag.getName();
+        this.description = tag.getDescription();
+        this.use_yn = tag.getUse_yn();
+    }
 }
