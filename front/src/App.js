@@ -1,11 +1,8 @@
-import Main from './component/intro/Main';
-
+import {Test1} from './component/intro/Main';
 function App() {
   return (
     <div>
-      <Main/>
-      <Main/>
-      <Main/>
+      <Test1 />      
     </div>
   );
 }
