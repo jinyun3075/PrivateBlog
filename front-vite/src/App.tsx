@@ -1,15 +1,16 @@
-import React from 'react';
+import Footer from './components/footer/footer';
+import Header from './components/header/header';
+import Home from './pages/home';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Header from '@shared/components/Header';
-import Footer from '@shared/components/Footer';
-import HomePage from '@features/blog/pages/HomePage';
+
 
 const App = () => {
+
   return (
     <Router>
       <Header />
       <Routes>
-        <Route path="/" element={<HomePage />} />
+        <Route path="/" element={<Home />} />
       </Routes>
       <Footer />
     </Router>

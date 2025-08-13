@@ -22,11 +22,6 @@
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true,
-    "baseUrl": "src",
-    "paths": {
-      "@shared/*": ["shared/*"],
-      "@features/*": ["features/*"]
-    }
   },
   "include": ["src"]
 }
