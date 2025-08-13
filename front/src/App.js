@@ -1,8 +1,8 @@
-import {Test1} from './component/intro/Main';
+import Main from './features/main/pages/Main';
 function App() {
   return (
     <div>
-      <Test1 />      
+      <Main />      
     </div>
   );
 }
