@@ -1,9 +1,25 @@
+import styled from "styled-components";
+import { MainArea } from "../../common/style";
+
 const Footer = () => {
   return (
-    <footer className="footer">
-      <p>© 2025 My Blog. All rights reserved.</p>
-    </footer>
+    <Container>
+      <MainArea>
+        <h1>footer</h1>      
+      </MainArea>
+    </Container>
   );
 };
+
+
+
+const Container = styled.footer`
+  width: 100%;
+  height: 200px;
+  background-color: #224747;
+`
+
+
+
 
 export default Footer;
