@@ -16,12 +16,12 @@ const Home = () => {
 
 const Container = styled.div`
   height: 100%;
-  background-color: #d4e2c6;
+  background-color: transparent;
 `
 
 const Main = styled(MainArea)`
   height: 100%;
-  background-color: #a2c57f;
+  background-color: transparent;
 `
 
 export default Home;

@@ -25,7 +25,7 @@ const Container = styled.header`
   top:0px;
   right:0;
   width: 100%;
-  background-color: aliceblue;
+  background-color: transparent;
 `
 
 const Main = styled.div`
