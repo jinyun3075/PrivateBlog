@@ -1,6 +1,8 @@
 import styled from "styled-components";
 
 const Header = () => {
+
+
   return (
     <Container>
       <Main>
@@ -20,12 +22,8 @@ const Header = () => {
 
 
 const Container = styled.header`
-  position: fixed;
-  height: 80px; 
-  top:0px;
-  right:0;
   width: 100%;
-  background-color: transparent;
+  height: 100%;
 `
 
 const Main = styled.div`
