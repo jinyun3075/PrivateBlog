@@ -7,11 +7,11 @@ import lombok.NoArgsConstructor;
 
 @Data
 @Builder
-@NoArgsConstructor
 @AllArgsConstructor
-public class TagDTO{
-   private Long id;
-   private String name;
-   private String description;
-   private char use_yn;
+@NoArgsConstructor
+public class PostViewDTO {
+   private long view_id;
+   private long post_id;
+   private long view;
+   private long visite;
 }
