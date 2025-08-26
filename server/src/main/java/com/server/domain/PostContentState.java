@@ -1,5 +1,7 @@
 package com.server.domain;
 
+import com.server.dto.StateDTO;
+
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -18,6 +20,10 @@ public class PostContentState{
 
     @Column(nullable = false, length = 500)
     private String name;
+
+    public void updateState(StateDTO dto){
+        name = dto.getName();
+    }
 }
 
 

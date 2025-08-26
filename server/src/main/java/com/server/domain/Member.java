@@ -3,6 +3,7 @@ package com.server.domain;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
+import com.server.dto.MemberDTO;
 import com.server.util.entity.BaseEntity;
 
 import jakarta.persistence.*;
@@ -23,7 +24,7 @@ public class Member extends BaseEntity{
 
     @ManyToOne
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private Post post;
+    private Role role;
 
     @Column(nullable = false, length = 500)
     private String name;
@@ -33,6 +34,12 @@ public class Member extends BaseEntity{
 
     @Column(nullable = false, length = 500)
     private String reg_user;
+
+    public void updateMember(MemberDTO dto, Role role){
+        name = dto.getName();
+        password = dto.getPassword();
+        this.role = role;
+    }
 }
 
 

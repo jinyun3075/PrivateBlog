@@ -2,6 +2,8 @@ package com.server.domain;
 
 import org.hibernate.annotations.ColumnDefault;
 
+import com.server.dto.RoleDTO;
+
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -24,6 +26,11 @@ public class Role{
     @Column(nullable = false)
     @ColumnDefault("false")
     private boolean use_yn;
+
+    public void updateRole(RoleDTO dto){
+        action = dto.getAction();
+        use_yn = dto.isUse_yn();
+    }
 }
 
 
