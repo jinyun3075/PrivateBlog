@@ -4,11 +4,8 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 import com.server.port.in.BaseService;
-import com.server.domain.Member;
 import com.server.domain.Role;
-import com.server.dto.MemberDTO;
 import com.server.dto.RoleDTO;
-import com.server.port.out.repository.MemberRepository;
 import com.server.port.out.repository.RoleRepository;
 
 import lombok.RequiredArgsConstructor;

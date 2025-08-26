@@ -64,6 +64,7 @@ public class CategoryService implements BaseService<CategoryDTO, Category> {
     @Override
     public CategoryDTO domainToEntity(Category domain) {
         return CategoryDTO.builder()
+                .category_id(domain.getCategory_id())
                 .name(domain.getName())
                 .reg_user(domain.getReg_user())
                 .mod_user(domain.getMod_user())

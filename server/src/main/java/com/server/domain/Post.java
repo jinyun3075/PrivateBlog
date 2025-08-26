@@ -13,7 +13,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Entity(name = "TBL_MEMBER")
+@Entity(name = "TBL_POST")
 @Builder
 @Getter
 @AllArgsConstructor
