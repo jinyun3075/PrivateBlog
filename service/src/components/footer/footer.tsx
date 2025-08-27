@@ -16,7 +16,7 @@ const Footer = () => {
 const Container = styled.footer`
   width: 100%;
   height: 200px;
-  background-color: #224747;
+  background-color: transparent;
 `
 
 
