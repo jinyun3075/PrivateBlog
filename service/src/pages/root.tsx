@@ -2,24 +2,29 @@ import { Outlet } from "react-router-dom"
 import Header from "../components/header/header"
 import Footer from "../components/footer/footer"
 import styled from "styled-components"
+import TopBtn from "../components/topBtn/topBtn";
+import { useEffect, useState } from "react";
 
 const HEADER_HEIGHT = 60;
 
 const Root = () => {
 
+  const [searchKeyword, setSearchKeyword] = useState<string>("");
+
   return(
     <Container>
 
       <HeaderWrapper>
-        <Header />
+        <Header searchKeyword={searchKeyword} setSearchKeyword={setSearchKeyword}/>
       </HeaderWrapper>
 
       <OutLetWrapper>
-        <Outlet />
+        <Outlet context={searchKeyword}/>
       </OutLetWrapper>
 
       <Footer />
       
+      <TopBtn />
     </Container>
   )
 }

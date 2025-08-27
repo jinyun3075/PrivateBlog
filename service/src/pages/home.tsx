@@ -1,12 +1,17 @@
 import styled from "styled-components";
 import { MainArea } from "../common/style";
+import BlogList from "../components/home/blogList/blogList";
+import NotExistHeadline from "../components/home/headline/notExistHeadline";
+import HeadlineList from "../components/home/headline/headlineList";
 
 const Home = () => {
-
+  const notExistBestBlog = false
   return (
     <Container>
       <Main>
-        <h1>Main</h1>
+        {notExistBestBlog ? <NotExistHeadline /> :<HeadlineList/>}
+        
+        <BlogList />
       </Main>
     </Container>
   );

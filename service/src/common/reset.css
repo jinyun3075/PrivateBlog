@@ -3,7 +3,9 @@ html,body{
 	margin:0;
 	box-sizing: border-box;
 }
-
+*{
+	box-sizing: border-box;
+}
 #root{
 	display: flex;
 }
@@ -14,6 +16,20 @@ button{
 	background-color:transparent;
 }
 
-h1,p{
+h1,h2,h3,p{
 	margin:0;
+	padding:0;
+}
+
+input[type="text"]:focus {
+  outline:none;
+}
+
+ul,ol,li {
+    list-style:none;
+}
+
+a { 
+	text-decoration:none;
+	color:inherit;
 }
