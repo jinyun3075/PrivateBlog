@@ -7,7 +7,8 @@ module.exports = {
     main: './src/index.tsx'
   },
   output: {
-    path: path.resolve(__dirname, 'dist')
+    path: path.resolve(__dirname, 'dist'),
+    publicPath: '/',
   },
   resolve: {
     extensions: ['.tsx', '.ts', '.jsx', '.js']
@@ -27,9 +28,12 @@ module.exports = {
   },
   devServer: {
     port: 3000,
+    hot:true,
     historyApiFallback: true,  
   },
-  plugins: [new HtmlWebpackPlugin({
-    template: path.join(__dirname, "index.html"),
-  })],
+  plugins: [
+    new HtmlWebpackPlugin({
+      template: "./public/index.html",
+    }),
+  ],
 }

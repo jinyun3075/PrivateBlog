@@ -3,7 +3,7 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import Home from './pages/home';
 import "./common/reset.css";
 import Root from './pages/root';
-import Test from './pages/test';
+import Detail from './pages/detail';
 
 
 const router = createBrowserRouter([
@@ -16,8 +16,8 @@ const router = createBrowserRouter([
         element:<Home />
       },
       {
-        path:"test",
-        element:<Test />
+        path:"detail/:id",
+        element:<Detail />
       },
     ]
   }

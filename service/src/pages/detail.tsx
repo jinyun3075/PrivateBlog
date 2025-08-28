@@ -1,12 +1,16 @@
 import styled from "styled-components";
 import { MainArea } from "../common/style";
+import { useParams } from "react-router-dom";
 
-const Test = () => {
+const Detail = () => {
 
+  const {id:blogId} = useParams();
+
+  
   return (
     <Container>
       <Main>
-        <h1>Test</h1>
+        <Thumbnail />
       </Main>
     </Container>
   );
@@ -24,4 +28,8 @@ const Main = styled(MainArea)`
   background-color: transparent;
 `
 
-export default Test;
+const Thumbnail = styled.img`
+  width: 100%;
+  height:60px;
+`
+export default Detail;
