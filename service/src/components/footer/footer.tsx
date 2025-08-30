@@ -38,6 +38,7 @@ const SocialWrapper = styled.div`
 const SocialIcon = styled.img`
   width: 30px;
   height: 30px;
+  cursor: pointer;
 `
 
 const CopyRight = styled.p`

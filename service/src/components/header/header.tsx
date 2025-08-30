@@ -2,20 +2,13 @@ import { Link } from "react-router-dom";
 import styled from "styled-components";
 import SearchBar from "../searchBar/searchBar";
 import { MainArea } from "../../common/style";
-import { useEffect } from "react";
-
-
 
 interface HeaderProps {
   searchKeyword:string;
   setSearchKeyword:(value:string)=>void;
 }
+
 const Header = ({searchKeyword,setSearchKeyword}:HeaderProps) => {
-
-  useEffect(()=>{
-    console.log(searchKeyword)
-  },[searchKeyword])
-
 
   return (
     <Container>

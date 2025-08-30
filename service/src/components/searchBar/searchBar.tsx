@@ -1,3 +1,4 @@
+import { useState } from "react";
 import styled from "styled-components"
 
 
@@ -8,12 +9,22 @@ interface SearchBarProps {
 }
 const SearchBar = ({placeholder,searchKeyword,setSearchKeyword}:SearchBarProps) => {
 
+  const [value,setValue] = useState("")
+
   const onChange = (e:React.ChangeEvent<HTMLInputElement>) => {
-    setSearchKeyword(e.target.value)
+    // setValue(e.target.value)
+    setSearchKeyword(e.target.value);
+
   }
 
+  const onSubmit = (e:React.FormEvent) => {
+    e.preventDefault();
+    setSearchKeyword(value);
+  }
+
+
   return(
-    <Container>
+    <Container onSubmit ={onSubmit}>
       <Search>
         <SearchInput 
           placeholder = {placeholder} 
@@ -33,7 +44,6 @@ const Container = styled.form`
   display: flex;
   gap: 30px;           // 피그마 확인 불가. 임시 픽셀
   height: 35px;
-  
 `
 
 const Search = styled.div`
@@ -56,20 +66,22 @@ const Search = styled.div`
 
 `
 
-const SearchInput = styled.input<{$isArabic:boolean}>`
+const SearchInput = styled.input`
   width:100%;
   height:100%;
   border:none;
-
   font-size: 14px;
+  background-color: #FFFFFF;
   color:#9CA3AF;
   letter-spacing: 0;
+
 
   &:focus{
     outline:none;
   }
 
   &::placeholder{
+    font-family: 'Pretendard-Regular';
     font-size: 14px;
     color:#9CA3AF;
     letter-spacing: 0;
@@ -99,6 +111,7 @@ const SearchImg = styled.img`
 
 const Button = styled.button`
   width: 70px;
+  font-family: 'Pretendard-Regular';
   font-size: 14px;
   color:#1E1E1E;
   border: 1px solid #D1D5DB;

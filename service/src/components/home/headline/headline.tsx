@@ -16,6 +16,7 @@ const HeadlineItem = () => {
 
 const Container = styled.div`
   flex:1;
+  cursor: pointer;
 `
 
 const Thumbnail = styled.img`
@@ -27,6 +28,7 @@ const Thumbnail = styled.img`
 const Category = styled.p`
   margin-top: 30px;
 
+  font-family: 'Pretendard-Regular';
   font-size: 16px;
   color:#767676;
 `
@@ -34,6 +36,7 @@ const Category = styled.p`
 const Title = styled.p`
   margin-top: 10px;
 
+	font-family: 'Pretendard-Bold';
   font-size: 28px;
   letter-spacing: -0.024em;
   line-height: 1.4;
@@ -42,14 +45,22 @@ const Title = styled.p`
 const Desc = styled.p`
   margin-top: 10px;
 
+  font-family: 'Pretendard-Regular';
   font-size: 16px;
   letter-spacing: 0;
   line-height: 1.6;
   color:#767676;
+
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
 `
 const Etc = styled.p`
   margin-top: 20px;
-
+  
+	font-family: 'Pretendard-Light';
   font-size: 13px;
   color:#767676;
 `

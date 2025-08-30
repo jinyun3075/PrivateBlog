@@ -23,8 +23,16 @@ const Container = styled.div<{$currentCategory:boolean}>`
   cursor: pointer;
   text-align: center;
   padding:10px 0;
+  font-family: ${props=>props.$currentCategory ? `'Pretendard-SemiBold'`:`'Pretendard-Regular'`};
+  font-size:18px;
   color:${props=>props.$currentCategory ? `#1B7EFF`:`#1E1E1E`};
   border-bottom:${props=>props.$currentCategory ? `2px solid #1B7EFF`:'1px solid #F3F3F3'};
+
+  &:hover{
+    color:#1B7EFF;
+  	font-family: 'Pretendard-SemiBold';
+    opacity:0.3;
+  }
 `
 
 export default Category

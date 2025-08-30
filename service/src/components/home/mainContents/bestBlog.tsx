@@ -18,9 +18,11 @@ const Container = styled.div`
   height: 50px;
   display: flex;
   gap:10px;
+  cursor: pointer;
 `
 
 const Ranking = styled.span`
+	font-family: 'Pretendard-SemiBold';
   font-size: 12px;
   line-height: 1.6;
   color:#282943;
@@ -33,6 +35,7 @@ const Info = styled.div`
 `
 
 const Title = styled.p`
+	font-family: 'Pretendard-Regular';
   font-size: 14px;
   letter-spacing: -0.02em;
   line-height: 1.6;
@@ -45,9 +48,11 @@ const Title = styled.p`
 `
 
 const Author = styled.span`
+	font-family: 'Pretendard-Regular';
   font-size: 9px;
   line-height: 1.6;
   color:#1E1E1E;
+  opacity: 0.61;
 `
 
 export default BestBlog

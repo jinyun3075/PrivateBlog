@@ -24,6 +24,13 @@ module.exports = {
         test:/\.css$/,
         use:['style-loader','css-loader'],
       },
+      {
+        test: /\.(woff|woff2|eot|ttf|otf)$/,
+        type: 'asset/resource', // 폰트 파일을 별도 파일로 처리
+        generator: {
+          filename: 'fonts/[name][ext][query]', // 출력 디렉토리 및 파일 이름
+        },
+      },
     ]
   },
   devServer: {

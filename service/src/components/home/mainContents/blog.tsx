@@ -1,23 +1,28 @@
 import styled from "styled-components"
 
 interface BlogProps {
-  title:string
+  category:string;
+  title:string;
+  desc:string;
+  createdDate:string;
+  author:string;
+  viewer:number;
 }
-const Blog = ({title}:BlogProps) => {
+const Blog = ({category,title,desc,createdDate,author,viewer}:BlogProps) => {
   return(
     <Container>
       <TextWrapper>
-        <Category>개발</Category>
-        <Title>Docker로 개발 환경 세팅하기</Title>
-        <Desc>개발 환경을 표준화하는 것은 협업에서 매우 중요하다. Docker는 컨테이너 기반 가상화 기술을 통해, 동일한 환경을 누구나 손쉽게 재현할 수 있도록 도와준다. 이번 글에서는 Dockerfile과 docker-compose를 활용해 기본적인 개발 환경을 세팅하는 방법을 다룬다.</Desc>
+        <Category>{category}</Category>
+        <Title>{title}</Title>
+        <Desc>{desc}</Desc>
         <Etc>
-          <span>2025.08.30</span>
+          <span>{createdDate}</span>
           <span>|</span>
-          <span>최성오</span>
+          <span>{author}</span>
           <span>|</span>
           <ViewWrapper>
             <ViewIcon src="/img/icon_view.png"/>
-            <span>2,340</span>
+            <span>{viewer}</span>
           </ViewWrapper>
         </Etc>
       </TextWrapper>
@@ -34,6 +39,7 @@ const Container = styled.div`
   height: 150px;
   display: flex;
   justify-content: space-between;
+  cursor: pointer;
 `
 
 const TextWrapper = styled.div`
@@ -42,11 +48,13 @@ const TextWrapper = styled.div`
 `
 
 const Category = styled.p`
+	font-family: 'Pretendard-SemiBold';
   font-size: 12px;
   color:#1E1E1E;
 `
 const Title = styled.p`
   margin-top: 8px;
+  font-family: 'Pretendard-Bold';
   font-size: 20px;
   letter-spacing: 1.4;
   line-height: -0.02em;
@@ -59,6 +67,7 @@ const Title = styled.p`
 `
 const Desc = styled.p`
   margin-top: 8px;
+  font-family: 'Pretendard-Regular';
   font-size: 12px;
   letter-spacing: 0;
   line-height: 1.6;
@@ -75,8 +84,9 @@ const Etc = styled.div`
   display: flex;
   align-items: center;
   gap:8px;
-
+  
   span{
+    font-family: 'Pretendard-Light';
     color:#767676;
     font-size: 10px;
     line-height: 1.4;
