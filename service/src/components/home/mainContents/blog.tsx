@@ -7,11 +7,12 @@ interface BlogProps {
   createdDate:string;
   author:string;
   viewer:number;
+  textWrapperWith:number;
 }
-const Blog = ({category,title,desc,createdDate,author,viewer}:BlogProps) => {
+const Blog = ({category,title,desc,createdDate,author,viewer,textWrapperWith}:BlogProps) => {
   return(
     <Container>
-      <TextWrapper>
+      <TextWrapper $textWrapperWith={textWrapperWith}>
         <Category>{category}</Category>
         <Title>{title}</Title>
         <Desc>{desc}</Desc>
@@ -42,8 +43,8 @@ const Container = styled.div`
   cursor: pointer;
 `
 
-const TextWrapper = styled.div`
-  width: 600px;
+const TextWrapper = styled.div<{$textWrapperWith:number}>`
+  width: ${props=>props.$textWrapperWith}px;
   padding:11.5px 0;
 `
 

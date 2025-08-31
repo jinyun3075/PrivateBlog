@@ -1,26 +1,24 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import styled from "styled-components"
 
 
 interface SearchBarProps {
   placeholder:string;
-  searchKeyword:string;
-  setSearchKeyword:(value:string)=>void;
 }
-const SearchBar = ({placeholder,searchKeyword,setSearchKeyword}:SearchBarProps) => {
+const SearchBar = ({placeholder}:SearchBarProps) => {
 
   const [value,setValue] = useState("")
+  const navigate = useNavigate();
 
   const onChange = (e:React.ChangeEvent<HTMLInputElement>) => {
-    // setValue(e.target.value)
-    setSearchKeyword(e.target.value);
-
+    setValue(e.target.value)
   }
-
+ 
   const onSubmit = (e:React.FormEvent) => {
     e.preventDefault();
-    setSearchKeyword(value);
-  }
+    if (!value.trim()) return;
+    navigate(`/search?keyword=${encodeURIComponent(value.trim())}`);  }
 
 
   return(
@@ -28,7 +26,7 @@ const SearchBar = ({placeholder,searchKeyword,setSearchKeyword}:SearchBarProps) 
       <Search>
         <SearchInput 
           placeholder = {placeholder} 
-          value = {searchKeyword}
+          value = {value}
           onChange={onChange}
         />
         <SearchImg src="/img/icon_magnifier.png"/>

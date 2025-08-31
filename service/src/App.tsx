@@ -4,6 +4,7 @@ import Home from './pages/home';
 import "./common/reset.css";
 import Root from './pages/root';
 import Detail from './pages/detail';
+import Search from './pages/search';
 
 
 const router = createBrowserRouter([
@@ -14,6 +15,10 @@ const router = createBrowserRouter([
       {
         index:true,
         element:<Home />
+      },
+      {
+        path:"search",
+        element:<Search />
       },
       {
         path:"detail/:id",

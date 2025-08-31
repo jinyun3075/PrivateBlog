@@ -3,12 +3,7 @@ import styled from "styled-components";
 import SearchBar from "../searchBar/searchBar";
 import { MainArea } from "../../common/style";
 
-interface HeaderProps {
-  searchKeyword:string;
-  setSearchKeyword:(value:string)=>void;
-}
-
-const Header = ({searchKeyword,setSearchKeyword}:HeaderProps) => {
+const Header = () => {
 
   return (
     <Container>
@@ -20,8 +15,6 @@ const Header = ({searchKeyword,setSearchKeyword}:HeaderProps) => {
 
         <SearchBar 
           placeholder ="검색어를 입력하세요." 
-          searchKeyword = {searchKeyword} 
-          setSearchKeyword={setSearchKeyword}
         />
       </Main>
     </Container>
