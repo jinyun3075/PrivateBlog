@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useOutletContext } from "react-router-dom";
+import { Link, useOutletContext } from "react-router-dom";
 import styled from "styled-components"
 import Category from "./category";
 import Blog from "./blog";
@@ -39,7 +39,7 @@ const MainContents = () => {
     setData(filteredData);
 
   }, [currentCategory]); 
-  
+
 
   return(
     <Container>
@@ -56,15 +56,19 @@ const MainContents = () => {
         </CategoryWrapper>
 
         <BlogList>
-          {currentPosts.map((post:DummyDataType) => <Blog 
-            key={post.id} 
-            category={post.category}
-            title = {post.title}
-            desc = {post.desc}
-            createdDate = {post.createdDate}
-            author = {post.author}
-            viewer = {post.viewer}
-          />)}
+          {currentPosts.map((post:DummyDataType) => <Link to ={`/detail/${post.id}`} key={post.id} >
+            <Blog 
+              category={post.category}
+              title = {post.title}
+              desc = {post.desc}
+              createdDate = {post.createdDate}
+              author = {post.author}
+              viewer = {post.viewer}
+              imgSrc = {post.imgSrc}
+              textWrapperWith={600}
+            />
+          </Link>
+          )}
         </BlogList>
 
         <Pagination

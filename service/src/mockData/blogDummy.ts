@@ -6,7 +6,8 @@ export const DummyData = [
     title: "Docker로 개발 환경 세팅하기",
     createdDate: "2025.08.30",
     author: "정시찬",
-    viewer: 1
+    viewer: 1,
+    imgSrc: "docker.png"
   },
   {
     id: 2,
@@ -15,7 +16,8 @@ export const DummyData = [
     title: "제육볶음 만드는 법",
     createdDate: "2025.09.01",
     author: "김소희",
-    viewer: 234
+    viewer: 234,
+    imgSrc: "docker.png"
   },
   {
     id: 3,
@@ -24,7 +26,8 @@ export const DummyData = [
     title: "인공지능 기술의 발전과 미래",
     createdDate: "2025.08.25",
     author: "최민수",
-    viewer: 1023
+    viewer: 1023,
+    imgSrc: "docker.png"
   },
   {   
     id: 4,
@@ -33,7 +36,8 @@ export const DummyData = [
     title: "2025 가을 패션 트렌드",
     createdDate: "2025.08.28",
     author: "박지혜",
-    viewer: 890
+    viewer: 890,
+    imgSrc: "docker.png"
   },
   {
     id: 5,
@@ -42,7 +46,8 @@ export const DummyData = [
     title: "30분 운동으로 건강 지키기",
     createdDate: "2025.08.26",
     author: "한정우",
-    viewer: 675
+    viewer: 675,
+    imgSrc: "docker.png"
   },
   {
     id: 6,
@@ -51,7 +56,8 @@ export const DummyData = [
     title: "Docker로 개발 환경 세팅하기",
     createdDate: "2025.08.30",
     author: "정시찬",
-    viewer: 1
+    viewer: 1,
+    imgSrc: "docker.png"
   },
   {
     id: 7,
@@ -60,7 +66,8 @@ export const DummyData = [
     title: "제육볶음 만드는 법",
     createdDate: "2025.09.01",
     author: "김소희",
-    viewer: 234
+    viewer: 234,
+    imgSrc: "docker.png"
   },
   {
     id: 8,
@@ -69,7 +76,8 @@ export const DummyData = [
     title: "인공지능 기술의 발전과 미래",
     createdDate: "2025.08.25",
     author: "최민수",
-    viewer: 1023
+    viewer: 1023,
+    imgSrc: "docker.png"
   },
   {   
     id: 9,
@@ -78,7 +86,8 @@ export const DummyData = [
     title: "2025 가을 패션 트렌드",
     createdDate: "2025.08.28",
     author: "박지혜",
-    viewer: 890
+    viewer: 890,
+    imgSrc: "docker.png"
   },
   {
     id: 10,
@@ -87,7 +96,8 @@ export const DummyData = [
     title: "30분 운동으로 건강 지키기",
     createdDate: "2025.08.26",
     author: "한정우",
-    viewer: 675
+    viewer: 675,
+    imgSrc: "docker.png"
   },
   {
     id: 11,
@@ -96,7 +106,8 @@ export const DummyData = [
     title: "Docker로 개발 환경 세팅하기",
     createdDate: "2025.08.30",
     author: "정시찬",
-    viewer: 1
+    viewer: 1,
+    imgSrc: "docker.png"
   },
   {
     id: 12,
@@ -105,7 +116,8 @@ export const DummyData = [
     title: "제육볶음 만드는 법",
     createdDate: "2025.09.01",
     author: "김소희",
-    viewer: 234
+    viewer: 234,
+    imgSrc: "docker.png"
   },
   {
     id: 13,
@@ -114,7 +126,8 @@ export const DummyData = [
     title: "인공지능 기술의 발전과 미래",
     createdDate: "2025.08.25",
     author: "최민수",
-    viewer: 1023
+    viewer: 1023,
+    imgSrc: "docker.png"
   },
   {   
     id: 14,
@@ -123,7 +136,8 @@ export const DummyData = [
     title: "2025 가을 패션 트렌드",
     createdDate: "2025.08.28",
     author: "박지혜",
-    viewer: 890
+    viewer: 890,
+    imgSrc: "docker.png"
   },
   {
     id: 15,
@@ -132,16 +146,18 @@ export const DummyData = [
     title: "30분 운동으로 건강 지키기",
     createdDate: "2025.08.26",
     author: "한정우",
-    viewer: 675
+    viewer: 675,
+    imgSrc: "docker.png"
   },
-    {
+  {
     id: 16,
     category: "건강",
     desc: "매일 운동을 꾸준히 하는 것은 신체 건강 뿐만 아니라 정신적인 안정에도 큰 영향을 미친다. 이 글에서는 하루 30분 운동으로 몸과 마음을 건강하게 유지할 수 있는 방법을 소개한다.",
     title: "30분 운동으로 건강 지키기",
     createdDate: "2025.08.26",
     author: "한정우",
-    viewer: 675
+    viewer: 675,
+    imgSrc: "docker.png"
   },
     {
     id: 17,
@@ -150,7 +166,8 @@ export const DummyData = [
     title: "30분 운동으로 건강 지키기",
     createdDate: "2025.08.26",
     author: "한정우",
-    viewer: 675
+    viewer: 675,
+    imgSrc: "docker.png"
   },
     {
     id: 18,
@@ -159,7 +176,9 @@ export const DummyData = [
     title: "30분 운동으로 건강 지키기",
     createdDate: "2025.08.26",
     author: "한정우",
-    viewer: 675
+    viewer: 675,
+    imgSrc: "docker.png"
+
   },
     {
     id: 19,
@@ -168,7 +187,9 @@ export const DummyData = [
     title: "30분 운동으로 건강 지키기",
     createdDate: "2025.08.26",
     author: "한정우",
-    viewer: 675
+    viewer: 675,
+    imgSrc: "docker.png"
+
   },
     {
     id: 20,
@@ -177,7 +198,9 @@ export const DummyData = [
     title: "30분 운동으로 건강 지키기",
     createdDate: "2025.08.26",
     author: "한정우",
-    viewer: 675
+    viewer: 675,
+    imgSrc: "docker.png"
+
   },
     {
     id: 21,
@@ -186,7 +209,9 @@ export const DummyData = [
     title: "30분 운동으로 건강 지키기",
     createdDate: "2025.08.26",
     author: "한정우",
-    viewer: 675
+    viewer: 675,
+    imgSrc: "docker.png"
+    
   },
     {
     id: 22,
@@ -195,7 +220,9 @@ export const DummyData = [
     title: "30분 운동으로 건강 지키기",
     createdDate: "2025.08.26",
     author: "한정우",
-    viewer: 675
+    viewer: 675,
+    imgSrc: "docker.png"
+
   },
     {
     id: 23,
@@ -204,7 +231,9 @@ export const DummyData = [
     title: "30분 운동으로 건강 지키기",
     createdDate: "2025.08.26",
     author: "한정우",
-    viewer: 675
+    viewer: 675,
+    imgSrc: "docker.png"
+
   },
     {
     id: 24,
@@ -213,7 +242,8 @@ export const DummyData = [
     title: "30분 운동으로 건강 지키기",
     createdDate: "2025.08.26",
     author: "한정우",
-    viewer: 675
+    viewer: 675,
+    imgSrc:"docker.png"
   }
 ]
 
@@ -225,4 +255,5 @@ export interface DummyDataType {
   createdDate: string;
   author: string;
   viewer: number;
+  imgSrc?:string;
 }

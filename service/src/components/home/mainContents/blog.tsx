@@ -7,9 +7,10 @@ interface BlogProps {
   createdDate:string;
   author:string;
   viewer:number;
+  imgSrc?:string;
   textWrapperWith:number;
 }
-const Blog = ({category,title,desc,createdDate,author,viewer,textWrapperWith}:BlogProps) => {
+const Blog = ({category,title,desc,createdDate,author,viewer,imgSrc,textWrapperWith}:BlogProps) => {
   return(
     <Container>
       <TextWrapper $textWrapperWith={textWrapperWith}>
@@ -28,7 +29,7 @@ const Blog = ({category,title,desc,createdDate,author,viewer,textWrapperWith}:Bl
         </Etc>
       </TextWrapper>
 
-      <Thumbnail src="/img/docker.png"/>
+      <Thumbnail src={`/img/${imgSrc}`}/>
     </Container>
   )
 }
@@ -53,6 +54,7 @@ const Category = styled.p`
   font-size: 12px;
   color:#1E1E1E;
 `
+
 const Title = styled.p`
   margin-top: 8px;
   font-family: 'Pretendard-Bold';

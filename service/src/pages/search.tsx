@@ -62,6 +62,7 @@ const Search = () => {
                 createdDate = {post.createdDate}
                 author = {post.author}
                 viewer = {post.viewer}
+                imgSrc = {post.imgSrc}
                 textWrapperWith={990}
               />)}
           </BlogList>:

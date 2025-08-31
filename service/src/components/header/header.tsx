@@ -26,6 +26,7 @@ const Container = styled.header`
   width: 100%;
   height: 76px;
   background-color: #FFFFFF;
+  z-index: 1000;
 `
 
 const Main = styled(MainArea)`
