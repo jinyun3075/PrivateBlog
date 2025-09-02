@@ -1,0 +1,109 @@
+/*
+Copyright (c) 2021 Kil Hyung-jin, with Reserved Font Name Pretendard.
+https://github.com/orioncactus/pretendard
+
+This Font Software is licensed under the SIL Open Font License, Version 1.1.
+This license is copied below, and is also available with a FAQ at:
+http://scripts.sil.org/OFL
+*/
+
+@font-face {
+	font-family: 'Pretendard-Black';
+	font-weight: 900;
+	font-display: swap;
+	src: url("/public/fonts/Pretendard-Black.woff") format("woff"); 
+}
+
+@font-face {
+	font-family: 'Pretendard-ExtraBold';
+	font-weight: 800;
+	font-display: swap;
+	src: url("/public/fonts/Pretendard-ExtraBold.woff") format("woff"); 
+}
+
+@font-face {
+	font-family: 'Pretendard-Bold';
+	font-weight: 700;
+	font-display: swap;
+	src: url("/public/fonts/Pretendard-Bold.woff") format("woff"); 
+}
+
+@font-face {
+	font-family: 'Pretendard-SemiBold';
+	font-weight: 600;
+	font-display: swap;
+	src: url("/public/fonts/Pretendard-SemiBold.woff") format("woff"); 
+}
+
+@font-face {
+	font-family: 'Pretendard-Medium';
+	font-weight: 500;
+	font-display: swap;
+	src: url("/public/fonts/Pretendard-Medium.woff") format("woff"); 
+}
+
+@font-face {
+	font-family: 'Pretendard-Regular';
+	font-weight: 400;
+	font-display: swap;
+	src: url("/public/fonts/Pretendard-Regular.woff") format("woff"); 
+}
+
+@font-face {
+	font-family: 'Pretendard-Light';
+	font-weight: 300;
+	font-display: swap;
+	src: url("/public/fonts/Pretendard-Light.woff") format("woff"); 
+}
+
+@font-face {
+	font-family: 'Pretendard-ExtraLight';
+	font-weight: 200;
+	font-display: swap;
+	src: url("/public/fonts/Pretendard-ExtraLight.woff") format("woff"); 
+}
+
+@font-face {
+	font-family: 'Pretendard';
+	font-weight: 100;
+	font-display: swap;
+	src: local('Pretendard Thin'), url("/public/fonts/Pretendard-Thin.woff") format("woff"); 
+}
+
+
+html,body{
+	padding:0;
+	margin:0;
+	box-sizing: border-box;
+}
+*{
+	box-sizing: border-box;
+}
+
+#root{
+	display: flex;
+}
+
+button{
+	border: none;
+	cursor: pointer;
+	background-color:transparent;
+}
+
+h1,h2,h3,p{
+	margin:0;
+	padding:0;
+}
+
+input[type="text"]:focus {
+  outline:none;
+}
+
+ul,ol,li {
+    list-style:none;
+}
+
+a { 
+	text-decoration:none;
+	color:inherit;
+}
