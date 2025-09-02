@@ -51,18 +51,18 @@ public class RoleService implements BaseService<RoleDTO, Role> {
     @Override
     public Role entityToDomain(RoleDTO entity) {
         return Role.builder()
-                .role_id(entity.getRole_id())
+                .roleId(entity.getRole_id())
                 .action(entity.getAction())
-                .use_yn(entity.isUse_yn())
+                .useYn(entity.isUse_yn())
                 .build();
     }
 
     @Override
     public RoleDTO domainToEntity(Role domain) {
         return RoleDTO.builder()
-                .role_id(domain.getRole_id())
+                .role_id(domain.getRoleId())
                 .action(domain.getAction())
-                .use_yn(domain.isUse_yn())
+                .use_yn(domain.isUseYn())
                 .build();
     }
 }

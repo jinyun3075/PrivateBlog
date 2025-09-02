@@ -21,7 +21,8 @@ import lombok.NoArgsConstructor;
 public class Post extends BaseEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long post_id;
+    @Column(name = "post_id")
+    private Long postId;
 
     @ManyToOne
     @OnDelete(action = OnDeleteAction.CASCADE)
@@ -33,22 +34,22 @@ public class Post extends BaseEntity{
     @Column(nullable = true, length = 1000)
     private String thumbnail;
 
-    @Column(nullable = false)
-    @ColumnDefault("0")
-    private int main_sort;
+    @Column(nullable = false, name = "main_sort")
+    @ColumnDefault("0")    
+    private int mainSort;
 
-    @Column(nullable = false)
+    @Column(nullable = false, name = "use_yn")
     @ColumnDefault("false")
-    private boolean use_yn;
+    private boolean useYn;
 
-    @Column(nullable = false, length = 500)
-    private String reg_user;
+    @Column(nullable = false, length = 500, name = "reg_user")
+    private String regUser;
 
     public void updatePost(PostDTO dto, Category category){
         title = dto.getTitle();
         thumbnail = dto.getThumbnail();
-        main_sort = dto.getMain_sort();
-        use_yn = dto.isUse_yn();
+        mainSort = dto.getMain_sort();
+        useYn = dto.isUse_yn();
         this.category = category;
     }
 }

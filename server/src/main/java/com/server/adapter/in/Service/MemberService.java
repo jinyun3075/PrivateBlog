@@ -56,23 +56,23 @@ public class MemberService implements BaseService<MemberDTO, Member> {
     public Member entityToDomain(MemberDTO entity) {
         Role role = roleRepository.findById(entity.getRole_id()).orElse(null);
         return Member.builder()
-                .user_id(entity.getUser_id())
+                .userId(entity.getUser_id())
                 .role(role)
                 .name(entity.getName())
                 .password(entity.getPassword())
-                .reg_user(entity.getReg_user())
+                .regUser(entity.getReg_user())
                 .build();
     }
 
     @Override
     public MemberDTO domainToEntity(Member domain) {
         return MemberDTO.builder()
-                .user_id(domain.getUser_id())
-                .role_id(domain.getRole().getRole_id())
+                .user_id(domain.getUserId())
+                .role_id(domain.getRole().getRoleId())
                 .role_name(domain.getRole().getAction())
                 .name(domain.getName())
                 .password(domain.getPassword())
-                .reg_user(domain.getReg_user())
+                .reg_user(domain.getRegUser())
                 .build();
     }
 }

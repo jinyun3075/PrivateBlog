@@ -6,8 +6,14 @@ import org.springframework.stereotype.Service;
 import com.server.port.in.BaseService;
 import com.server.domain.Category;
 import com.server.domain.Post;
+import com.server.domain.PostContent;
+import com.server.domain.Role;
+import com.server.dto.PostContentDTO;
 import com.server.dto.PostDTO;
+import com.server.dto.RoleDTO;
 import com.server.port.out.repository.CategoryRepository;
+import com.server.port.out.repository.PostContentRepository;
+import com.server.port.out.repository.PostContentStateRepository;
 import com.server.port.out.repository.PostRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -17,6 +23,7 @@ import lombok.RequiredArgsConstructor;
 public class PostService implements BaseService<PostDTO, Post> {
     private final PostRepository postRepository;
     private final CategoryRepository categoryRepository;
+    private final PostContentRepository contentRepository;
 
     @Override
     public PostDTO create(PostDTO entity) {
@@ -61,22 +68,22 @@ public class PostService implements BaseService<PostDTO, Post> {
                 .category(category)
                 .title(entity.getTitle())
                 .thumbnail(entity.getThumbnail())
-                .main_sort(entity.getMain_sort())
-                .use_yn(entity.isUse_yn())
-                .reg_user(entity.getReg_user())
+                .mainSort(entity.getMain_sort())
+                .useYn(entity.isUse_yn())
+                .regUser(entity.getReg_user())
                 .build();
     }
 
     @Override
     public PostDTO domainToEntity(Post domain) {
         return PostDTO.builder()
-                .post_id(domain.getPost_id())
-                .category_id(domain.getCategory().getCategory_id())
+                .post_id(domain.getPostId())
+                .category_id(domain.getCategory().getCategoryId())
                 .title(domain.getTitle())
                 .thumbnail(domain.getThumbnail())
-                .main_sort(domain.getMain_sort())
-                .use_yn(domain.isUse_yn())
-                .reg_user(domain.getReg_user())
+                .main_sort(domain.getMainSort())
+                .use_yn(domain.isUseYn())
+                .reg_user(domain.getRegUser())
                 .regDate(domain.getRegDate())
                 .modDate(domain.getModDate())
                 .build();

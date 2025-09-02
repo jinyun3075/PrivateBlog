@@ -19,13 +19,16 @@ import lombok.NoArgsConstructor;
 public class PostContent{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long content_id;
+    @Column(name = "content_id")
+    private Long contentId;
 
     @ManyToOne
+    @JoinColumn(name = "post_id", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Post post;
 
     @ManyToOne
+    @JoinColumn(name = "state_id", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private PostContentState state;
 

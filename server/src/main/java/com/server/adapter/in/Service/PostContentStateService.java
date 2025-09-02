@@ -51,7 +51,7 @@ public class PostContentStateService implements BaseService<StateDTO, PostConten
     @Override
     public PostContentState entityToDomain(StateDTO entity) {
         return PostContentState.builder()
-                .state_id(entity.getState_id())
+                .stateId(entity.getState_id())
                 .name(entity.getName())
                 .build();
     }
@@ -59,7 +59,7 @@ public class PostContentStateService implements BaseService<StateDTO, PostConten
     @Override
     public StateDTO domainToEntity(PostContentState domain) {
         return StateDTO.builder()
-                .state_id(domain.getState_id())
+                .state_id(domain.getStateId())
                 .name(domain.getName())
                 .build();
     }

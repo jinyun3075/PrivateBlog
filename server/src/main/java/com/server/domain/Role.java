@@ -18,18 +18,19 @@ import lombok.NoArgsConstructor;
 public class Role{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long role_id;
+    @Column(name = "role_id")
+    private Long roleId;
 
     @Column(nullable = false, length = 500)
     private String action;
 
-    @Column(nullable = false)
+    @Column(nullable = false, name = "use_yn")
     @ColumnDefault("false")
-    private boolean use_yn;
+    private boolean useYn;
 
     public void updateRole(RoleDTO dto){
         action = dto.getAction();
-        use_yn = dto.isUse_yn();
+        useYn = dto.isUse_yn();
     }
 }
 

@@ -16,7 +16,8 @@ import lombok.NoArgsConstructor;
 public class PostContentState{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long state_id;
+    @Column(name = "state_id")
+    private Long stateId;
 
     @Column(nullable = false, length = 500)
     private String name;

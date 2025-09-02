@@ -54,12 +54,20 @@ public class PostContentService implements BaseService<PostContentDTO, PostConte
                 .toList();
     }
 
+    public List<PostContentDTO> findByPostIdAndStateId(Long postId, Long stateId) {
+        return postContentRepository.findByPost_PostIdAndState_StateId(postId, stateId)
+                .stream()
+                .map(this::domainToEntity)
+                .toList();
+    }
+
     @Override
     public PostContent entityToDomain(PostContentDTO entity) {
         Post post = postRepository.findById(entity.getPost_id()).orElse(null);
         PostContentState state = postConentStateRepository.findById(entity.getState_id()).orElse(null);
         return PostContent.builder()
-                .content_id(entity.getContent_id())
+                .contentId(entity.getContent_id())
+                .content(entity.getContent())
                 .post(post)
                 .state(state)
                 .build();
@@ -68,9 +76,8 @@ public class PostContentService implements BaseService<PostContentDTO, PostConte
     @Override
     public PostContentDTO domainToEntity(PostContent domain) {
         return PostContentDTO.builder()
-                .content_id(domain.getContent_id())
-                .post_id(domain.getPost().getPost_id())
-                .state_id(domain.getState().getState_id())
+                .content_id(domain.getContentId())
+                .post_id(domain.getPost().getPostId())
                 .content(domain.getContent())
                 .build();
     }

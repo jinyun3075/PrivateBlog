@@ -1,5 +1,7 @@
 package com.server.controller;
 
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,6 +26,11 @@ public class blogController {
     @GetMapping("/post/select/{id}")
     public ResponseEntity<PostDTO> selectPost(@PathVariable Long id) {
         return new ResponseEntity<>(blogPacade.selectPost(id), HttpStatus.OK);
+    }
+
+    @GetMapping("/post/select/all")
+    public ResponseEntity<List<PostDTO>> selectAllPosts() {
+        return new ResponseEntity<>(blogPacade.selectAllPosts(), HttpStatus.OK);
     }
 
     @PutMapping("/post/update")

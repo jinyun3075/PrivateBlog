@@ -64,8 +64,8 @@ public class PostViewService implements BaseService<PostViewDTO, PostView> {
     @Override
     public PostViewDTO domainToEntity(PostView domain) {
         return PostViewDTO.builder()
-                .view_id(domain.getView_id())
-                .post_id(domain.getPost().getPost_id())
+                .view_id(domain.getViewId())
+                .post_id(domain.getPost().getPostId())
                 .view(domain.getView())
                 .visite(domain.getVisite())
                 .build();

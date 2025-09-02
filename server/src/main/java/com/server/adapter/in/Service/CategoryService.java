@@ -56,18 +56,18 @@ public class CategoryService implements BaseService<CategoryDTO, Category> {
     public Category entityToDomain(CategoryDTO entity) {
         return Category.builder()
                 .name(entity.getName())
-                .reg_user(entity.getReg_user())
-                .mod_user(entity.getMod_user())
+                .regUser(entity.getReg_user())
+                .modUser(entity.getMod_user())
                 .build();
     }
 
     @Override
     public CategoryDTO domainToEntity(Category domain) {
         return CategoryDTO.builder()
-                .category_id(domain.getCategory_id())
+                .category_id(domain.getCategoryId())
                 .name(domain.getName())
-                .reg_user(domain.getReg_user())
-                .mod_user(domain.getMod_user())
+                .reg_user(domain.getRegUser())
+                .mod_user(domain.getModUser())
                 .build();
     }
 }

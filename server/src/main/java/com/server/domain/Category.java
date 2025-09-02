@@ -17,21 +17,22 @@ import lombok.NoArgsConstructor;
 public class Category extends BaseEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long category_id;
+    @Column(name = "category_id")
+    private Long categoryId;
 
     @Column(nullable = false, length = 500)
     private String name;
 
-    @Column(nullable = false, length = 500)
-    private String reg_user;
+    @Column(nullable = false, length = 500, name = "reg_user")
+    private String regUser;
 
-    @Column(nullable = false, length = 500)
-    private String mod_user;
+    @Column(nullable = false, length = 500, name = "mod_user")
+    private String modUser;
 
     public void updateCategory(CategoryDTO dto){
         name = dto.getName();
-        reg_user = dto.getReg_user();
-        mod_user = dto.getMod_user();
+        regUser = dto.getReg_user();
+        modUser = dto.getMod_user();
     }
 }
 

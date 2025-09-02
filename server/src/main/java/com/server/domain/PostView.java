@@ -20,7 +20,8 @@ import lombok.NoArgsConstructor;
 public class PostView{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long view_id;
+    @Column(name = "view_id")
+    private Long viewId;
 
     @ManyToOne
     @OnDelete(action = OnDeleteAction.CASCADE)

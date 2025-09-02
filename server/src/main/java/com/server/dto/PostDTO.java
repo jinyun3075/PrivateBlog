@@ -14,6 +14,7 @@ import lombok.NoArgsConstructor;
 public class PostDTO {
    private long post_id;
    private long category_id;
+   private PostContentDTO content;
    private String title;
    private String thumbnail;
    private int main_sort;
