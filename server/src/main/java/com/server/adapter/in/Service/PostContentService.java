@@ -61,6 +61,13 @@ public class PostContentService implements BaseService<PostContentDTO, PostConte
                 .toList();
     }
 
+    public List<PostContentDTO> findByPostId(Long postId) {
+        return postContentRepository.findByPost_PostId(postId)
+                .stream()
+                .map(this::domainToEntity)
+                .toList();
+    }
+
     @Override
     public PostContent entityToDomain(PostContentDTO entity) {
         Post post = postRepository.findById(entity.getPost_id()).orElse(null);

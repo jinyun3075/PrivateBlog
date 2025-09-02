@@ -6,14 +6,8 @@ import org.springframework.stereotype.Service;
 import com.server.port.in.BaseService;
 import com.server.domain.Category;
 import com.server.domain.Post;
-import com.server.domain.PostContent;
-import com.server.domain.Role;
-import com.server.dto.PostContentDTO;
 import com.server.dto.PostDTO;
-import com.server.dto.RoleDTO;
 import com.server.port.out.repository.CategoryRepository;
-import com.server.port.out.repository.PostContentRepository;
-import com.server.port.out.repository.PostContentStateRepository;
 import com.server.port.out.repository.PostRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -23,7 +17,6 @@ import lombok.RequiredArgsConstructor;
 public class PostService implements BaseService<PostDTO, Post> {
     private final PostRepository postRepository;
     private final CategoryRepository categoryRepository;
-    private final PostContentRepository contentRepository;
 
     @Override
     public PostDTO create(PostDTO entity) {

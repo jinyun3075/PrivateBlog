@@ -14,25 +14,21 @@ import com.server.dto.PostDTO;
 import com.server.util.entity.PostStateRole;
 @RequiredArgsConstructor
 @Component
-public class BlogPacade {
+public class ClientPacade {
     private final PostService postService;
     private final CategoryService categoryService;
     private final PostContentService postContentService;
+    private final PostViewService postViewService;
+    private final PostVisiteService postVisiteService;
 
-    public PostDTO createPost(PostDTO postDTO) {
-        return postService.create(postDTO);
-    }
-
-    public PostDTO selectPost(Long id) {
-        return postService.findById(id);
-    }
-
-    public List<PostDTO> selectAllPosts() {
+    public List<PostDTO> selectAllPost() {
         List<PostDTO> posts = postService
             .findAll()
             .stream()
             .map((PostDTO d) ->{
                 List<PostContentDTO> contents = postContentService.findByPostIdAndStateId(d.getPost_id(), PostStateRole.RELEASED.getId());
+                Long view = postViewService.findPostView(d.getPost_id());
+                d.setView(view);
                 d.setContent(contents.isEmpty() ? null : contents.get(0));
                 return d;
             })
@@ -40,20 +36,15 @@ public class BlogPacade {
         return posts;
     }
 
-    public PostDTO updatePost(PostDTO postDTO) {
-        return postService.update(postDTO);
+    public Long upView(Long view_id){
+        return postViewService.upView(view_id);
     }
 
-    public String deletePost(Long id) {
-        postService.delete(id);
-        return "Post with ID " + id + " deleted successfully.";
+    public Long upVisite(){
+        return postVisiteService.upVisite();
     }
 
-    public CategoryDTO createCategory(CategoryDTO categoryDTO) {
-        return categoryService.create(categoryDTO);
-    }
-
-    public CategoryDTO selectCategory(Long id) {
-        return categoryService.findById(id);
+    public List<CategoryDTO> selectAllCategories() {
+        return categoryService.findAll();
     }
 }

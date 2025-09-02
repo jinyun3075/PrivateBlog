@@ -27,7 +27,7 @@ public class PostViewService implements BaseService<PostViewDTO, PostView> {
     @Override
     public PostViewDTO update(PostViewDTO entity) {
         PostView domain = postViewRepository.findById(entity.getView_id()).orElse(null);
-        domain.updateViewAndVisite(entity);
+        domain.updateView(entity);
         return domainToEntity(postViewRepository.save(domain));
     }
 
@@ -51,13 +51,38 @@ public class PostViewService implements BaseService<PostViewDTO, PostView> {
                 .toList();
     }
 
+    public Long countAll() {
+        return postViewRepository.findAll()
+                .stream()
+                .mapToLong(PostView::getView)
+                .sum();
+    }
+
+    public Long findPostView(Long post_id){
+        PostView domain = postViewRepository.findTopByPost_PostIdOrderByRegDateDesc(post_id);
+        return domainToEntity(domain).getView();
+    }
+
+    public Long findAllPostView(Long post_id){
+        return postViewRepository
+            .findByPost_PostId(post_id)
+            .stream()
+            .mapToLong(PostView::getView)
+            .sum();
+    }
+
+    public Long upView(Long view_id){
+        PostView domain = postViewRepository.findById(view_id).orElse(null);
+        domain.upView();
+        return postViewRepository.save(domain).getView();
+    }
+
     @Override
     public PostView entityToDomain(PostViewDTO entity) {
         Post post = postRepository.findById(entity.getPost_id()).orElse(null);
         return PostView.builder()
                 .post(post)
                 .view(0l)
-                .visite(0l)
                 .build();
     }
 
@@ -67,7 +92,6 @@ public class PostViewService implements BaseService<PostViewDTO, PostView> {
                 .view_id(domain.getViewId())
                 .post_id(domain.getPost().getPostId())
                 .view(domain.getView())
-                .visite(domain.getVisite())
                 .build();
     }
 }

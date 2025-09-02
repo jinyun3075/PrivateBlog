@@ -1,5 +1,7 @@
 package com.server.dto;
 
+import java.time.LocalDateTime;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -9,8 +11,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class PostViewDTO {
-   private long view_id;
-   private long post_id;
-   private long view;
+public class PostVisiteDTO {
+   private long visite_id;
+   private long visite;
+   private LocalDateTime regDate;
 }
