@@ -49,7 +49,7 @@ public class PostVisiteService implements BaseService<PostVisiteDTO, PostVisite>
     }
 
     public Long upVisite(){
-        PostVisite domain = postVisteRepository.findTopByRegDateDesc().orElse(null);
+        PostVisite domain = postVisteRepository.findTopByOrderByRegDateDesc().orElse(null);
         domain.upVisite();
         return postVisteRepository.save(domain).getVisite();
 
