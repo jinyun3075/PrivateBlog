@@ -78,5 +78,16 @@ public class AdminController {
     public ResponseEntity<PostStateResponseDTO> insertCategory(@RequestBody PostStateRequestDTO req) {
         return new ResponseEntity<>(pacade.createState(req), HttpStatus.OK);
     }
+
+    // 회원
+    @PostMapping("/member/insert")
+    public ResponseEntity<MemberResponseDTO> insertMember(@RequestBody MemberRequestDTO req) {
+        return new ResponseEntity<>(pacade.insertMember(req), HttpStatus.OK);
+    }
+
+    @PostMapping("/member/role/insert")
+    public ResponseEntity<MemberRoleResponseDTO> insertRole(@RequestBody MemberRoleRequestDTO req) {
+        return new ResponseEntity<>(pacade.insertRole(req), HttpStatus.OK);
+    }
     
 }

@@ -1,0 +1,29 @@
+package com.server.util.security;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.util.JSONPObject;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
+
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+
+public class ApiLoginFailHandler implements AuthenticationFailureHandler {
+    @Override
+    public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
+
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.setContentType("application/json;charset=utf-8");
+        ArrayList<String> data = new ArrayList<>();
+        data.add("code:401");
+        data.add("아이디 혹은 비밀번호가 일치하지 않습니다.");
+        ObjectMapper mapper = new ObjectMapper();
+        JSONPObject json = new JSONPObject("Error",data);
+        PrintWriter out = response.getWriter();
+        out.print(mapper.writeValueAsString(json));
+    }
+}

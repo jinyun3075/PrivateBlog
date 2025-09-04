@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.stereotype.Component;
 
 import com.server.adapter.in.Service.*;
+import com.server.domain.Role;
 
 import lombok.RequiredArgsConstructor;
 
@@ -20,6 +21,8 @@ public class AdminPacade {
     private final PostContentStateService postContentStateService;
     private final PostViewService postViewService;
     private final PostVisiteService postVisiteService;
+    private final MemberService memberService;
+    private final RoleService roleService;
 
     // 블로그 포스트
     public PostResponseDTO insertPost(PostRequestDTO req) {
@@ -111,5 +114,14 @@ public class AdminPacade {
     // 컨텐츠 상태
     public PostStateResponseDTO createState(PostStateRequestDTO req) {
         return postContentStateService.create(req);
+    }
+
+    // 회원
+    public MemberResponseDTO insertMember(MemberRequestDTO req) {
+        return memberService.create(req);
+    }
+
+    public MemberRoleResponseDTO insertRole(MemberRoleRequestDTO req) {
+        return roleService.create(req);
     }
 }
