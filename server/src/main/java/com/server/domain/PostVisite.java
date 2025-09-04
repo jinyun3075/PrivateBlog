@@ -1,7 +1,9 @@
 package com.server.domain;
 
 import org.hibernate.annotations.ColumnDefault;
-import com.server.dto.PostVisiteDTO;
+
+import com.server.dto.req.PostVisiteRequestDTO;
+import com.server.dto.res.PostVisiteResponseDTO;
 import com.server.util.entity.BaseEntity;
 
 import jakarta.persistence.*;
@@ -25,8 +27,8 @@ public class PostVisite extends BaseEntity{
     @ColumnDefault("0")
     private Long visite;
 
-    public void updateVisite(PostVisiteDTO dto){
-        visite = dto.getVisite();
+    public void updateVisite(PostVisiteRequestDTO req){
+        visite = req.getVisite();
     }
 
     public void upVisite(){

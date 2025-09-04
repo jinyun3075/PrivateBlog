@@ -1,4 +1,4 @@
-package com.server.dto;
+package com.server.dto.res;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,11 +9,10 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class MemberDTO{
-   private Long user_id;
-   private Long role_id;
-   private String role_name;
+public class PostCategoryResponseDTO{
+   private Long category_id;
    private String name;
-   private String password;
    private String reg_user;
+   private String mod_user;
+   private int sort;
 }

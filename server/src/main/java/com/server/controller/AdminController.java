@@ -7,9 +7,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.server.adapter.in.AdminPacade;
-import com.server.dto.CategoryDTO;
-import com.server.dto.PostDTO;
-import com.server.dto.PostVisiteDTO;
+import com.server.dto.req.*;
+import com.server.dto.res.*;
 
 import lombok.RequiredArgsConstructor;
 
@@ -19,18 +18,19 @@ import lombok.RequiredArgsConstructor;
 public class AdminController {
     private final AdminPacade pacade;
     
+    // 블로그 포스트
     @PostMapping("/post/insert")
-    public ResponseEntity<PostDTO> insertPost(@RequestBody PostDTO dto) {
-        return new ResponseEntity<>(pacade.createPost(dto), HttpStatus.OK);
+    public ResponseEntity<PostResponseDTO> insertPost(@RequestBody PostRequestDTO dto) {
+        return new ResponseEntity<>(pacade.insertPost(dto), HttpStatus.OK);
     }
 
     @GetMapping("/post/select/{id}")
-    public ResponseEntity<PostDTO> selectPost(@PathVariable Long post_id) {
+    public ResponseEntity<PostResponseDTO> selectPost(@PathVariable Long post_id) {
         return new ResponseEntity<>(pacade.selectPost(post_id), HttpStatus.OK);
     }
 
     @PutMapping("/post/update")
-    public ResponseEntity<PostDTO> updatePost(@RequestBody PostDTO dto) {
+    public ResponseEntity<PostResponseDTO> updatePost(@RequestBody PostRequestDTO dto) {
         return new ResponseEntity<>(pacade.updatePost(dto), HttpStatus.OK);
     }
 
@@ -40,10 +40,11 @@ public class AdminController {
     }
 
     @GetMapping("/post/select/all")
-    public ResponseEntity<List<PostDTO>> selectAllPost() {
+    public ResponseEntity<List<PostResponseDTO>> selectAllPost() {
         return new ResponseEntity<>(pacade.selectAllPost(), HttpStatus.OK);
     }
 
+    // 블로그 포스트 조회수
     @GetMapping("/view/select/all")
     public ResponseEntity<Long> selectViewAllCount() {
         return new ResponseEntity<>(pacade.selectViewAllCount(), HttpStatus.OK);
@@ -54,14 +55,28 @@ public class AdminController {
         return new ResponseEntity<>(pacade.selectAllPostView(post_id), HttpStatus.OK);
     }
 
+    //블로그 방문자수
+
     @GetMapping("/viste/select/all")
-    public ResponseEntity<List<PostVisiteDTO>> selectAllVisite() {
+    public ResponseEntity<List<PostVisiteResponseDTO>> selectAllVisite() {
         return new ResponseEntity<>(pacade.selectAllVisite(), HttpStatus.OK);
     }
 
+    // 카테고리
     @GetMapping("/category/select/{id}")
-    public ResponseEntity<CategoryDTO> selectCategory(@PathVariable Long category_id) {
+    public ResponseEntity<PostCategoryResponseDTO> selectCategory(@PathVariable Long category_id) {
         return new ResponseEntity<>(pacade.selectCategory(category_id), HttpStatus.OK);
+    }
+
+    @PostMapping("/categorys/insert")
+    public ResponseEntity<List<PostCategoryResponseDTO>> insertCategory(@RequestBody List<PostCategoryRequestDTO> reqs) {
+        return new ResponseEntity<>(pacade.createCategorys(reqs), HttpStatus.OK);
+    }
+
+    // 블로그 상태 값 저장
+    @PostMapping("/state/insert")
+    public ResponseEntity<PostStateResponseDTO> insertCategory(@RequestBody PostStateRequestDTO req) {
+        return new ResponseEntity<>(pacade.createState(req), HttpStatus.OK);
     }
     
 }

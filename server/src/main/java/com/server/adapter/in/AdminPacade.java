@@ -8,48 +8,68 @@ import com.server.adapter.in.Service.*;
 
 import lombok.RequiredArgsConstructor;
 
-import com.server.dto.CategoryDTO;
-import com.server.dto.PostContentDTO;
-import com.server.dto.PostDTO;
-import com.server.dto.PostVisiteDTO;
+import com.server.dto.req.*;
+import com.server.dto.res.*;
+import com.server.util.entity.PostStateRole;
 @RequiredArgsConstructor
 @Component
 public class AdminPacade {
     private final PostService postService;
     private final CategoryService categoryService;
     private final PostContentService postContentService;
+    private final PostContentStateService postContentStateService;
     private final PostViewService postViewService;
     private final PostVisiteService postVisiteService;
 
-    public PostDTO createPost(PostDTO postDTO) {
-        return postService.create(postDTO);
+    // 블로그 포스트
+    public PostResponseDTO insertPost(PostRequestDTO req) {
+        PostResponseDTO res = postService.create(req);
+        
+        PostCategoryResponseDTO category = categoryService.findById(req.getCategory_id());
+
+        PostViewResponseDTO view = postViewService.create(
+            PostViewRequestDTO.builder()
+                .post_id(res.getPost_id())
+                .view(0L)
+                .build()
+            );
+        PostContentResponseDTO content = postContentService.create(
+            PostContentRequestDTO.builder()
+                .post_id(res.getPost_id())
+                .content(req.getContent())
+                .state_id(req.getState_id())
+                .build()
+            );
+
+
+        res.setCategory(category);
+        res.setContent(content);
+        res.setPostView(view);
+
+        return res;
     }
 
-    public PostDTO selectPost(Long post_id) {
+    public PostResponseDTO selectPost(Long post_id) {
         return postService.findById(post_id);
     }
 
-    public List<PostDTO> selectAllPost() {
-        List<PostDTO> posts = postService
+    public List<PostResponseDTO> selectAllPost() {
+        List<PostResponseDTO> posts = postService
             .findAll()
             .stream()
-            .map((PostDTO d) ->{
-                List<PostContentDTO> contents = postContentService.findByPostId(d.getPost_id());
-                Long view = postViewService.findPostView(d.getPost_id());
-                d.setView(view);
-                d.setContents(contents);
+            .map((PostResponseDTO d) ->{
+                PostContentResponseDTO content = postContentService.findByPostIdAndStateId(d.getPost_id(), PostStateRole.RELEASED.getId());
+                PostViewResponseDTO view = postViewService.findPostView(d.getPost_id());
+                d.setContent(content);
+                d.setPostView(view);
                 return d;
             })
             .toList();
         return posts;
     }
-
-    public Long selectAllPostView(Long post_id){
-        return postViewService.findAllPostView(post_id);
-    }
-
-    public PostDTO updatePost(PostDTO postDTO) {
-        return postService.update(postDTO);
+    
+    public PostResponseDTO updatePost(PostRequestDTO req) {
+        return postService.update(req);
     }
 
     public String deletePost(Long post_id) {
@@ -57,23 +77,39 @@ public class AdminPacade {
         return "Post with ID " + post_id + " deleted successfully.";
     }
 
+    // 조회수
+    public Long selectAllPostView(Long post_id){
+        return postViewService.findAllPostView(post_id);
+    }
+
     public Long selectViewAllCount(){
         return postViewService.countAll();
     }
 
-    public List<PostVisiteDTO> selectAllVisite(){
+    // 방문자수
+    public List<PostVisiteResponseDTO> selectAllVisite(){
         return postVisiteService.findAll();
     }
 
-    public CategoryDTO createCategory(CategoryDTO categoryDTO) {
-        return categoryService.create(categoryDTO);
+    // 카테고리
+    public PostCategoryResponseDTO createCategory(PostCategoryRequestDTO req) {
+        return categoryService.create(req);
     }
 
-    public CategoryDTO selectCategory(Long category_id) {
+    public List<PostCategoryResponseDTO> createCategorys(List<PostCategoryRequestDTO> reqs) {
+        return categoryService.create(reqs);
+    }
+
+    public PostCategoryResponseDTO selectCategory(Long category_id) {
         return categoryService.findById(category_id);
     }
-
-    public List<CategoryDTO> selectAllCategories() {
+    
+    public List<PostCategoryResponseDTO> selectAllCategories() {
         return categoryService.findAll();
+    }
+
+    // 컨텐츠 상태
+    public PostStateResponseDTO createState(PostStateRequestDTO req) {
+        return postContentStateService.create(req);
     }
 }

@@ -3,7 +3,8 @@ package com.server.domain;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
-import com.server.dto.PostContentDTO;
+import com.server.dto.req.PostContentRequestDTO;
+import com.server.dto.res.PostContentResponseDTO;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -35,8 +36,8 @@ public class PostContent{
     @Column(nullable = false, length = 50000)
     private String content;
 
-    public void updateContent(PostContentDTO dto){
-        content = dto.getContent();
+    public void updateContent(PostContentRequestDTO req){
+        content = req.getContent();
     }
 }
 

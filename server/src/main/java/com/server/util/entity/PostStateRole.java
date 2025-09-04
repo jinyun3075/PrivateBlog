@@ -1,7 +1,7 @@
 package com.server.util.entity;
 
 public enum PostStateRole{
-    RELEASED(0L), TEMP(1L), WATING(2L), DELETED(3L);
+    RELEASED(1L), TEMP(2L), WATING(3L), DELETED(4L);
 
     private final long id;
     private PostStateRole(long id) {

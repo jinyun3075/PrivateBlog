@@ -1,6 +1,6 @@
 package com.server.domain;
 
-import com.server.dto.StateDTO;
+import com.server.dto.req.PostStateRequestDTO;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -22,8 +22,8 @@ public class PostContentState{
     @Column(nullable = false, length = 500)
     private String name;
 
-    public void updateState(StateDTO dto){
-        name = dto.getName();
+    public void updateState(PostStateRequestDTO req){
+        name = req.getName();
     }
 }
 

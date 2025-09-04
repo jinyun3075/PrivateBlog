@@ -8,9 +8,9 @@ import com.server.adapter.in.Service.*;
 
 import lombok.RequiredArgsConstructor;
 
-import com.server.dto.CategoryDTO;
-import com.server.dto.PostContentDTO;
-import com.server.dto.PostDTO;
+import com.server.dto.req.*;
+import com.server.dto.res.*;
+
 import com.server.util.entity.PostStateRole;
 @RequiredArgsConstructor
 @Component
@@ -21,15 +21,17 @@ public class ClientPacade {
     private final PostViewService postViewService;
     private final PostVisiteService postVisiteService;
 
-    public List<PostDTO> selectAllPost() {
-        List<PostDTO> posts = postService
+    public List<PostResponseDTO> selectAllPost() {
+        List<PostResponseDTO> posts = postService
             .findAll()
             .stream()
-            .map((PostDTO d) ->{
-                List<PostContentDTO> contents = postContentService.findByPostIdAndStateId(d.getPost_id(), PostStateRole.RELEASED.getId());
-                Long view = postViewService.findPostView(d.getPost_id());
-                d.setView(view);
-                d.setContent(contents.isEmpty() ? null : contents.get(0));
+            .map((PostResponseDTO d) ->{
+                PostContentResponseDTO content = postContentService.findByPostIdAndStateId(d.getPost_id(), PostStateRole.RELEASED.getId());
+                PostViewResponseDTO view = postViewService.findPostView(d.getPost_id());
+                PostCategoryResponseDTO category = categoryService.findById(d.getCategory().getCategory_id());
+                d.setCategory(category);
+                d.setPostView(view);
+                d.setContent(content);
                 return d;
             })
             .toList();
@@ -44,7 +46,7 @@ public class ClientPacade {
         return postVisiteService.upVisite();
     }
 
-    public List<CategoryDTO> selectAllCategories() {
+    public List<PostCategoryResponseDTO> selectAllCategories() {
         return categoryService.findAll();
     }
 }

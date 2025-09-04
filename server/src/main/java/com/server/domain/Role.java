@@ -2,7 +2,7 @@ package com.server.domain;
 
 import org.hibernate.annotations.ColumnDefault;
 
-import com.server.dto.RoleDTO;
+import com.server.dto.req.MemberRoleRequestDTO;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -28,9 +28,9 @@ public class Role{
     @ColumnDefault("false")
     private boolean useYn;
 
-    public void updateRole(RoleDTO dto){
-        action = dto.getAction();
-        useYn = dto.isUse_yn();
+    public void updateRole(MemberRoleRequestDTO req){
+        action = req.getAction();
+        useYn = req.isUse_yn();
     }
 }
 

@@ -7,8 +7,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.server.adapter.in.ClientPacade;
-import com.server.dto.CategoryDTO;
-import com.server.dto.PostDTO;
+import com.server.dto.res.PostCategoryResponseDTO;
+import com.server.dto.res.PostResponseDTO;
 
 import lombok.RequiredArgsConstructor;
 
@@ -18,13 +18,14 @@ import lombok.RequiredArgsConstructor;
 public class ClientController {
     private final ClientPacade pacade;
 
+    // 블로그 리스트 업
     @GetMapping("/post/select/all")
-    public ResponseEntity<List<PostDTO>> selectAllPosts() {
+    public ResponseEntity<List<PostResponseDTO>> selectAllPosts() {
         return new ResponseEntity<>(pacade.selectAllPost(), HttpStatus.OK);
     }
 
     @GetMapping("/category/select/all")
-    public ResponseEntity<List<CategoryDTO>> selectAllCategories() {
+    public ResponseEntity<List<PostCategoryResponseDTO>> selectAllCategories() {
         return new ResponseEntity<>(pacade.selectAllCategories(), HttpStatus.OK);
     }
 

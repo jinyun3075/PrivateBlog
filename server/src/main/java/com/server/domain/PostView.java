@@ -4,7 +4,7 @@ import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
-import com.server.dto.PostViewDTO;
+import com.server.dto.req.PostViewRequestDTO;
 import com.server.util.entity.BaseEntity;
 
 import jakarta.persistence.*;
@@ -33,7 +33,7 @@ public class PostView extends BaseEntity{
     @ColumnDefault("0")
     private Long view;
 
-    public void updateView(PostViewDTO dto){
+    public void updateView(PostViewRequestDTO dto){
         view = dto.getView();
     }
 

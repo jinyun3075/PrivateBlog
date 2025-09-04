@@ -4,7 +4,7 @@ import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
-import com.server.dto.PostDTO;
+import com.server.dto.req.PostRequestDTO;
 import com.server.util.entity.BaseEntity;
 
 import jakarta.persistence.*;
@@ -45,7 +45,7 @@ public class Post extends BaseEntity{
     @Column(nullable = false, length = 500, name = "reg_user")
     private String regUser;
 
-    public void updatePost(PostDTO dto, Category category){
+    public void updatePost(PostRequestDTO dto, Category category){
         title = dto.getTitle();
         thumbnail = dto.getThumbnail();
         mainSort = dto.getMain_sort();

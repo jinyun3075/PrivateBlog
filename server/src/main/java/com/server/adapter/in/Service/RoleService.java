@@ -5,26 +5,27 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import com.server.port.in.BaseService;
 import com.server.domain.Role;
-import com.server.dto.RoleDTO;
+import com.server.dto.req.MemberRoleRequestDTO;
+import com.server.dto.res.MemberRoleResponseDTO;
 import com.server.port.out.repository.RoleRepository;
 
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class RoleService implements BaseService<RoleDTO, Role> {
+public class RoleService implements BaseService<MemberRoleRequestDTO, MemberRoleResponseDTO, Role> {
     private final RoleRepository roleRepository;
 
     @Override
-    public RoleDTO create(RoleDTO entity) {
-        Role domain = entityToDomain(entity);
+    public MemberRoleResponseDTO create(MemberRoleRequestDTO req) {
+        Role domain = entityToDomain(req);
         return domainToEntity(roleRepository.save(domain));
     }
 
     @Override
-    public RoleDTO update(RoleDTO entity) {
-        Role domain = roleRepository.findById(entity.getRole_id()).orElse(null);
-        domain.updateRole(entity);
+    public MemberRoleResponseDTO update(MemberRoleRequestDTO req) {
+        Role domain = roleRepository.findById(req.getRole_id()).orElse(null);
+        domain.updateRole(req);
         return domainToEntity(roleRepository.save(domain));
     }
 
@@ -34,14 +35,14 @@ public class RoleService implements BaseService<RoleDTO, Role> {
     }
 
     @Override
-    public RoleDTO findById(Long id) {
+    public MemberRoleResponseDTO findById(Long id) {
         return roleRepository.findById(id)
                 .map(this::domainToEntity)
                 .orElse(null);
     }
 
     @Override
-    public List<RoleDTO> findAll() {
+    public List<MemberRoleResponseDTO> findAll() {
         return roleRepository.findAll()
                 .stream()
                 .map(this::domainToEntity)
@@ -49,17 +50,17 @@ public class RoleService implements BaseService<RoleDTO, Role> {
     }
 
     @Override
-    public Role entityToDomain(RoleDTO entity) {
+    public Role entityToDomain(MemberRoleRequestDTO req) {
         return Role.builder()
-                .roleId(entity.getRole_id())
-                .action(entity.getAction())
-                .useYn(entity.isUse_yn())
+                .roleId(req.getRole_id())
+                .action(req.getAction())
+                .useYn(req.isUse_yn())
                 .build();
     }
 
     @Override
-    public RoleDTO domainToEntity(Role domain) {
-        return RoleDTO.builder()
+    public MemberRoleResponseDTO domainToEntity(Role domain) {
+        return MemberRoleResponseDTO.builder()
                 .role_id(domain.getRoleId())
                 .action(domain.getAction())
                 .use_yn(domain.isUseYn())

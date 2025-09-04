@@ -2,12 +2,12 @@ package com.server.port.in;
 
 import java.util.List;
 
-public interface BaseService<Entity, Domain> {
-    Entity create(Entity entity);
-    Entity update(Entity entity);
+public interface BaseService<req, res, Domain> {
+    res create(req entity);
+    res update(req entity);
     void delete(Long id);
-    Entity findById(Long id);
-    List<Entity> findAll();
-    Domain entityToDomain(Entity entity);
-    Entity domainToEntity(Domain domain);
+    res findById(Long id);
+    List<res> findAll();
+    Domain entityToDomain(req entity);
+    res domainToEntity(Domain domain);
 }

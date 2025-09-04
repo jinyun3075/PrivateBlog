@@ -1,4 +1,4 @@
-package com.server.dto;
+package com.server.dto.req;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,7 +9,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class StateDTO{
-   private Long state_id;
-   private String name;
+public class PostViewRequestDTO {
+   private long view_id;
+   private long post_id;
+   private long view;
 }

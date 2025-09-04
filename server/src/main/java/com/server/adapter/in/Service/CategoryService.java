@@ -6,23 +6,36 @@ import org.springframework.stereotype.Service;
 import com.server.port.in.BaseService;
 import com.server.port.out.repository.CategoryRepository;
 import com.server.domain.Category;
-import com.server.dto.CategoryDTO;
+import com.server.dto.req.PostCategoryRequestDTO;
+import com.server.dto.res.PostCategoryResponseDTO;
 
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class CategoryService implements BaseService<CategoryDTO, Category> {
+public class CategoryService implements BaseService<PostCategoryRequestDTO ,PostCategoryResponseDTO, Category> {
     private final CategoryRepository categoryRepository;
 
     @Override
-    public CategoryDTO create(CategoryDTO entity) {
-        Category domain = entityToDomain(entity);
+    public PostCategoryResponseDTO create(PostCategoryRequestDTO req) {
+        Category domain = entityToDomain(req);
         return domainToEntity(categoryRepository.save(domain));
     }
 
+    public List<PostCategoryResponseDTO> create(List<PostCategoryRequestDTO> reqs) {
+        List<Category> domains = reqs
+            .stream()
+            .map(this::entityToDomain)
+            .toList();
+        
+        return categoryRepository.saveAll(domains)
+            .stream()
+            .map(this::domainToEntity)
+            .toList();
+    }
+
     @Override
-    public CategoryDTO update(CategoryDTO entity) {
+    public PostCategoryResponseDTO update(PostCategoryRequestDTO entity) {
         Category domain = categoryRepository
             .findById(entity.getCategory_id())
             .orElse(null);
@@ -38,14 +51,14 @@ public class CategoryService implements BaseService<CategoryDTO, Category> {
     }
 
     @Override
-    public CategoryDTO findById(Long id) {
+    public PostCategoryResponseDTO findById(Long id) {
         return categoryRepository.findById(id)
                 .map(this::domainToEntity)
                 .orElse(null);
     }
 
     @Override
-    public List<CategoryDTO> findAll() {
+    public List<PostCategoryResponseDTO> findAll() {
         return categoryRepository.findAll()
                 .stream()
                 .map(this::domainToEntity)
@@ -53,21 +66,23 @@ public class CategoryService implements BaseService<CategoryDTO, Category> {
     }
 
     @Override
-    public Category entityToDomain(CategoryDTO entity) {
+    public Category entityToDomain(PostCategoryRequestDTO req) {
         return Category.builder()
-                .name(entity.getName())
-                .regUser(entity.getReg_user())
-                .modUser(entity.getMod_user())
+                .regUser(req.getReg_user())
+                .modUser(req.getMod_user())
+                .sort(req.getSort())
+                .name(req.getName())
                 .build();
     }
 
     @Override
-    public CategoryDTO domainToEntity(Category domain) {
-        return CategoryDTO.builder()
+    public PostCategoryResponseDTO domainToEntity(Category domain) {
+        return PostCategoryResponseDTO.builder()
                 .category_id(domain.getCategoryId())
                 .name(domain.getName())
                 .reg_user(domain.getRegUser())
                 .mod_user(domain.getModUser())
+                .sort(domain.getSort())
                 .build();
     }
 }
