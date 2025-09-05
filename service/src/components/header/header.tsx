@@ -1,30 +1,21 @@
-import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
+import SearchBar from "../searchBar/searchBar";
+import { MainArea } from "../../common/style";
 
-
-
-interface HeaderProps {
-  searchKeyword:string;
-  setSearchKeyword:(value:string)=>void;
-}
-const Header = ({searchKeyword,setSearchKeyword}:HeaderProps) => {
-
-
-  const onChange = (e:React.ChangeEvent<HTMLInputElement>) => {
-    setSearchKeyword(e.target.value)
-  }
-
+const Header = () => {
 
   return (
     <Container>
       <Main>
 
         <Link to ="/">
-          <Logo src="/img/스케일jpg"/>
+          <Logo src="/img/mainLogo.png"/>
         </Link>
 
-        <SearchBar placeholder ="검색어를 입력하세요." value = {searchKeyword} onChange={onChange}/>
+        <SearchBar 
+          placeholder ="검색어를 입력하세요." 
+        />
       </Main>
     </Container>
   );
@@ -33,26 +24,23 @@ const Header = ({searchKeyword,setSearchKeyword}:HeaderProps) => {
 
 const Container = styled.header`
   width: 100%;
-  height: 100%;
+  height: 76px;
+  background-color: #FFFFFF;
+  z-index: 1000;
 `
 
-const Main = styled.div`
+const Main = styled(MainArea)`
   display: flex;
   align-items: center;
   justify-content: space-between;
   margin:0 auto;
-  width: 1280px;
   height:100%;
 `
 
 const Logo = styled.img`
-  width: 100px;
-  height: 40px;
+  width: 151px;
+  height: 36px;
   cursor: pointer;
-`
-
-const SearchBar = styled.input`
-  
 `
 
 

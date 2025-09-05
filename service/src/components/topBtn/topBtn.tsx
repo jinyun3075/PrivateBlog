@@ -23,7 +23,7 @@ const TopBtn = () => {
     <>
       {  isVisible &&  
         <Container onClick={scrollToTop}>
-          <img src="img/스케일.jpg" alt="Scroll to top" />
+          <img src="/img/topButton.png" alt="Scroll to top" />
         </Container>
       }
     </>
@@ -31,18 +31,17 @@ const TopBtn = () => {
 
 };
 
-const Container = styled.button`
+const Container = styled.button` 
   position: fixed;
-  bottom: 40px;
-  right: 30px;
-  width: 50px;
-  height: 50px;
+  bottom: 210px;
+  right: calc(50% - 625px);
+
   cursor: pointer;
   z-index: 1000;
 
   img {
-    width: 100%;
-    height: 100%;
+    width: 50px;
+    height: 50px;
   }
 `;
 

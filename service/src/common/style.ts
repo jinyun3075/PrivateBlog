@@ -50,6 +50,7 @@ export const GlobalContainer = styled.section`
 
 
 export const MainArea = styled.div`
-  width: 1280px;
+  width: 1200px;
   margin:0 auto;
+  position: relative;
 `
