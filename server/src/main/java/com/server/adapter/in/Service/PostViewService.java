@@ -59,12 +59,12 @@ public class PostViewService implements BaseService<PostViewRequestDTO, PostView
                 .sum();
     }
 
-    public PostViewResponseDTO findPostView(Long post_id){
+    public PostViewResponseDTO findPostView(String post_id){
         PostView domain = postViewRepository.findTopByPost_PostIdOrderByRegDateDesc(post_id);
         return domainToEntity(domain);
     }
 
-    public Long findAllPostView(Long post_id){
+    public Long findAllPostView(String post_id){
         return postViewRepository
             .findByPost_PostId(post_id)
             .stream()

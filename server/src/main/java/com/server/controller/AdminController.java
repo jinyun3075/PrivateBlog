@@ -35,7 +35,7 @@ public class AdminController {
     }
 
     @DeleteMapping("/post/delete/{id}")
-    public ResponseEntity<String> deletePost(@PathVariable Long post_id) {
+    public ResponseEntity<String> deletePost(@PathVariable String post_id) {
         return new ResponseEntity<>(pacade.deletePost(post_id), HttpStatus.OK);
     }
 
@@ -51,7 +51,7 @@ public class AdminController {
     }
 
     @GetMapping("/view/select/{id}")
-    public ResponseEntity<Long> selectAllPostView(@PathVariable Long post_id) {
+    public ResponseEntity<Long> selectAllPostView(@PathVariable String post_id) {
         return new ResponseEntity<>(pacade.selectAllPostView(post_id), HttpStatus.OK);
     }
 
@@ -89,5 +89,4 @@ public class AdminController {
     public ResponseEntity<MemberRoleResponseDTO> insertRole(@RequestBody MemberRoleRequestDTO req) {
         return new ResponseEntity<>(pacade.insertRole(req), HttpStatus.OK);
     }
-    
 }

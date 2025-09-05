@@ -1,6 +1,9 @@
 package com.server.adapter.in.Service;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 import com.server.port.in.BaseService;
@@ -38,11 +41,19 @@ public class PostService implements BaseService<PostRequestDTO, PostResponseDTO,
 
     @Override
     public void delete(Long id) {
+        return;
+    }
+
+    public void delete(String id) {
         postRepository.deleteById(id);
     }
 
     @Override
     public PostResponseDTO findById(Long id) {
+        return null;
+    }
+
+    public PostResponseDTO findById(String id) {
         return postRepository.findById(id)
                 .map(this::domainToEntity)
                 .orElse(null);
@@ -60,7 +71,13 @@ public class PostService implements BaseService<PostRequestDTO, PostResponseDTO,
     public Post entityToDomain(PostRequestDTO req) {
         Category category = categoryRepository.findById(req.getCategory_id()).orElse(null);
         
+        LocalDateTime  now = LocalDateTime .now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyMMddHHmmss");
+        String formattedDate = now.format(formatter);
+        String postId = formattedDate + "_" + UUID.randomUUID().toString().substring(0,8);
+
         return Post.builder()
+                .postId(postId)
                 .regUser(req.getReg_user())
                 .title(req.getTitle())
                 .category(category)

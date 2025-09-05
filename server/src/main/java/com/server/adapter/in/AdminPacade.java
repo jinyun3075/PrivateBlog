@@ -75,13 +75,13 @@ public class AdminPacade {
         return postService.update(req);
     }
 
-    public String deletePost(Long post_id) {
+    public String deletePost(String post_id) {
         postService.delete(post_id);
         return "Post with ID " + post_id + " deleted successfully.";
     }
 
     // 조회수
-    public Long selectAllPostView(Long post_id){
+    public Long selectAllPostView(String post_id){
         return postViewService.findAllPostView(post_id);
     }
 

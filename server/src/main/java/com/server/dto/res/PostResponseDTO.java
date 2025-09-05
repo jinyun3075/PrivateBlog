@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PostResponseDTO {
-   private long post_id;
+   private String post_id;
    private PostCategoryResponseDTO category;
    private PostContentResponseDTO content;   
    private PostViewResponseDTO postView;

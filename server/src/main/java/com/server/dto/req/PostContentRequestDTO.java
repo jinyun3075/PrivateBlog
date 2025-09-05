@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class PostContentRequestDTO {
    private long content_id;
-   private long post_id;
+   private String post_id;
    private long state_id;
    private String content;
 }

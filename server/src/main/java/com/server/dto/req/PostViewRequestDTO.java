@@ -11,6 +11,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class PostViewRequestDTO {
    private long view_id;
-   private long post_id;
+   private String post_id;
    private long view;
 }

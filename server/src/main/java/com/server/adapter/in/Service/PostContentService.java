@@ -56,12 +56,12 @@ public class PostContentService implements BaseService<PostContentRequestDTO, Po
                 .toList();
     }
 
-    public PostContentResponseDTO findByPostIdAndStateId(Long postId, Long stateId) {
+    public PostContentResponseDTO findByPostIdAndStateId(String postId, Long stateId) {
         return domainToEntity(postContentRepository.findByPost_PostIdAndState_StateId(postId, stateId));
                 
     }
 
-    public List<PostContentResponseDTO> findByPostId(Long postId) {
+    public List<PostContentResponseDTO> findByPostId(String postId) {
         return postContentRepository.findByPost_PostId(postId)
                 .stream()
                 .map(this::domainToEntity)

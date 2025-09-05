@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PostRequestDTO {
-   private Long post_id;
+   private String post_id;
    private Long category_id;
    private Long state_id;
    private String reg_user;

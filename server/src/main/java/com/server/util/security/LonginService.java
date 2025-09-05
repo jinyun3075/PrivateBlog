@@ -8,7 +8,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import com.server.domain.Member;
-import com.server.dto.res.MemberResponseDTO;
 import com.server.port.out.repository.MemberRepository;
 import com.server.util.entity.UserRole;
 
