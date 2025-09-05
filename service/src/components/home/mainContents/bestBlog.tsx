@@ -1,12 +1,18 @@
 import styled from "styled-components"
 
-const BestBlog = () => {
+type BestBlogProps = {
+  ranking: number;
+  title: string;
+  author: string;
+}
+
+const BestBlog = ({ ranking, title, author }: BestBlogProps) => {
   return(
     <Container>
-      <Ranking>1</Ranking>
+      <Ranking>{ranking}</Ranking>
       <Info>
-        <Title>React 훅 완벽 가이드: useState, useEffect 등 주요 훅 사용법 정리 들어갑니다.</Title>
-        <Author>최성사</Author>
+        <Title>{title}</Title>
+        <Author>{author}</Author>
       </Info>
     </Container>
   )

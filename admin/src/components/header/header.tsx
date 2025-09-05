@@ -37,7 +37,7 @@ const Container = styled.header`
   height: 76px;
   background-color: #FFFFFF;
   padding: 20px 0 20px 64px;
-  z-index: 100;
+  z-index: 1000;
 `
 const ToggleButton = styled.img`
   width: 28px;

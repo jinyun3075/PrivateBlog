@@ -1,34 +1,37 @@
 import styled from "styled-components";
 import { MainArea } from "../common/style";
 import { useParams } from "react-router-dom";
-import { DummyData, DummyDataType } from "../mockData/blogDummy";
 import PostNavigation from "../components/postNavigation/postNavigation";
+import { PostType } from "../common/type";
+import { useMemo } from "react";
+import { usePosts } from "../hooks/usePosts";
+import { formatDate } from "../common/date";
 
 const Detail = () => {
 
   const {id:blogId} = useParams();
-  const post = DummyData.find((item:DummyDataType) =>item.id === Number(blogId));
-  console.log(post);
-  
-  if(!post) return
+  const { data: posts = [] } = usePosts();
+  const post = useMemo(() => posts.find((item:PostType) => item.post_id === Number(blogId)), [posts, blogId]);
+
+  if(!post) return null
   return (
     <Container>
       <MainArea>
-        <Thumbnail src = {`/img/${post?.imgSrc}`}/>
-        <Category>{post.category}</Category>
-        <Title>{post.category}</Title>
+        <Thumbnail src = {`/img/${post?.thumbnail}`}/>
+        <Category>{post.category.name}</Category>
+        <Title>{post.title}</Title>
         <Etc>
-          <span>{post.createdDate}</span>
+          <span>{formatDate(post.regDate)}</span>
           <span>|</span>
-          <span>{post.author}</span>
+          <span>{post.reg_user}</span>
           <span>|</span>
           <ViewWrapper>
             <ViewIcon src="/img/icon_view.png"/>
-            <span>{post.viewer}</span>
+            <span>{post.postView.view}</span>
           </ViewWrapper>
         </Etc>     
 
-        <Desc>{post.desc}</Desc>
+        <Desc>{post.content.content}</Desc>
 
 
 
@@ -64,8 +67,10 @@ const Container = styled.div`
 const Thumbnail = styled.img`
   margin-top: 80px;
   width: 100%;
-  height: 406px;
+  height: 580px;
   border-radius: 16px;
+  object-fit: cover;
+  object-position: center;
 `
 
 const Category = styled.p`

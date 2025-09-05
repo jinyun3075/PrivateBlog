@@ -1,4 +1,5 @@
 import styled from "styled-components"
+import { formatDate } from "../../../common/date"
 
 interface BlogProps {
   category:string;
@@ -18,7 +19,7 @@ const Blog = ({category,title,desc,createdDate,author,viewer,imgSrc,textWrapperW
         <Title>{title}</Title>
         <Desc>{desc}</Desc>
         <Etc>
-          <span>{createdDate}</span>
+          <span>{formatDate(createdDate)}</span>
           <span>|</span>
           <span>{author}</span>
           <span>|</span>

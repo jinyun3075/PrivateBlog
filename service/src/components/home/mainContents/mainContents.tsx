@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useOutletContext } from "react-router-dom";
 import styled from "styled-components"
 import Category from "./category";
@@ -6,65 +6,74 @@ import Blog from "./blog";
 import axios from 'axios';
 import usePagination from "../../../hooks/usePagination";
 import BestBlog from "./bestBlog";
-import { DummyData, DummyDataType } from "../../../mockData/blogDummy";
 import Pagination from "../../pagination/pagination";
-
-const categories = ["전체","개발","데이터/ML","프로덕트","해커톤","박람회"];
-
+import { CategoryType, PostType } from "../../../common/type";
+import { usePosts } from "../../../hooks/usePosts";
 
 const MainContents = () => {
 
-  const [currentCategory,setCurrentCategory] = useState("전체");
-  const [data,setData] = useState<DummyDataType[]>(DummyData);
-  const [loading,setLoading] = useState(false);
-  const {currentPage,totalPages,currentPosts,goToPage} = usePagination(data, 10)
+  const [currentCategory,setCurrentCategory] = useState<string>("전체");
+  const [category,setCategory] = useState<CategoryType[]>([]);
+  const [loading,setLoading] = useState<boolean>(false);
+  const { data = [] } = usePosts();
   
-  // const getData = async() => {
-  //   setLoading(true);
-  //   const res = await axios.get('https://jsonplaceholder.typicode.com/posts');
-  //   setData(res.data);
-  //   setLoading(false);
-  // }
-  
-  // useEffect(()=>{
-  //   getData();
-  // },[])
-
-
-  useEffect(() => {
-    let filteredData: DummyDataType[] = DummyData;
-    if (currentCategory !== "전체") {
-      filteredData = filteredData.filter((post) => post.category === currentCategory);
+  const getCategory = async() => {
+    setLoading(true);
+    try{
+      const res = await axios.get(`${process.env.REACT_APP_BACKEND_HOST}/api/client/category/select/all`);
+      console.log(res.data);
+      setCategory([{ category_id: 0, name: "전체" } as CategoryType, ...res.data]);
+    }catch(e){
+      console.log(e);
+    }finally{
+      setLoading(false);
     }
-    setData(filteredData);
+  }
 
-  }, [currentCategory]); 
+  
+  const filteredData = useMemo<PostType[]>(
+    () => currentCategory === "전체"
+      ? data
+      : data.filter((post: PostType) => post.category.name === currentCategory),
+    [currentCategory, data]
+  );
 
+  const {currentPage,totalPages,currentPosts,goToPage} = usePagination(filteredData, 10)
+
+  const getTopPosts = () => {
+    return [...data]
+      .sort((a: PostType, b: PostType) => (b.postView?.view ?? 0) - (a.postView?.view ?? 0))
+      .slice(0, 5);
+  };
+
+  useEffect(()=>{
+    getCategory();
+  },[])
 
   return(
     <Container>
 
       <BlogListWrapper>
         <CategoryWrapper>
-          {categories.map(category => 
+          {category.map((category: CategoryType) => 
             <Category 
-              key = {category}
-              category={category} 
+              key = {category.category_id}
+              category={category.name} 
               currentCategory = {currentCategory}
               setCurrentCategory={setCurrentCategory}
             />)}     
         </CategoryWrapper>
 
         <BlogList>
-          {currentPosts.map((post:DummyDataType) => <Link to ={`/detail/${post.id}`} key={post.id} >
+          {currentPosts.map((post:PostType) => <Link to ={`/detail/${post.post_id}`} key={post.post_id} >
             <Blog 
-              category={post.category}
+              category={post.category.name}
               title = {post.title}
-              desc = {post.desc}
-              createdDate = {post.createdDate}
-              author = {post.author}
-              viewer = {post.viewer}
-              imgSrc = {post.imgSrc}
+              desc = {post.content.content}
+              createdDate = {post.regDate}
+              author = {post.reg_user}
+              viewer = {post.postView.view}
+              imgSrc = {post.thumbnail}
               textWrapperWith={600}
             />
           </Link>
@@ -85,11 +94,15 @@ const MainContents = () => {
           <img src="/img/icon_fire.png" />
           <p>인기 게시글 <span>TOP 5</span></p>
         </BestBlogHeader>
-        <BestBlog />
-        <BestBlog />
-        <BestBlog />
-        <BestBlog />
-        <BestBlog />
+        
+        {getTopPosts().map((post: PostType, idx: number) => (
+          <BestBlog 
+            key={post.post_id}
+            ranking={idx + 1}
+            title={post.title}
+            author={post.reg_user}
+          />
+        ))}
       </BestBlogArea>
       
     </Container>

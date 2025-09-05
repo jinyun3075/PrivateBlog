@@ -1,13 +1,23 @@
 import styled from "styled-components"
+import { formatDate } from "../../../common/date"
 
-const HeadlineItem = () => {
+type HeadlineItemProps = {
+  thumbnail: string;
+  category: string;
+  title: string;
+  desc: string;
+  createdDate: string;
+  author: string;
+}
+
+const HeadlineItem = ({ thumbnail, category, title, desc, createdDate, author }: HeadlineItemProps) => {
   return(
     <Container>
-      <Thumbnail src="/img/headlineThumbnail.png"/>
-      <Category>데이터/ML</Category>
-      <Title>다양한 ML 모델을 만드는 법: FeatureKit</Title>
-      <Desc>머신러닝 모델을 만들 때 가장 큰 고민은 ‘데이터 전처리’와 ‘특징 추출’이에요. FeatureKit은 이런 과정을 간단하게 도와줘요.</Desc>
-      <Etc> 2025.08.28 | 최성삼</Etc>
+      <Thumbnail src={thumbnail} />
+      <Category>{category}</Category>
+      <Title>{title}</Title>
+      <Desc>{desc}</Desc>
+      <Etc> {formatDate(createdDate)} | {author}</Etc>
     </Container>
   )
 }
@@ -41,6 +51,12 @@ const Title = styled.p`
   letter-spacing: -0.024em;
   line-height: 1.4;
   color:#1E1E1E;
+  
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
 `
 const Desc = styled.p`
   margin-top: 10px;
