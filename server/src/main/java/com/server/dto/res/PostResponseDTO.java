@@ -1,4 +1,4 @@
-package com.server.dto;
+package com.server.dto.res;
 
 import java.time.LocalDateTime;
 
@@ -11,9 +11,11 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class PostDTO {
-   private long post_id;
-   private long category_id;
+public class PostResponseDTO {
+   private String post_id;
+   private PostCategoryResponseDTO category;
+   private PostContentResponseDTO content;   
+   private PostViewResponseDTO postView;
    private String title;
    private String thumbnail;
    private int main_sort;

@@ -6,29 +6,34 @@ import org.springframework.stereotype.Service;
 import com.server.port.in.BaseService;
 import com.server.domain.Member;
 import com.server.domain.Role;
-import com.server.dto.MemberDTO;
+import com.server.dto.req.MemberRequestDTO;
+import com.server.dto.res.MemberResponseDTO;
 import com.server.port.out.repository.MemberRepository;
 import com.server.port.out.repository.RoleRepository;
+import com.server.util.BCryptModule;
 
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class MemberService implements BaseService<MemberDTO, Member> {
+public class MemberService implements BaseService<MemberRequestDTO, MemberResponseDTO, Member> {
     private final MemberRepository memberRepository;
     private final RoleRepository roleRepository;
+    
+    private final BCryptModule bCryptModule;
 
     @Override
-    public MemberDTO create(MemberDTO entity) {
-        Member domain = entityToDomain(entity);
+    public MemberResponseDTO create(MemberRequestDTO req) {
+        req.setPassword(bCryptModule.encodePw(req.getPassword()));
+        Member domain = entityToDomain(req);
         return domainToEntity(memberRepository.save(domain));
     }
 
     @Override
-    public MemberDTO update(MemberDTO entity) {
-        Member domain = memberRepository.findById(entity.getUser_id()).orElse(null);
-        Role role = roleRepository.findById(entity.getRole_id()).orElse(null);
-        domain.updateMember(entity, role);
+    public MemberResponseDTO update(MemberRequestDTO req) {
+        Member domain = memberRepository.findById(req.getUser_id()).orElse(null);
+        Role role = roleRepository.findById(req.getRole_id()).orElse(null);
+        domain.updateMember(req, role);
         return domainToEntity(memberRepository.save(domain));
     }
 
@@ -38,14 +43,14 @@ public class MemberService implements BaseService<MemberDTO, Member> {
     }
 
     @Override
-    public MemberDTO findById(Long id) {
+    public MemberResponseDTO findById(Long id) {
         return memberRepository.findById(id)
                 .map(this::domainToEntity)
                 .orElse(null);
     }
 
     @Override
-    public List<MemberDTO> findAll() {
+    public List<MemberResponseDTO> findAll() {
         return memberRepository.findAll()
                 .stream()
                 .map(this::domainToEntity)
@@ -53,26 +58,25 @@ public class MemberService implements BaseService<MemberDTO, Member> {
     }
 
     @Override
-    public Member entityToDomain(MemberDTO entity) {
-        Role role = roleRepository.findById(entity.getRole_id()).orElse(null);
+    public Member entityToDomain(MemberRequestDTO req) {
+        Role role = roleRepository.findById(req.getRole_id()).orElse(null);
         return Member.builder()
-                .user_id(entity.getUser_id())
                 .role(role)
-                .name(entity.getName())
-                .password(entity.getPassword())
-                .reg_user(entity.getReg_user())
+                .name(req.getName())
+                .password(req.getPassword())
+                .regUser(req.getReg_user())
                 .build();
     }
 
     @Override
-    public MemberDTO domainToEntity(Member domain) {
-        return MemberDTO.builder()
-                .user_id(domain.getUser_id())
-                .role_id(domain.getRole().getRole_id())
-                .role_name(domain.getRole().getAction())
+    public MemberResponseDTO domainToEntity(Member domain) {
+        return MemberResponseDTO.builder()
+                .user_id(domain.getUserId())
+                .role_id(domain.getRole().getRoleId())
+                .role_action(domain.getRole().getAction())
                 .name(domain.getName())
                 .password(domain.getPassword())
-                .reg_user(domain.getReg_user())
+                .reg_user(domain.getRegUser())
                 .build();
     }
 }

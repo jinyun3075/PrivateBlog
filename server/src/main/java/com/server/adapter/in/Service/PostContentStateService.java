@@ -5,26 +5,27 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import com.server.port.in.BaseService;
 import com.server.domain.PostContentState;
-import com.server.dto.StateDTO;
+import com.server.dto.req.PostStateRequestDTO;
+import com.server.dto.res.PostStateResponseDTO;
 import com.server.port.out.repository.PostContentStateRepository;
 
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class PostContentStateService implements BaseService<StateDTO, PostContentState> {
+public class PostContentStateService implements BaseService<PostStateRequestDTO, PostStateResponseDTO, PostContentState> {
     private final PostContentStateRepository postContentStateRepository;
 
     @Override
-    public StateDTO create(StateDTO entity) {
-        PostContentState domain = entityToDomain(entity);
+    public PostStateResponseDTO create(PostStateRequestDTO req) {
+        PostContentState domain = entityToDomain(req);
         return domainToEntity(postContentStateRepository.save(domain));
     }
 
     @Override
-    public StateDTO update(StateDTO entity) {
-        PostContentState domain = postContentStateRepository.findById(entity.getState_id()).orElse(null);
-        domain.updateState(entity);
+    public PostStateResponseDTO update(PostStateRequestDTO req) {
+        PostContentState domain = postContentStateRepository.findById(req.getState_id()).orElse(null);
+        domain.updateState(req);
         return domainToEntity(postContentStateRepository.save(domain));
     }
 
@@ -34,14 +35,14 @@ public class PostContentStateService implements BaseService<StateDTO, PostConten
     }
 
     @Override
-    public StateDTO findById(Long id) {
+    public PostStateResponseDTO findById(Long id) {
         return postContentStateRepository.findById(id)
                 .map(this::domainToEntity)
                 .orElse(null);
     }
 
     @Override
-    public List<StateDTO> findAll() {
+    public List<PostStateResponseDTO> findAll() {
         return postContentStateRepository.findAll()
                 .stream()
                 .map(this::domainToEntity)
@@ -49,17 +50,16 @@ public class PostContentStateService implements BaseService<StateDTO, PostConten
     }
 
     @Override
-    public PostContentState entityToDomain(StateDTO entity) {
+    public PostContentState entityToDomain(PostStateRequestDTO req) {
         return PostContentState.builder()
-                .state_id(entity.getState_id())
-                .name(entity.getName())
+                .name(req.getName())
                 .build();
     }
 
     @Override
-    public StateDTO domainToEntity(PostContentState domain) {
-        return StateDTO.builder()
-                .state_id(domain.getState_id())
+    public PostStateResponseDTO domainToEntity(PostContentState domain) {
+        return PostStateResponseDTO.builder()
+                .state_id(domain.getStateId())
                 .name(domain.getName())
                 .build();
     }

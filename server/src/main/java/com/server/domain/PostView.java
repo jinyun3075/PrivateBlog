@@ -4,7 +4,8 @@ import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
-import com.server.dto.PostViewDTO;
+import com.server.dto.req.PostViewRequestDTO;
+import com.server.util.entity.BaseEntity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -17,26 +18,27 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class PostView{
+public class PostView extends BaseEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long view_id;
+    @Column(name = "view_id")
+    private Long viewId;
 
     @ManyToOne
     @OnDelete(action = OnDeleteAction.CASCADE)
+    @JoinColumn(name = "post_id", nullable = false)
     private Post post;
 
     @Column(nullable = false)
     @ColumnDefault("0")
     private Long view;
 
-    @Column(nullable = false)
-    @ColumnDefault("0")
-    private Long visite;
-
-    public void updateViewAndVisite(PostViewDTO dto){
+    public void updateView(PostViewRequestDTO dto){
         view = dto.getView();
-        visite = dto.getVisite();
+    }
+
+    public void upView(){
+        this.view += 1;
     }
 }
 

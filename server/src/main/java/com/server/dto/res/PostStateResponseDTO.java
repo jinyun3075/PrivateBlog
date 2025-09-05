@@ -1,4 +1,4 @@
-package com.server.dto;
+package com.server.dto.res;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,8 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class RoleDTO{
-   private Long role_id;
-   private String action;
-   private boolean use_yn;
+public class PostStateResponseDTO{
+   private Long state_id;
+   private String name;
 }

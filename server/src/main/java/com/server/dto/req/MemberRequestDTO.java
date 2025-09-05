@@ -1,4 +1,4 @@
-package com.server.dto;
+package com.server.dto.req;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,7 +9,10 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class StateDTO{
-   private Long state_id;
+public class MemberRequestDTO{
+   private Long user_id;
+   private Long role_id;
    private String name;
+   private String password;
+   private String reg_user;
 }

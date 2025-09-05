@@ -3,7 +3,8 @@ package com.server.domain;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
-import com.server.dto.PostContentDTO;
+import com.server.dto.req.PostContentRequestDTO;
+import com.server.dto.res.PostContentResponseDTO;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -19,21 +20,24 @@ import lombok.NoArgsConstructor;
 public class PostContent{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long content_id;
+    @Column(name = "content_id")
+    private Long contentId;
 
     @ManyToOne
+    @JoinColumn(name = "post_id", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Post post;
 
     @ManyToOne
+    @JoinColumn(name = "state_id", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private PostContentState state;
 
     @Column(nullable = false, length = 50000)
     private String content;
 
-    public void updateContent(PostContentDTO dto){
-        content = dto.getContent();
+    public void updateContent(PostContentRequestDTO req){
+        content = req.getContent();
     }
 }
 

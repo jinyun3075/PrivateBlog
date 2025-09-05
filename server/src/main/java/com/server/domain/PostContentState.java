@@ -1,6 +1,6 @@
 package com.server.domain;
 
-import com.server.dto.StateDTO;
+import com.server.dto.req.PostStateRequestDTO;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -16,13 +16,14 @@ import lombok.NoArgsConstructor;
 public class PostContentState{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long state_id;
+    @Column(name = "state_id")
+    private Long stateId;
 
     @Column(nullable = false, length = 500)
     private String name;
 
-    public void updateState(StateDTO dto){
-        name = dto.getName();
+    public void updateState(PostStateRequestDTO req){
+        name = req.getName();
     }
 }
 

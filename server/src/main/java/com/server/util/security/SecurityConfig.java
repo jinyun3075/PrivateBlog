@@ -6,10 +6,15 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
+    @Bean
+    public JWTUtil jwtUtil(){
+        return new JWTUtil();
+    }
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
@@ -18,21 +23,26 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http, AuthenticationManager authManager) throws Exception {
+        ApiLoginFilter loginFilter = new ApiLoginFilter(authManager, jwtUtil());
+        ApiCheckFilter checkFilter = new ApiCheckFilter(jwtUtil());
+        loginFilter.setAuthenticationFailureHandler(new ApiLoginFailHandler());
+        
         http
             .csrf(csrf -> csrf.disable())
             .cors(cors -> {})
             .authorizeHttpRequests(auth -> 
                     auth
                     .anyRequest().permitAll()
-            );
+            )
+            .addFilterBefore(checkFilter, UsernamePasswordAuthenticationFilter.class)
+            .addFilterAt(loginFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
 
     private String[] checkUrl() {
         String[] arr = {
-            "/api/post/*"
-            ,"/api"
+            "/api/admin/**"
         };        
         return arr;
     }
