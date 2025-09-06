@@ -12,8 +12,23 @@ const Detail = () => {
   const {id:blogId} = useParams();
   const { data: posts = [] } = usePosts();
   const post = useMemo(() => posts.find((item:PostType) => item.post_id === Number(blogId)), [posts, blogId]);
+  
+  // 이전글과 다음글 찾기
+  const { prevPost, nextPost } = useMemo(() => {
+    if (!post) return { prevPost: null, nextPost: null };
+    
+    // post_id 기준으로 정렬 (최신순이 높은 post_id)
+    const sortedPosts = [...posts].sort((a, b) => b.post_id - a.post_id);
+    const currentIndex = sortedPosts.findIndex(p => p.post_id === post.post_id);
+    
+    const prevPost = currentIndex > 0 ? sortedPosts[currentIndex - 1] : null;
+    const nextPost = currentIndex < sortedPosts.length - 1 ? sortedPosts[currentIndex + 1] : null;
+    
+    return { prevPost, nextPost };
+  }, [posts, post]);
 
-  if(!post) return null
+  if(!post) return 
+  
   return (
     <Container>
       <MainArea>
@@ -36,19 +51,25 @@ const Detail = () => {
 
 
         <PostNavigationWrapper>
-          <PostNavigation 
-            imgSrc="icon_arrowLeft.png" 
-            postDirection="이전글" 
-            title="어쩌구 저쩌구" 
-            createdDate="2025.08.31" 
-            author="최성실" />
+          {prevPost && (
+            <PostNavigation 
+              imgSrc="icon_arrowLeft.png" 
+              postDirection="이전글" 
+              title={prevPost.title} 
+              createdDate={formatDate(prevPost.regDate)} 
+              author={prevPost.reg_user}
+              postId={prevPost.post_id} />
+          )}
 
-          <PostNavigation 
-            imgSrc="icon_arrowRight.png" 
-            postDirection="다음글" 
-            title="어쩌구 저쩌구" 
-            createdDate="2025.08.31" 
-            author="최성실" />
+          {nextPost && (
+            <PostNavigation 
+              imgSrc="icon_arrowRight.png" 
+              postDirection="다음글" 
+              title={nextPost.title} 
+              createdDate={formatDate(nextPost.regDate)} 
+              author={nextPost.reg_user}
+              postId={nextPost.post_id} />
+          )}
         </PostNavigationWrapper>
 
 

@@ -3,7 +3,8 @@ import styled from 'styled-components';
 
 const TopBtn = () => {
   const [isVisible, setIsVisible] = useState<boolean>(false);
-
+  const [isHovered, setIsHovered] = useState<boolean>(false);
+  
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -22,8 +23,11 @@ const TopBtn = () => {
   return(
     <>
       {  isVisible &&  
-        <Container onClick={scrollToTop}>
-          <img src="/img/topButton.png" alt="Scroll to top" />
+        <Container 
+          onClick={scrollToTop} 
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}>
+          <img src={isHovered ? '/img/topButton_hover.png' : '/img/topButton.png'} />
         </Container>
       }
     </>

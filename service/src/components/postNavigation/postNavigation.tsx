@@ -1,35 +1,51 @@
 import styled from "styled-components"
+import { Link } from "react-router-dom"
 
 
-interface PostNavigationProps { 
+export interface PostNavigationProps { 
   postDirection:string;
   imgSrc:string;
   title:string;
   createdDate:string;
   author:string;
+  postId:number;
 }
-const PostNavigation = ({postDirection,imgSrc,title,createdDate,author}:PostNavigationProps) => {
+const PostNavigation = ({postDirection,imgSrc,title,createdDate,author,postId}:PostNavigationProps) => {
   return(
-    <Container>
-      <Header><img src ={`/img/${imgSrc}`}/><span>{postDirection}</span></Header>
+    <StyledLink to={`/detail/${postId}`}>
+      <Container>
+        <Header><img src ={`/img/${imgSrc}`}/><span>{postDirection}</span></Header>
 
-      <Title>{title}</Title>
+        <Title>{title}</Title>
 
-      <Info>
-        <span>{createdDate}</span>
-        <span>|</span>
-        <span>{author}</span>
-        <span>|</span>
-      </Info>
-    </Container>
+        <Info>
+          <span>{createdDate}</span>
+          <span>|</span>
+          <span>{author}</span>
+          <span>|</span>
+        </Info>
+      </Container>
+    </StyledLink>
   )
 }
+
+const StyledLink = styled(Link)`
+  text-decoration: none;
+  color: inherit;
+  display: block;
+`
 
 const Container = styled.div`
   width: 100%;
   background-color: #F7F7F8;
   padding:38px 0 38px 84px;
   border-radius: 16px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  
+  &:hover {
+    background-color: #F0F0F1;
+  }
 `
 
 const Header= styled.div`
