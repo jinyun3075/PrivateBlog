@@ -1,88 +1,119 @@
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import styled from "styled-components"
 
-const SearchBar = () => {
+
+interface SearchBarProps {
+  placeholder:string;
+}
+const SearchBar = ({placeholder}:SearchBarProps) => {
+
+  const [value,setValue] = useState("")
+  const navigate = useNavigate();
+
+  const onChange = (e:React.ChangeEvent<HTMLInputElement>) => {
+    setValue(e.target.value)
+  }
+ 
+  const onSubmit = (e:React.FormEvent) => {
+    e.preventDefault();
+    if (!value.trim()) return;
+    navigate(`/search?keyword=${encodeURIComponent(value.trim())}`);  }
+
+
   return(
-    <Search>
-      <SearchImg src="/img/icon_search.png"/>
-      <SearchInput />
-    </Search>
+    <Container onSubmit ={onSubmit}>
+      <Search>
+        <SearchInput 
+          placeholder = {placeholder} 
+          value = {value}
+          onChange={onChange}
+        />
+        <SearchImg src="/img/icon_magnifier.png"/>
+      </Search>
+
+      <Button>검색</Button>
+    </Container>
   )
 }
 
-const Search = styled.div<{$isArabic:boolean}>`
-  width:37%;
-  height:auto;
-  padding:8px 18px;
+
+const Container = styled.form`
   display: flex;
-  flex-direction:${props=> props.$isArabic ? `row-reverse`:`row`};  
+  gap: 30px;           // 피그마 확인 불가. 임시 픽셀
+  height: 35px;
+`
+
+const Search = styled.div`
+  width:400px;
+  height:35px;
+  padding:6.5px 16px;
+  display: flex;
   justify-content: space-between;
   align-items: center;
 
-  border:1px solid #DDDDDD;
-  border-radius: 17px;
+  border:1px solid #D1D5DB;
+  border-radius: 4px;
 
   @media screen and (max-width: 1200px) {
-    padding:18px 20px;
-    width:100%;
-    margin-top:50px;
-    border-radius: 100px;
+
   }
 
   @media screen and (max-width: 576px) {
-    margin-top:25px;
-    padding:8px 14px;
   }
 
 `
 
-const SearchInput = styled.input<{$isArabic:boolean}>`
+const SearchInput = styled.input`
   width:100%;
   height:100%;
-
   border:none;
-
   font-size: 14px;
-  font-family: "Inter-Medium";
-  color:#333333;
-  letter-spacing: -0.21px;
-  direction:${props=>props.$isArabic ? `rtl`:`ltr`};
+  background-color: #FFFFFF;
+  color:#9CA3AF;
+  letter-spacing: 0;
+
 
   &:focus{
     outline:none;
   }
 
   &::placeholder{
+    font-family: 'Pretendard-Regular';
     font-size: 14px;
-    font-family: "Inter-Medium";
-    color:#B5B5B5;
-    letter-spacing: -0.21px;
-    text-align:${props=>props.$isArabic ? `right`:`left`};    
+    color:#9CA3AF;
+    letter-spacing: 0;
     @media screen and (max-width: 1200px) {
-      font-size: 17px;
-    }
-  
+    }  
     @media screen and (max-width: 576px) {
-      font-size: 9px;
     }
   }
 
   @media screen and (max-width: 1200px) {
-    font-size: 17px;
+
   }
 
   @media screen and (max-width: 576px) {
-      font-size: 9px;
-    }
+
+  }
 `
 
 const SearchImg = styled.img`
-  width: 14px;
-  height: 14px;
+  width: 13px;
+  height: 13px;
 
   @media screen and (max-width: 576px) {
-    width: 10px;
-    height: 10px;
+
   }
+`
+
+const Button = styled.button`
+  width: 70px;
+  font-family: 'Pretendard-Regular';
+  font-size: 14px;
+  color:#1E1E1E;
+  border: 1px solid #D1D5DB;
+  border-radius:4px;
 `
 
 export default SearchBar

@@ -3,7 +3,9 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import Home from './pages/home';
 import "./common/reset.css";
 import Root from './pages/root';
-import Test from './pages/test';
+import Detail from './pages/detail';
+import Search from './pages/search';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 
 const router = createBrowserRouter([
@@ -16,8 +18,12 @@ const router = createBrowserRouter([
         element:<Home />
       },
       {
-        path:"test",
-        element:<Test />
+        path:"search",
+        element:<Search />
+      },
+      {
+        path:"detail/:id",
+        element:<Detail />
       },
     ]
   }
@@ -27,9 +33,13 @@ const router = createBrowserRouter([
 
 const App = () => {
 
+  const queryClient = new QueryClient();
+
   return (
     <Container>
-      <RouterProvider router = {router} />
+      <QueryClientProvider client={queryClient}>
+        <RouterProvider router = {router} />
+      </QueryClientProvider>
     </Container>
   );
 };
