@@ -64,6 +64,11 @@ public class PostViewService implements BaseService<PostViewRequestDTO, PostView
         return domainToEntity(domain);
     }
 
+    public List<PostViewResponseDTO> findPostViewList(String post_id){
+        List<PostView> domain = postViewRepository.findByPost_PostId(post_id);
+        return domain.stream().map(this::domainToEntity).toList();
+    }
+
     public Long findAllPostView(String post_id){
         return postViewRepository
             .findByPost_PostId(post_id)
