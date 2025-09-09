@@ -3,6 +3,7 @@ import styled from "styled-components";
 const Dashboard = () => {
   return(
     <Container>
+      dashoboard
     </Container>
   )
 }
