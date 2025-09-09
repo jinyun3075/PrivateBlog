@@ -1,4 +1,5 @@
 import styled from "styled-components"
+import { useNavigate } from "react-router-dom"
 
 type SideNavigationBarProps = {
   isOpen: boolean;
@@ -7,9 +8,11 @@ type SideNavigationBarProps = {
 const SIDEBAR_WIDTH = 216;
 
 const SideNavigationBar = ({ isOpen }: SideNavigationBarProps) => {
+  const navigate = useNavigate();
+  const goCreate = () => navigate('/post/create');
   return(
     <Sidebar $isHide={!isOpen}>
-      <Create>글쓰기</Create>
+      <Create onClick={goCreate}>글쓰기</Create>
 
       
     </Sidebar>

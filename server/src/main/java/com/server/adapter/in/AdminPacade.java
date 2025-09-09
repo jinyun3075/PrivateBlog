@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.stereotype.Component;
 
 import com.server.adapter.in.Service.*;
+import com.server.domain.Post;
 import com.server.domain.Role;
 
 import lombok.RequiredArgsConstructor;
@@ -56,17 +57,21 @@ public class AdminPacade {
         return postService.findById(post_id);
     }
 
-    public List<PostResponseDTO> selectAllPost() {
+    public List<PostResponseDTO> selectPostList(Long state) {
         List<PostResponseDTO> posts = postService
             .findAll()
             .stream()
             .map((PostResponseDTO d) ->{
-                PostContentResponseDTO content = postContentService.findByPostIdAndStateId(d.getPost_id(), PostStateRole.RELEASED.getId());
+                PostContentResponseDTO content = postContentService.findByPostIdAndStateId(d.getPost_id(), state);
+
+                if(content == null) return null;
+
                 PostViewResponseDTO view = postViewService.findPostView(d.getPost_id());
                 d.setContent(content);
                 d.setPostView(view);
                 return d;
             })
+            .filter(d -> d != null)
             .toList();
         return posts;
     }
@@ -87,6 +92,10 @@ public class AdminPacade {
 
     public Long selectViewAllCount(){
         return postViewService.countAll();
+    }
+
+    public List<PostViewResponseDTO> selectPostViewList(String post_id){
+        return postViewService.findPostViewList(post_id);
     }
 
     // 방문자수

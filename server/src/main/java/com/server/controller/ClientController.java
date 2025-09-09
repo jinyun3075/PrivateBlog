@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import com.server.adapter.in.ClientPacade;
 import com.server.dto.res.PostCategoryResponseDTO;
 import com.server.dto.res.PostResponseDTO;
+import com.server.util.entity.PostStateRole;
 
 import lombok.RequiredArgsConstructor;
 
@@ -21,7 +22,7 @@ public class ClientController {
     // 블로그 리스트 업
     @GetMapping("/post/select/all")
     public ResponseEntity<List<PostResponseDTO>> selectAllPosts() {
-        return new ResponseEntity<>(pacade.selectAllPost(), HttpStatus.OK);
+        return new ResponseEntity<>(pacade.selectPostList(PostStateRole.RELEASED.getId()), HttpStatus.OK);
     }
 
     @GetMapping("/category/select/all")

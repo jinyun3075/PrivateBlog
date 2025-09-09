@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import com.server.adapter.in.AdminPacade;
 import com.server.dto.req.*;
 import com.server.dto.res.*;
+import com.server.util.entity.PostStateRole;
 
 import lombok.RequiredArgsConstructor;
 
@@ -39,9 +40,14 @@ public class AdminController {
         return new ResponseEntity<>(pacade.deletePost(post_id), HttpStatus.OK);
     }
 
-    @GetMapping("/post/select/all")
-    public ResponseEntity<List<PostResponseDTO>> selectAllPost() {
-        return new ResponseEntity<>(pacade.selectAllPost(), HttpStatus.OK);
+    @GetMapping("/post/select/list")
+    public ResponseEntity<List<PostResponseDTO>> selectReleasedPostList() {
+        return new ResponseEntity<>(pacade.selectPostList(PostStateRole.RELEASED.getId()), HttpStatus.OK);
+    }
+
+    @GetMapping("/post/select/tempList")
+    public ResponseEntity<List<PostResponseDTO>> selectTempPostList() {
+        return new ResponseEntity<>(pacade.selectPostList(PostStateRole.TEMP.getId()), HttpStatus.OK);
     }
 
     // 블로그 포스트 조회수
