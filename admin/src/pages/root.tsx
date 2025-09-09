@@ -1,8 +1,8 @@
 import { Outlet } from "react-router-dom"
 import styled from "styled-components"
-import Header from "../components/header/header";
 import { useEffect, useMemo, useState } from "react";
 import SideNavigationBar from "../components/snb/sideNavigationBar";
+import GlobalHeader from "../components/gnb/globalHeader";
 
 const HEADER_HEIGHT = 76;
 
@@ -24,9 +24,9 @@ const Root = () => {
     <Container>
 
       <HeaderWrapper $isSidebarOpen={isSidebarOpen} $sidebarWidth={sidebarWidth}>
-        <Header 
-        isSidebarOpen={isSidebarOpen}
-        onToggle={() => setIsSidebarOpen(prev => !prev)}/>
+        <GlobalHeader 
+          isSidebarOpen={isSidebarOpen}
+          onToggle={() => setIsSidebarOpen(prev => !prev)}/>
       </HeaderWrapper>
 
       <SideNavigationBar
