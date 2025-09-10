@@ -1,8 +1,3 @@
-<<<<<<< HEAD
-const TopHeadline = () => {
-  return(
-    <>top headline</>
-=======
 import styled from "styled-components"
 import Header from "../components/header/header"
 import { colors } from "../common/designSystem"
@@ -84,13 +79,10 @@ const TopHeadline = () => {
         </TableContainer>
       </MainContents>
     </Container>
->>>>>>> develop
   )
 }
 
 
-<<<<<<< HEAD
-=======
 
 const Container = styled.div`
   width: 100%;
@@ -250,5 +242,4 @@ const ChangeButton = styled.button`
   
 `
 
->>>>>>> develop
 export default TopHeadline

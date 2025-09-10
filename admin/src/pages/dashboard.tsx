@@ -9,9 +9,6 @@ import DashboardCard from "../components/dashboard/dashboardCard";
 const Dashboard = () => {
   return(
     <Container>
-<<<<<<< HEAD
-      dashoboard
-=======
       <Header title = "대시보드" />
 
       <MainContents>
@@ -54,7 +51,6 @@ const Dashboard = () => {
           </BestBlogWrapper>
         </BestArea>
       </MainContents>
->>>>>>> develop
     </Container>
   )
 }
