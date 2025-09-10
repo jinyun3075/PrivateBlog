@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom';
 import "./common/reset.css";
 import "./common/designSystem";
 import "@uiw/react-md-editor/markdown-editor.css";
@@ -12,13 +12,15 @@ import Category from './pages/category';
 import TopHeadline from './pages/topHeadline';
 import Post from './pages/post';
 
-
-
 const router = createBrowserRouter([
   {
     path: '/',
     element:<Root />,
     children: [
+      {
+        index: true,
+        element: <Navigate to="/login" replace />,
+      },
       {
         path: 'login',
         element: <Login />,
