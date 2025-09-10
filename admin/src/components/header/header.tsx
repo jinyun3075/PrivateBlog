@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 
@@ -8,21 +9,15 @@ type HeaderProps = {
 
 const Header = ({isSidebarOpen,onToggle}:HeaderProps) => {
 
+  const toggleImg = useMemo<string>(() => isSidebarOpen ? 'icon_gnb_arrowLeft.png':'icon_gnb_arrowRight.png',[isSidebarOpen]);
+
   return (
     <Container>
-      <ToggleButton 
-        src={`/img/${isSidebarOpen ? `icon_gnb_arrowLeft.png` : `icon_gnb_arrowRight.png`}`}
-        onClick={onToggle}
-         />
+      <ToggleButton src={`/img/${toggleImg}`} onClick={onToggle}/>
       
-
-      <LogoWrapper>
-        <Link to ="/dashboard">
-          <MainLogo src="/img/mainLogo.png"/>
-        </Link>
-        <AdminLogo src="/img/adminLogo.png"/>
-      </LogoWrapper>
-      
+      <Link to ="/dashboard">
+        <MainLogo src="/img/mainLogo.png"/>
+      </Link>
 
     </Container>
   );
@@ -54,21 +49,9 @@ const ToggleButton = styled.img`
   margin-right: 16px;
 `
 
-const LogoWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 15px;
-`
-
 const MainLogo = styled.img`
-  width: 151px;
+  width: 197px;
   height: 36px;
-  cursor: pointer;
-`
-
-const AdminLogo = styled.img`
-  width: 103px;
-  height: 32px;
   cursor: pointer;
 `
 

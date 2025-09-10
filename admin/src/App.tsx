@@ -1,12 +1,16 @@
 import styled from 'styled-components';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import "./common/reset.css";
+import "./common/designSystem";
 import "@uiw/react-md-editor/markdown-editor.css";
 import "@uiw/react-markdown-preview/markdown.css";
 import Login from './pages/login';
 import Root from './pages/root';
 import Dashboard from './pages/dashboard';
 import PostCreate from './pages/postCreate';
+import Category from './pages/category';
+import TopHeadline from './pages/topHeadline';
+import Post from './pages/post';
 
 
 
@@ -22,6 +26,18 @@ const router = createBrowserRouter([
       {
         path: 'dashboard',
         element: <Dashboard />,
+      },
+      {
+        path: 'topHeadline',
+        element: <TopHeadline />,
+      },
+      {
+        path: 'category',
+        element: <Category />,
+      },
+      {
+        path: 'post',
+        element: <Post />,
       },
       {
         path: 'post/create',
