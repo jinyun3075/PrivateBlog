@@ -4,9 +4,97 @@ import { colors } from "../common/designSystem";
 import BestBlog from "../components/dashboard/bestBlog";
 import { MainContents } from "../common/style";
 import DashboardCard from "../components/dashboard/dashboardCard";
+import axios from "axios";
+import { useEffect, useState } from "react";
+import { formatNumber } from "../utils/numberFormat";
+import { calculateViewStats } from "../utils/stat";
 
+interface ViewDataType {
+  view_id:number;
+  post_id:string;
+  view:number;
+}
+
+interface VisitDataType {
+  visite_id: number;
+  visite: number;
+  regDate: string;
+}
 
 const Dashboard = () => {
+  const [todayViews, setTodayViews] = useState<string>("0");
+  const [totalViews, setTotalViews] = useState<string>("0");
+  const [todayVisits, setTodayVisits] = useState<string>("0");
+  const [totalVisits, setTotalVisits] = useState<string>("0");
+  const [PostCount, setPostCount] = useState<number>(0);
+  const [BackupPostCount, setBackupPostCount] = useState<number>(0);
+
+  const getViewStats = async () => {
+    try {
+      const { data } = await axios.get<ViewDataType[]>(
+        `${process.env.REACT_APP_BACKEND_HOST}/api/admin/view/select/all`
+      );
+      console.log(data);
+      const stats = calculateViewStats(
+        data,
+        item => "20" + item.post_id.slice(0, 6).replace(/(\d{2})(\d{2})(\d{2})/, "$1-$2-$3"),
+        item => item.view
+      );     
+      setTodayViews(stats.todayTotal);
+      setTotalViews(stats.allTotal);
+      }catch (e) {
+        console.log(e);
+      }
+    };
+
+  const getVisitStats = async () => {
+    try {
+      const { data } = await axios.get<VisitDataType[]>(`${process.env.REACT_APP_BACKEND_HOST}/api/admin/visit/select/all`); // visite → visit 수정
+      console.log('방문자 데이터:', data);
+  
+      const stats = calculateViewStats(
+        data,
+        item => item.regDate.slice(0, 10),
+        item => item.visite
+      );
+  
+      if (stats) {
+        setTodayVisits(stats.todayTotal);
+        setTotalVisits(stats.allTotal);
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
+  const getPostData = async () => {
+    try{
+      const {data} = await axios.get(`${process.env.REACT_APP_BACKEND_HOST}/api/client/post/select/all`);
+      console.log(data);
+      setPostCount(data.length);
+    }catch(e){
+      console.log(e);
+    }
+  }
+
+  const getBackupPost = async () => {
+    try{
+      const {data} = await axios.get(`${process.env.REACT_APP_BACKEND_HOST}/api/admin/post/select/tempList`);
+      console.log(data);
+      setBackupPostCount(data.length);
+    }catch(e){
+      console.log(e);
+    }
+  }
+
+
+  useEffect(() => {
+    getViewStats();
+    getVisitStats();
+    getPostData();
+    getBackupPost()
+  }, []);
+
   return(
     <Container>
       <Header title = "대시보드" />
@@ -25,18 +113,18 @@ const Dashboard = () => {
           </ViewHeader>
           
           <CardWrapper>
-            <DashboardCard text={"오늘 조회수"} number={1567} />
-            <DashboardCard text={"오늘 조회수"} number={1567} />
-            <DashboardCard text={"오늘 조회수"} number={1567} />
-            <DashboardCard text={"오늘 조회수"} number={1567} />
+            <DashboardCard text={"오늘 조회수"} number={todayViews} />
+            <DashboardCard text={"누적 조회수"} number={totalViews} />
+            <DashboardCard text={"오늘 방문자"} number={todayVisits} />
+            <DashboardCard text={"누적 방문자"} number={totalVisits} />
           </CardWrapper>
         </ViewArea>
 
         <PostArea>
           <PostHeader>게시물 현황</PostHeader>
           <CardWrapper>
-            <DashboardCard text={"총 발행 게시글"} number={2751} />
-            <DashboardCard text={"총 발행 게시글"} number={2751} />
+            <DashboardCard text={"총 발행 게시글"} number={formatNumber(PostCount)} />
+            <DashboardCard text={"총 발행 게시글"} number={formatNumber(BackupPostCount)} />
           </CardWrapper>
         </PostArea>
 
