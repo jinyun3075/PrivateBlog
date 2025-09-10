@@ -86,12 +86,12 @@ public class AdminPacade {
     }
 
     // 조회수
-    public Long selectAllPostView(String post_id){
+    public List<PostViewResponseDTO> selectAllPostView(String post_id){
         return postViewService.findAllPostView(post_id);
     }
 
-    public Long selectViewAllCount(){
-        return postViewService.countAll();
+    public List<PostViewResponseDTO> selectViewAllView(){
+        return postViewService.findAll();
     }
 
     public List<PostViewResponseDTO> selectPostViewList(String post_id){

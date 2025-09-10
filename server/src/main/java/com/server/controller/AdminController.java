@@ -52,12 +52,12 @@ public class AdminController {
 
     // 블로그 포스트 조회수
     @GetMapping("/view/select/all")
-    public ResponseEntity<Long> selectViewAllCount() {
-        return new ResponseEntity<>(pacade.selectViewAllCount(), HttpStatus.OK);
+    public ResponseEntity<List<PostViewResponseDTO>> selectViewAllCount() {
+        return new ResponseEntity<>(pacade.selectViewAllView(), HttpStatus.OK);
     }
 
     @GetMapping("/view/select/{id}")
-    public ResponseEntity<Long> selectAllPostView(@PathVariable String post_id) {
+    public ResponseEntity<List<PostViewResponseDTO>> selectAllPostView(@PathVariable String post_id) {
         return new ResponseEntity<>(pacade.selectAllPostView(post_id), HttpStatus.OK);
     }
 

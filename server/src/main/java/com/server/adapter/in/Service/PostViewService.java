@@ -50,14 +50,7 @@ public class PostViewService implements BaseService<PostViewRequestDTO, PostView
                 .stream()
                 .map(this::domainToEntity)
                 .toList();
-    }
-
-    public Long countAll() {
-        return postViewRepository.findAll()
-                .stream()
-                .mapToLong(PostView::getView)
-                .sum();
-    }
+    }  
 
     public PostViewResponseDTO findPostView(String post_id){
         PostView domain = postViewRepository.findTopByPost_PostIdOrderByRegDateDesc(post_id);
@@ -69,12 +62,12 @@ public class PostViewService implements BaseService<PostViewRequestDTO, PostView
         return domain.stream().map(this::domainToEntity).toList();
     }
 
-    public Long findAllPostView(String post_id){
+    public List<PostViewResponseDTO> findAllPostView(String post_id){
         return postViewRepository
             .findByPost_PostId(post_id)
             .stream()
-            .mapToLong(PostView::getView)
-            .sum();
+            .map(this::domainToEntity)
+            .toList();
     }
 
     public Long upView(Long view_id){
