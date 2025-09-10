@@ -1,9 +1,9 @@
 import styled from "styled-components";
 import Header from "../components/header/header";
 import { colors } from "../common/designSystem";
-import DashboardCard from "../components/dashboard/dashBoardCard";
 import BestBlog from "../components/dashboard/bestBlog";
 import { MainContents } from "../common/style";
+import DashboardCard from "../components/dashboard/dashboardCard";
 
 
 const Dashboard = () => {

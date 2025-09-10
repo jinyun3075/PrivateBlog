@@ -29,7 +29,7 @@ const Container = styled.div`
 `
 
 const Title = styled.h1`
-  font-family: 'Pretendard-SemiBold';
-  font-size: 16px;
+  font-family: 'Pretendard-Bold';
+  font-size: 24px;
 ` 
 export default Header 
