@@ -38,12 +38,12 @@ const GlobalHeader = ({isSidebarOpen,onToggle}:HeaderProps) => {
 
   return (
     <Container>
-      <div>
+      <LeftArea>
         {!isLoginPage && <ToggleButton src={`/img/${toggleImg}`} onClick={onToggle}/>}
         <Link to={isLoggedIn ? "/dashboard" : "/login"}>
           <MainLogo src="/img/mainLogo.png"/>
         </Link>
-      </div>
+      </LeftArea>
 
       {!isLoginPage && isLoggedIn && (
         <RightArea>
@@ -87,12 +87,16 @@ const Container = styled.header`
   z-index: 1000;
   border: 1px solid ${colors.LightGray[300]};
 `
+
+const LeftArea = styled.div`
+  display: flex;
+  align-items: center;
+  gap:20px;
+`
 const ToggleButton = styled.img`
   width: 20px;
   height: 20px;
-  border-radius: 14px;
   cursor: pointer;
-  margin-right: 16px;
 `
 
 const MainLogo = styled.img`
