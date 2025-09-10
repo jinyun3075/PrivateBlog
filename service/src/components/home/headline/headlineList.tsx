@@ -8,8 +8,11 @@ const HeadlineList = () => {
 
   const { data: posts = [] } = usePosts();
 
-  // 상위 3개 노출 (정렬 기준 필요 시 수정)
-  const headline = posts.slice(0, 3);
+  // main_sort가 1, 2, 3인 항목들을 필터링하여 상위 3개 노출
+  const headline = posts
+    .filter((post: PostType) => post.main_sort && post.main_sort >= 1 && post.main_sort <= 3)
+    .sort((a: PostType, b: PostType) => (a.main_sort || 0) - (b.main_sort || 0))
+    .slice(0, 3);
 
   return(
     <Container>

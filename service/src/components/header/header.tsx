@@ -38,8 +38,8 @@ const Main = styled(MainArea)`
 `
 
 const Logo = styled.img`
-  width: 151px;
-  height: 36px;
+  width: 34px;
+  height: 34px;
   cursor: pointer;
 `
 
