@@ -15,7 +15,7 @@ const MainContents = () => {
   const [currentCategory,setCurrentCategory] = useState<string>("전체");
   const [category,setCategory] = useState<CategoryType[]>([]);
   const [loading,setLoading] = useState<boolean>(false);
-  const { data = [] } = usePosts();
+  const { data = [], isError } = usePosts();
   
   const getCategory = async() => {
     setLoading(true);
@@ -65,26 +65,28 @@ const MainContents = () => {
         </CategoryWrapper>
 
         <BlogList>
-          {currentPosts.map((post:PostType) => <Link to ={`/detail/${post.post_id}`} key={post.post_id} >
-            <Blog 
-              category={post.category.name}
-              title = {post.title}
-              desc = {post.content.content}
-              createdDate = {post.regDate}
-              author = {post.reg_user}
-              viewer = {post.postView.view}
-              imgSrc = {post.thumbnail}
-              textWrapperWith={600}
-            />
-          </Link>
-          )}
+          {(currentPosts.length>0 ||isError) ? currentPosts.map((post:PostType) => 
+            <Link to ={`/detail/${post.post_id}`} key={post.post_id} >
+              <Blog 
+                category={post.category.name}
+                title = {post.title}
+                desc = {post.content.content}
+                createdDate = {post.regDate}
+                author = {post.reg_user}
+                viewer = {post.postView.view}
+                imgSrc = {post.thumbnail}
+                textWrapperWith={600}
+              />
+            </Link>):
+            <NotExistBlog>게시글이 존재하지 않습니다다</NotExistBlog>
+          }
         </BlogList>
 
         <Pagination
           currentPage={currentPage}
           totalPages={totalPages}
           onPageChange={goToPage}
-          noData={data.length === 0}
+          noData={filteredData.length === 0 || isError}
         />
 
       </BlogListWrapper>
@@ -95,14 +97,16 @@ const MainContents = () => {
           <p>인기 게시글 <span>TOP 5</span></p>
         </BestBlogHeader>
         
-        {getTopPosts().map((post: PostType, idx: number) => (
-          <BestBlog 
-            key={post.post_id}
-            ranking={idx + 1}
-            title={post.title}
-            author={post.reg_user}
-          />
-        ))}
+        {(currentPosts.length>0 ||isError) ? 
+          getTopPosts().map((post: PostType, idx: number) => (
+            <BestBlog 
+              key={post.post_id}
+              ranking={idx + 1}
+              title={post.title}
+              author={post.reg_user}
+            />)):
+          <NotExistBestBlog>인기글이 존재하지 않습니다.</NotExistBestBlog>
+        }
       </BestBlogArea>
       
     </Container>
@@ -135,6 +139,20 @@ const BlogList = styled.div`
   gap:30px;
 `
 
+
+const NotExistBlog = styled.div`
+  width: 100%;
+  height: 236px;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  font-family: 'Pretendard-SemiBold';
+  font-size: 14px;
+  letter-spacing: -0.024em;
+  color:#A1A1A1;
+`
 const BestBlogArea = styled.div`
   display: flex;
   flex-direction: column;
@@ -164,9 +182,18 @@ const BestBlogHeader = styled.header`
   span{
     font-size: 14px;
     letter-spacing: 0.014em;
-    color:#1B7EFF;
+    color:#9747FF;
   }
 
+`
+
+const NotExistBestBlog = styled.div`
+  width: 100%;
+
+  font-family: 'Pretendard-Regular';
+  font-size: 14px;
+  letter-spacing: -0.02em;
+  color:#A1A1A1;
 `
 
 export default MainContents
