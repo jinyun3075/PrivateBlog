@@ -15,10 +15,17 @@ const TopBtn = () => {
       const scrollY = window.scrollY || document.documentElement.scrollTop;
       setIsVisible(scrollY > 20); 
     };
-  1
+
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  // 컴포넌트가 사라질 때 호버 상태 리셋
+  useEffect(() => {
+    if (!isVisible) {
+      setIsHovered(false);
+    }
+  }, [isVisible]);
 
   return(
     <>
@@ -37,8 +44,8 @@ const TopBtn = () => {
 
 const Container = styled.button` 
   position: fixed;
-  bottom: 210px;
-  right: calc(50% - 625px);
+  bottom: 18vh;   
+  right: calc(50% - 550px);
 
   cursor: pointer;
   z-index: 1000;

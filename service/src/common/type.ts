@@ -27,7 +27,7 @@ export interface PostView {
 }
 
 export interface PostType {
-  post_id: number;
+  post_id: string;
   category: Category;
   content: Content;
   postView: PostView;

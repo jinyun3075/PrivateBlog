@@ -40,13 +40,15 @@ const SearchBar = ({placeholder}:SearchBarProps) => {
 
 const Container = styled.form`
   display: flex;
-  gap: 30px;           // 피그마 확인 불가. 임시 픽셀
-  height: 35px;
+  gap: 30px;          
+  height: 40px;
+  z-index: 1000;
+
 `
 
 const Search = styled.div`
   width:400px;
-  height:35px;
+  height:40px;
   padding:6.5px 16px;
   display: flex;
   justify-content: space-between;

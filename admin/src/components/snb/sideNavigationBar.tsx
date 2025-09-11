@@ -85,8 +85,13 @@ const MenuWrapper = styled.div`
 
 const Menu = styled.div<{$active?: boolean}>`
   padding:9px 24px;
-  cursor: pointer;
+  cursor: ${props=>props.$active && `pointer`};
   color: ${colors.Black};
+
+  &:hover{
+    color:${props=>props.$active && `${colors.Gray[0]}`};
+    background-color: ${props=>props.$active && `${colors.LightGray[100]}`};
+  }
   font-family:${props=>props.$active? `'Pretendard-Bold'`:`'Pretendard-Regular'`};
 `
 

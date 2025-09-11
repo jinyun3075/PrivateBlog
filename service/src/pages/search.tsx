@@ -6,39 +6,30 @@ import { useSearchParams } from "react-router-dom";
 import usePagination from "../hooks/usePagination";
 import Blog from "../components/home/mainContents/blog";
 import Pagination from "../components/pagination/pagination";
+import { usePosts } from "../hooks/usePosts";
 
 const Search = () => {
-  const [data,setData] = useState<DummyDataType[]>(DummyData);
+  const { data = [] } = usePosts();
   const [loading,setLoading] = useState(false);
+  const [filteredData, setFilteredData] = useState(data);
 
   const [searchParams] = useSearchParams();
   const searchKeyword = searchParams.get("keyword") || "";
 
-  const {currentPage,totalPages,currentPosts,goToPage} = usePagination(data, 10);
-
-
-  // const getData = async() => {
-  //   setLoading(true);
-  //   const res = await axios.get('https://jsonplaceholder.typicode.com/posts');
-  //   setData(res.data);
-  //   setLoading(false);
-  // }
-  
-  // useEffect(()=>{
-  //   getData();
-  // },[])
-
+  const {currentPage,totalPages,currentPosts,goToPage} = usePagination(filteredData, 10);
 
   useEffect(() => {
+    if (!searchKeyword) {
+      setFilteredData(data);
+      return;
+    }
 
-    let filteredData = DummyData;
-
-    filteredData = filteredData.filter(post =>
-      post.title.includes(searchKeyword) || post.desc.includes(searchKeyword)
+    const filtered = data.filter(post =>
+      post.title.includes(searchKeyword) || post.content.content.includes(searchKeyword)
     );
 
-    setData(filteredData);
-  }, [searchKeyword]); 
+    setFilteredData(filtered);
+  }, [searchKeyword, data]); 
 
 
   return(
@@ -48,33 +39,44 @@ const Search = () => {
 
         <BlogCount>
           <Total>Total</Total>
-          <Count>{data.length}</Count>
+          <Count>{filteredData.length}</Count>
         </BlogCount>
 
-        {data.length ?
+        {filteredData.length ?
           <BlogList>
-            {currentPosts.map((post:DummyDataType) => 
+            {currentPosts.map((post:any) => 
               <Blog 
-                key={post.id} 
-                category={post.category}
+                key={post.post_id || post.id} 
+                category={post.category?.name || post.category}
                 title = {post.title}
-                desc = {post.desc}
-                createdDate = {post.createdDate}
-                author = {post.author}
-                viewer = {post.viewer}
-                imgSrc = {post.imgSrc}
+                desc = {post.desc || post.content?.content}
+                createdDate = {post.regDate || post.createdDate}
+                author = {post.reg_user || post.author}
+                viewer = {post.postView?.view || post.viewer}
+                imgSrc = {post.thumbnail || post.imgSrc}
                 textWrapperWith={990}
+                searchKeyword={searchKeyword}
               />)}
           </BlogList>:
-          <BlogNotExist>검색 결과가 존재하지 않습니다.</BlogNotExist>
+          <NoDataContainer>
+            <BlogNotExist>검색 결과가 존재하지 않습니다.</BlogNotExist>
+            <Pagination
+              currentPage={1}
+              totalPages={1}
+              onPageChange={() => {}}
+              noData={true}
+            />
+          </NoDataContainer>
         }
 
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={goToPage}
-          noData={data.length === 0}
-        />
+        {filteredData.length > 0 && (
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={goToPage}
+            noData={false}
+          />
+        )}
 
       </MainArea>
     </Container>
@@ -98,7 +100,7 @@ const SearchResult = styled.div`
   letter-spacing: -0.024em;
   color:#767676;
   span{
-    color:#1B7EFF;
+    color:#9747FF;
   }
 `
 
@@ -140,6 +142,13 @@ const BlogList = styled.div`
   flex-direction: column;
   width: 100%;
   gap:30px;
+`
+
+const NoDataContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 40px;
 `
 
 export default Search 

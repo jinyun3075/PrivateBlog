@@ -3,11 +3,21 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { useAuthStore } from "../store/useAuth";
-import LoginError from "../components/login/loginError";
+import ErrorModal from "../components/errorModal/errorModal";
+
+
+interface LoginResponse {
+  name: string;
+  password:null;
+  reg_user: string;
+  role_action: string;
+  role_id: number;
+  token: string;
+  user_id: number;
+}
 
 const Login = () => {
   const navigate = useNavigate();
-  
   const {onLogin}= useAuthStore();
 
   const [id,setId] = useState("");
@@ -33,16 +43,14 @@ const Login = () => {
     }
 
     try{
-      const { data: data } = await axios.post(
-      `http://220.71.90.91:3001/auth/login-with-email`,
+      const {data} = await axios.post<LoginResponse>(`${process.env.REACT_APP_BACKEND_HOST}/api/member/login`,
         {
-          id: id,
+          name: id,
           password: pw,
         },
         {}
       );
-
-      onLogin(data.token);
+      onLogin(data.token, data.name, 60 * 60 * 1000);
       navigate("/dashboard");
     }catch(e){
       console.log(e);
@@ -55,10 +63,16 @@ const Login = () => {
 
   return(
     <Container>
+
+      {isLoginError && (
+        <ErrorModal
+          title="로그인 오류"
+          text="아이디 또는 비밀번호를 확인 후 다시 시도해주세요."
+          onClose={() => setIsLoginError(false)}
+        />)}
+
       <LoginForm onSubmit={handleSubmit}>  
         <Title>관리자 로그인</Title>
-        {isLoginError && <LoginError onConfirm={() => setIsLoginError(false)} />}
-
         <InputWrapper>
           <span>아이디</span>
           <Input 

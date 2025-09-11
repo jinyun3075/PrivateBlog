@@ -1,27 +1,42 @@
-import axios from 'axios';
 import {create} from 'zustand';
 
 interface AuthState {
   isLoggedIn: boolean;
-  onLogin: (token: string) => void;
+  userName?: string;
+  sessionExpiresAt?: number; // epoch ms
+  onLogin: (token: string, userName?: string, sessionMs?: number) => void;
   onLogout: () => void;
- 
+  extendSession: (ms: number) => void;
 }
 
 export const useAuthStore = create<AuthState>((set,get) => ({
+  isLoggedIn: !!localStorage.getItem('@access_token'),
+  userName: localStorage.getItem('@user_name') || undefined,
+  sessionExpiresAt: (() => {
+    const raw = localStorage.getItem('@session_expires');
+    return raw ? Number(raw) : undefined;
+  })(),
 
-  isLoggedIn: false,
-
-  onLogin: (token: string) => {
+  onLogin: (token: string, userName?: string, sessionMs: number = 60 * 60 * 1000) => {
+    const expiresAt = Date.now() + sessionMs;
     localStorage.setItem('@access_token', token);
-    set({ isLoggedIn: true });  // 로그인 상태 true로 업데이트
+    if (userName) localStorage.setItem('@user_name', userName);
+    localStorage.setItem('@session_expires', String(expiresAt));
+    set({ isLoggedIn: true, userName, sessionExpiresAt: expiresAt });
   },
 
   onLogout: () => {
     localStorage.removeItem('@access_token');
-    set({ isLoggedIn: false });  // 로그아웃 시 상태 업데이트
+    localStorage.removeItem('@user_name');
+    localStorage.removeItem('@session_expires');
+    set({ isLoggedIn: false, userName: undefined, sessionExpiresAt: undefined });
   },
-  
+
+  extendSession: (ms: number) => {
+    const newExpires = Date.now() + ms;
+    localStorage.setItem('@session_expires', String(newExpires));
+    set({ sessionExpiresAt: newExpires });
+  }
 }));
 
 export const loadAccessToken = () => {  

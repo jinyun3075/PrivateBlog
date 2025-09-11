@@ -1,18 +1,20 @@
 import styled from "styled-components"
 
-type LoginErrorProps = {
-  onConfirm: () => void;
+type ErrorModalrProps = {
+  title:string;
+  text:string;
+  onClose: () => void;
 }
 
-const LoginError = ({ onConfirm }: LoginErrorProps) => {
+const ErrorModal = ({ title, text, onClose }: ErrorModalrProps) => {
   
 
   return(
     <Overlay>
       <Container> 
-        <Title>로그인 오류</Title>
-        <Text>아이디 또는 비밀번호를 확인 후 다시 시도해주세요.</Text>
-        <Button onClick={onConfirm}>확인</Button>
+        <Title>{title}</Title>
+        <Text>{text}</Text>
+        <Button onClick={onClose}>확인</Button>
       </Container>
     </Overlay>
   )
@@ -70,4 +72,4 @@ const Button = styled.button`
   
 
 
-export default LoginError
+export default ErrorModal

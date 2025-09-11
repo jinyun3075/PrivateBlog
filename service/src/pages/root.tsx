@@ -3,6 +3,7 @@ import Header from "../components/header/header"
 import Footer from "../components/footer/footer"
 import styled from "styled-components"
 import TopBtn from "../components/topBtn/topBtn";
+import ScrollToTop from "../components/scrollToTop/ScrollToTop";
 
 const HEADER_HEIGHT = 60;
 
@@ -10,7 +11,8 @@ const Root = () => {
 
   return(
     <Container>
-
+      <ScrollToTop />
+      
       <HeaderWrapper>
         <Header />
       </HeaderWrapper>
@@ -39,6 +41,7 @@ const HeaderWrapper = styled.div`
   position: fixed;
   top:0px;
   right:0;
+  z-index: 1000;
 `
 
 const OutLetWrapper = styled.div`

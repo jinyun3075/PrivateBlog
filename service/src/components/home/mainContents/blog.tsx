@@ -10,14 +10,41 @@ interface BlogProps {
   viewer:number;
   imgSrc?:string;
   textWrapperWith:number;
+  searchKeyword?:string;
 }
-const Blog = ({category,title,desc,createdDate,author,viewer,imgSrc,textWrapperWith}:BlogProps) => {
+const Blog = ({category,title,desc,createdDate,author,viewer,imgSrc,textWrapperWith,searchKeyword}:BlogProps) => {
+  
+  // 검색 키워드 하이라이트 함수
+  const highlightText = (title: string, searchKeyword?: string) => {
+    if (!searchKeyword) return title;
+    
+    const regex = new RegExp(`(${searchKeyword})`, 'gi');
+    const parts = title.split(regex);
+    
+    return parts.map((part, index) => 
+      regex.test(part) ? (
+        <HighlightedText key={index}>{part}</HighlightedText>
+      ) : part
+    );
+  };
+
+  // highlightText("React is reactive", "react") 를 넣으면 결과 아래와 같이.
+  // [
+  //   "",
+  //   <HighlightedText key={1}>React</HighlightedText>,
+  //   " is ",
+  //   <HighlightedText key={3}>react</HighlightedText>,
+  //   "ive"
+  // ]
+
+  
+
   return(
     <Container>
       <TextWrapper $textWrapperWith={textWrapperWith}>
         <Category>{category}</Category>
-        <Title>{title}</Title>
-        <Desc>{desc}</Desc>
+        <Title>{highlightText(title, searchKeyword)}</Title>
+        <Desc>{highlightText(desc, searchKeyword)}</Desc>
         <Etc>
           <span>{formatDate(createdDate)}</span>
           <span>|</span>
@@ -30,7 +57,7 @@ const Blog = ({category,title,desc,createdDate,author,viewer,imgSrc,textWrapperW
         </Etc>
       </TextWrapper>
 
-      <Thumbnail src={`/img/${imgSrc}`}/>
+      <Thumbnail src={`/img/${imgSrc || `defaultThumbnail/defaultThumbnail.png`}`}/>
     </Container>
   )
 }
@@ -114,4 +141,10 @@ const ViewIcon = styled.img`
   width:10px;
   height:10px;
 `
+
+const HighlightedText = styled.span`
+  color: #9747FF;
+  font-weight: bold;
+`
+
 export default Blog 

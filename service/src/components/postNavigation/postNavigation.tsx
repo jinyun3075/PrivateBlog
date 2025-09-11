@@ -8,7 +8,7 @@ export interface PostNavigationProps {
   title:string;
   createdDate:string;
   author:string;
-  postId:number;
+  postId:string;
 }
 const PostNavigation = ({postDirection,imgSrc,title,createdDate,author,postId}:PostNavigationProps) => {
   return(
