@@ -6,6 +6,7 @@ import Root from './pages/root';
 import Detail from './pages/detail';
 import Search from './pages/search';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import Error from './pages/error';
 
 
 const router = createBrowserRouter([
@@ -25,9 +26,9 @@ const router = createBrowserRouter([
         path:"detail/:id",
         element:<Detail />
       },
-    ]
+    ],
+    errorElement:<Error />, 
   }
-  // errorElement:<Test />, 
 ])
 
 

@@ -3,7 +3,7 @@ import Header from "../components/header/header"
 import Footer from "../components/footer/footer"
 import styled from "styled-components"
 import TopBtn from "../components/topBtn/topBtn";
-import ScrollToTop from "../components/ScrollToTop";
+import ScrollToTop from "../components/scrollToTop/ScrollToTop";
 
 const HEADER_HEIGHT = 60;
 
