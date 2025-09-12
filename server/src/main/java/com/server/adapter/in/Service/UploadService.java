@@ -16,7 +16,7 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class UploadService {
-    private final String uploadDir = System.getProperty("user.dir") + "/upload/";
+    private final String uploadDir = "/upload/";
 
     public List<UploadResponseDTO> uploadFile(MultipartFile[] uploadFiles) throws Exception {
         List<UploadResponseDTO> resultDTOList = new ArrayList<>();

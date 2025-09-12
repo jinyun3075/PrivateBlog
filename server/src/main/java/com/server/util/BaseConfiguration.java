@@ -18,24 +18,20 @@ public class BaseConfiguration implements WebMvcConfigurer {
         return new BCryptPasswordEncoder();
     }
 
-    @Bean
-    public WebMvcConfigurer corsConfigurer(){
-        return new WebMvcConfigurer(){
-            @Override
-            public void addCorsMappings(CorsRegistry registry){
-                registry.addMapping("/**")
-                .allowedOrigins("*")
-                .allowedMethods("*")
+    @Override
+    public void addCorsMappings(CorsRegistry registry) {
+        registry.addMapping("/**")
+                .allowedOriginPatterns("*")
+                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowedHeaders("*")
-                .allowCredentials(false);
-                
-            }
-        };
+                .exposedHeaders("Content-Disposition", "Content-Type")
+                .allowCredentials(true)
+                .maxAge(3600);
     }
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry){
         registry.addResourceHandler("/api/image/**")
-                .addResourceLocations("file:"+System.getProperty("user.dir")+"/upload/");
+                .addResourceLocations("file:/upload/");
     }
 }
