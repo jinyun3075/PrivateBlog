@@ -34,6 +34,27 @@ public class CategoryService implements BaseService<PostCategoryRequestDTO ,Post
             .toList();
     }
 
+    public List<PostCategoryResponseDTO> update(List<PostCategoryRequestDTO> reqs) {
+        List<Category> domains = reqs
+            .stream()
+            .map(req -> {
+                Category domain = categoryRepository.findById(req.getCategory_id()).orElse(null);
+                if (domain != null) {
+                    domain.updateCategory(req);
+                    domain.updateSort(req.getSort());
+                    domain.setModUser(req.getMod_user());
+                }
+                return domain;
+            })
+            .filter(domain -> domain != null)
+            .toList();
+        
+        return categoryRepository.saveAll(domains)
+            .stream()
+            .map(this::domainToEntity)
+            .toList();
+    }
+
     @Override
     public PostCategoryResponseDTO update(PostCategoryRequestDTO entity) {
         Category domain = categoryRepository

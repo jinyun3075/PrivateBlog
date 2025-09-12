@@ -120,6 +120,10 @@ public class AdminPacade {
         return categoryService.findAll();
     }
 
+    public List<PostCategoryResponseDTO> updateCategorys(List<PostCategoryRequestDTO> reqs) {
+        return categoryService.update(reqs);
+    }
+
     // 컨텐츠 상태
     public PostStateResponseDTO createState(PostStateRequestDTO req) {
         return postContentStateService.create(req);

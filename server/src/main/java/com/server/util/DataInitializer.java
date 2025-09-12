@@ -1,8 +1,10 @@
 package com.server.util;
 
-import org.springframework.boot.ApplicationArguments;
-import org.springframework.boot.ApplicationRunner;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+import jakarta.annotation.PostConstruct;
 
 import com.server.adapter.in.Service.PostContentStateService;
 import com.server.adapter.in.Service.RoleService;
@@ -17,26 +19,51 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class DataInitializer implements ApplicationRunner {
+public class DataInitializer {
     
     private final PostContentStateService postContentStateService;
     private final RoleService roleService;
     private final MemberService memberService;
     
-    @Override
-    public void run(ApplicationArguments args) throws Exception {
+    @PostConstruct
+    @Transactional
+    public void initializeData() {
         log.info("서버 시작 시 기본 데이터 초기화 시작");
         
-        // 블로그 상태 데이터 초기화
-        initializePostStates();
-        
-        // 사용자 권한 데이터 초기화
-        initializeRoles();
-        
-        // 기본 관리자 계정 초기화
-        initializeAdminMember();
-        
-        log.info("기본 데이터 초기화 완료");
+        try {
+            // 잠시 대기하여 JPA가 완전히 초기화되도록 함
+            Thread.sleep(5000);
+            
+            // 테이블 존재 여부 확인 및 재시도 로직
+            int maxRetries = 3;
+            int retryCount = 0;
+            
+            while (retryCount < maxRetries) {
+                try {
+                    // 블로그 상태 데이터 초기화
+                    initializePostStates();
+                    
+                    // 사용자 권한 데이터 초기화
+                    initializeRoles();
+                    
+                    // 기본 관리자 계정 초기화
+                    initializeAdminMember();
+                    
+                    log.info("기본 데이터 초기화 완료");
+                    break;
+                } catch (Exception e) {
+                    retryCount++;
+                    log.warn("데이터 초기화 시도 {} 실패: {}", retryCount, e.getMessage());
+                    if (retryCount < maxRetries) {
+                        Thread.sleep(2000);
+                    } else {
+                        log.error("최대 재시도 횟수 초과. 데이터 초기화 실패: {}", e.getMessage(), e);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.error("기본 데이터 초기화 중 오류 발생: {}", e.getMessage(), e);
+        }
     }
     
     private void initializePostStates() {

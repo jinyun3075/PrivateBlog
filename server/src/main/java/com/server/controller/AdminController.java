@@ -79,6 +79,11 @@ public class AdminController {
         return new ResponseEntity<>(pacade.createCategorys(reqs), HttpStatus.OK);
     }
 
+    @PutMapping("/categorys/update")
+    public ResponseEntity<List<PostCategoryResponseDTO>> updateCategorys(@RequestBody List<PostCategoryRequestDTO> reqs) {
+        return new ResponseEntity<>(pacade.updateCategorys(reqs), HttpStatus.OK);
+    }
+
     // 블로그 상태 값 저장
     @PostMapping("/state/insert")
     public ResponseEntity<PostStateResponseDTO> insertCategory(@RequestBody PostStateRequestDTO req) {

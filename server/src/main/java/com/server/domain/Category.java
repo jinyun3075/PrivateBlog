@@ -42,6 +42,10 @@ public class Category extends BaseEntity{
     public void updateSort(int sort){
         this.sort = sort;
     }
+
+    public void setModUser(String modUser){
+        this.modUser = modUser;
+    }
 }
 
 
