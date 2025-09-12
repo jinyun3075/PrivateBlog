@@ -30,9 +30,9 @@ public class ClientController {
         return new ResponseEntity<>(pacade.selectAllCategories(), HttpStatus.OK);
     }
 
-    @PostMapping("/view/up/{view_id}")
-    public ResponseEntity<Long> upView(@PathVariable Long view_id) {
-        return new ResponseEntity<>(pacade.upView(view_id), HttpStatus.OK);
+    @PostMapping("/view/up/{post_id}")
+    public ResponseEntity<Long> upView(@PathVariable String post_id) {
+        return new ResponseEntity<>(pacade.upView(post_id), HttpStatus.OK);
     }
 
     @PostMapping("/visite/up")

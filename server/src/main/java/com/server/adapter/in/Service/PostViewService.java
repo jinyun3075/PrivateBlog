@@ -1,5 +1,7 @@
 package com.server.adapter.in.Service;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -70,9 +72,26 @@ public class PostViewService implements BaseService<PostViewRequestDTO, PostView
             .toList();
     }
 
-    public Long upView(Long view_id){
-        PostView domain = postViewRepository.findById(view_id).orElse(null);
-        domain.upView();
+    public Long upView(String post_id){
+        LocalDate today = LocalDate.now();
+        String todayStr = today.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        
+        PostView domain = postViewRepository.findByPostIdAndRegDate(post_id, todayStr).orElse(null);
+        
+        if (domain == null) {
+            Post post = postRepository.findById(post_id).orElse(null);
+            if (post == null) {
+                throw new IllegalArgumentException("Post not found with id: " + post_id);
+            }
+            
+            domain = PostView.builder()
+                    .post(post)
+                    .view(1L)
+                    .build();
+        } else {
+            domain.upView();
+        }
+        
         return postViewRepository.save(domain).getView();
     }
 
@@ -91,6 +110,7 @@ public class PostViewService implements BaseService<PostViewRequestDTO, PostView
                 .view_id(domain.getViewId())
                 .post_id(domain.getPost().getPostId())
                 .view(domain.getView())
+                .regDate(domain.getRegDate())
                 .build();
     }
 }

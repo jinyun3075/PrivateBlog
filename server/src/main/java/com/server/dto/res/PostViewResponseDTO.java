@@ -1,5 +1,7 @@
 package com.server.dto.res;
 
+import java.time.LocalDateTime;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,4 +15,5 @@ public class PostViewResponseDTO {
    private long view_id;
    private String post_id;
    private long view;
+   private LocalDateTime regDate;
 }
