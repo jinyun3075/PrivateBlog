@@ -3,7 +3,7 @@ import { colors } from "../../common/designSystem";
 
 interface DashboardCardProps {
   text:string;
-  number:number;
+  number:string;
 }
 
 const DashboardCard = ({text,number}:DashboardCardProps) => {

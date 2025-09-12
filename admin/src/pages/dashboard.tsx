@@ -49,7 +49,7 @@ const Dashboard = () => {
 
   const getVisitStats = async () => {
     try {
-      const { data } = await axios.get<VisitDataType[]>(`${process.env.REACT_APP_BACKEND_HOST}/api/admin/visit/select/all`); // visite → visit 수정
+      const { data } = await axios.get<VisitDataType[]>(`${process.env.REACT_APP_BACKEND_HOST}/api/admin/visite/select/all`); 
       console.log('방문자 데이터:', data);
   
       const stats = calculateViewStats(
@@ -67,32 +67,22 @@ const Dashboard = () => {
     }
   };
 
-  const getPostData = async () => {
-    try{
-      const {data} = await axios.get(`${process.env.REACT_APP_BACKEND_HOST}/api/client/post/select/all`);
-      console.log(data);
-      setPostCount(data.length);
-    }catch(e){
-      console.log(e);
-    }
-  }
 
-  const getBackupPost = async () => {
-    try{
-      const {data} = await axios.get(`${process.env.REACT_APP_BACKEND_HOST}/api/admin/post/select/tempList`);
-      console.log(data);
-      setBackupPostCount(data.length);
-    }catch(e){
-      console.log(e);
-    }
-  }
+  // const getBackupPost = async () => {
+  //   try{
+  //     const {data} = await axios.get(`${process.env.REACT_APP_BACKEND_HOST}/api/admin/post/select/tempList`);
+  //     console.log(data);
+  //     setBackupPostCount(data.length);
+  //   }catch(e){
+  //     console.log(e);
+  //   }
+  // }
 
 
   useEffect(() => {
     getViewStats();
     getVisitStats();
-    getPostData();
-    getBackupPost()
+    // getBackupPost()
   }, []);
 
   return(

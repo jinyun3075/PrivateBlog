@@ -1,5 +1,6 @@
 import styled from 'styled-components';
 import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import "./common/reset.css";
 import "./common/designSystem";
 import "@uiw/react-md-editor/markdown-editor.css";
@@ -47,17 +48,18 @@ const router = createBrowserRouter([
       },
     ],
   }
-
-
   // errorElement:<Test />, 
 ])
 
 
 const App = () => {
-
+  const queryClient = new QueryClient();
+  
   return (
     <Container>
-      <RouterProvider router = {router} />
+      <QueryClientProvider client={queryClient}>
+        <RouterProvider router = {router} />
+      </QueryClientProvider>
     </Container>
   );
 };
