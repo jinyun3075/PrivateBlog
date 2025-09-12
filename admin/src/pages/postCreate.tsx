@@ -169,8 +169,8 @@ const PostCreate = () => {
       return;
     }
 
-    if (file.size > 5 * 1024 * 1024) {
-      setError('파일 크기는 5MB 이하여야 합니다.');
+    if (file.size > 10 * 1024 * 1024) {
+      setError('파일 크기는 10MB 이하여야 합니다.');
       return;
     }
     
@@ -295,10 +295,10 @@ const PostCreate = () => {
             disabled={isUploadingImage}
           />
           <Guide>
-            - 대표 이미지는 한 번에 1개만 설정할 수 있습니다.
-            <br />- png,jpg,jpeg 형식의 파일만 등록 가능합니다.
-            <br />- 이미지 업로드 시, 최적의 사이즈(1200x600)가 권장됩니다.
-            <br />- 파일 크기는 5MB 이하여야 합니다.
+            - 확장자 : PNG, JPEG, JPG만 가능
+            <br />- 용량 : 최대 10MB
+            <br />- 권장 크기 : 1200 x 600 이상
+            <br />- 이미지 업로드 시, 자동으로 사이즈(1200x580)가 조절됩니다.
           </Guide>
         </ThumbBox>
       </FormRow>
