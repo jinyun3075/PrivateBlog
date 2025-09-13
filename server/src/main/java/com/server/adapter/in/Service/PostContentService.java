@@ -32,6 +32,9 @@ public class PostContentService implements BaseService<PostContentRequestDTO, Po
     @Override
     public PostContentResponseDTO update(PostContentRequestDTO req) {
         PostContent domain = postContentRepository.findById(req.getContent_id()).orElse(null);
+        if (domain == null) {
+            throw new IllegalArgumentException("PostContent not found with id: " + req.getContent_id());
+        }
         domain.updateContent(req);
         return domainToEntity(postContentRepository.save(domain));
     }
@@ -57,8 +60,11 @@ public class PostContentService implements BaseService<PostContentRequestDTO, Po
     }
 
     public PostContentResponseDTO findByPostIdAndStateId(String postId, Long stateId) {
-        return domainToEntity(postContentRepository.findByPost_PostIdAndState_StateId(postId, stateId));
-                
+        PostContent domain = postContentRepository.findByPost_PostIdAndState_StateId(postId, stateId);
+        if (domain == null) {
+            return null;
+        }
+        return domainToEntity(domain);
     }
 
     public List<PostContentResponseDTO> findByPostId(String postId) {
@@ -71,7 +77,15 @@ public class PostContentService implements BaseService<PostContentRequestDTO, Po
     @Override
     public PostContent entityToDomain(PostContentRequestDTO req) {
         Post post = postRepository.findById(req.getPost_id()).orElse(null);
+        if (post == null) {
+            throw new IllegalArgumentException("Post not found with id: " + req.getPost_id());
+        }
+        
         PostContentState state = postConentStateRepository.findById(req.getState_id()).orElse(null);
+        if (state == null) {
+            throw new IllegalArgumentException("PostContentState not found with id: " + req.getState_id());
+        }
+        
         return PostContent.builder()
                 .content(req.getContent())
                 .post(post)
@@ -81,15 +95,27 @@ public class PostContentService implements BaseService<PostContentRequestDTO, Po
 
     @Override
     public PostContentResponseDTO domainToEntity(PostContent domain) {
+        if (domain == null) {
+            return null;
+        }
+        
+        String postId = null;
+        if (domain.getPost() != null) {
+            postId = domain.getPost().getPostId();
+        }
+        
+        PostStateResponseDTO stateResponse = null;
+        if (domain.getState() != null) {
+            stateResponse = PostStateResponseDTO.builder()
+                    .state_id(domain.getState().getStateId())
+                    .name(domain.getState().getName())
+                    .build();
+        }
+        
         return PostContentResponseDTO.builder()
                 .content_id(domain.getContentId())
-                .post_id(domain.getPost().getPostId())
-                .state(
-                    PostStateResponseDTO
-                        .builder()
-                        .state_id(domain.getState().getStateId())
-                        .name(domain.getState().getName())
-                    .build())
+                .post_id(postId)
+                .state(stateResponse)
                 .content(domain.getContent())
                 .build();
     }

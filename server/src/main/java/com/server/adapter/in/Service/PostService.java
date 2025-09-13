@@ -34,6 +34,9 @@ public class PostService implements BaseService<PostRequestDTO, PostResponseDTO,
     @Override
     public PostResponseDTO update(PostRequestDTO req) {
         Post domain = postRepository.findById(req.getPost_id()).orElse(null);
+        if (domain == null) {
+            throw new IllegalArgumentException("Post not found with id: " + req.getPost_id());
+        }
         Category category = categoryRepository.findById(req.getCategory_id()).orElse(null);
         domain.updatePost(req, category);
         return domainToEntity(postRepository.save(domain));
@@ -70,6 +73,9 @@ public class PostService implements BaseService<PostRequestDTO, PostResponseDTO,
     @Override
     public Post entityToDomain(PostRequestDTO req) {
         Category category = categoryRepository.findById(req.getCategory_id()).orElse(null);
+        if (category == null) {
+            throw new IllegalArgumentException("Category not found with id: " + req.getCategory_id());
+        }
         
         LocalDateTime  now = LocalDateTime .now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyMMddHHmmss");
@@ -89,6 +95,14 @@ public class PostService implements BaseService<PostRequestDTO, PostResponseDTO,
 
     @Override
     public PostResponseDTO domainToEntity(Post domain) {
+        PostCategoryResponseDTO categoryResponse = null;
+        if (domain.getCategory() != null) {
+            categoryResponse = PostCategoryResponseDTO.builder()
+                    .category_id(domain.getCategory().getCategoryId())
+                    .name(domain.getCategory().getName())
+                    .build();
+        }
+        
         return PostResponseDTO.builder()
                 .post_id(domain.getPostId())                
                 .title(domain.getTitle())
@@ -98,12 +112,7 @@ public class PostService implements BaseService<PostRequestDTO, PostResponseDTO,
                 .reg_user(domain.getRegUser())
                 .regDate(domain.getRegDate())
                 .modDate(domain.getModDate())
-                .category(
-                    PostCategoryResponseDTO.builder()
-                        .category_id(domain.getCategory().getCategoryId())
-                        .name(domain.getCategory().getName())
-                        .build()
-                )
+                .category(categoryResponse)
                 .build();
     }
 }

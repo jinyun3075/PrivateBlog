@@ -85,7 +85,7 @@ public class AdminController {
     }
 
     @DeleteMapping("/category/delete/{id}")
-    public ResponseEntity<String> deleteCategory(@PathVariable Long category_id) {
+    public ResponseEntity<String> deleteCategory(@PathVariable("id") Long category_id) {
         return new ResponseEntity<>(pacade.deleteCategory(category_id), HttpStatus.OK);
     }
 
