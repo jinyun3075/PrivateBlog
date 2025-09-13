@@ -52,12 +52,12 @@ public class AdminController {
 
     // 블로그 포스트 조회수
     @GetMapping("/view/select/all")
-    public ResponseEntity<Long> selectViewAllCount() {
-        return new ResponseEntity<>(pacade.selectViewAllCount(), HttpStatus.OK);
+    public ResponseEntity<List<PostViewResponseDTO>> selectViewAllCount() {
+        return new ResponseEntity<>(pacade.selectViewAllView(), HttpStatus.OK);
     }
 
     @GetMapping("/view/select/{id}")
-    public ResponseEntity<Long> selectAllPostView(@PathVariable String post_id) {
+    public ResponseEntity<List<PostViewResponseDTO>> selectAllPostView(@PathVariable String post_id) {
         return new ResponseEntity<>(pacade.selectAllPostView(post_id), HttpStatus.OK);
     }
 
@@ -77,6 +77,16 @@ public class AdminController {
     @PostMapping("/categorys/insert")
     public ResponseEntity<List<PostCategoryResponseDTO>> insertCategory(@RequestBody List<PostCategoryRequestDTO> reqs) {
         return new ResponseEntity<>(pacade.createCategorys(reqs), HttpStatus.OK);
+    }
+
+    @PutMapping("/categorys/update")
+    public ResponseEntity<List<PostCategoryResponseDTO>> updateCategorys(@RequestBody List<PostCategoryRequestDTO> reqs) {
+        return new ResponseEntity<>(pacade.updateCategorys(reqs), HttpStatus.OK);
+    }
+
+    @DeleteMapping("/category/delete/{id}")
+    public ResponseEntity<String> deleteCategory(@PathVariable("id") Long category_id) {
+        return new ResponseEntity<>(pacade.deleteCategory(category_id), HttpStatus.OK);
     }
 
     // 블로그 상태 값 저장

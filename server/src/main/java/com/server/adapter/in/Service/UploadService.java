@@ -16,13 +16,19 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class UploadService {
-    private final String uploadDir = System.getProperty("user.dir") + "/upload/";
+    private final String uploadDir = "/upload/";
+    private static final long MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
     public List<UploadResponseDTO> uploadFile(MultipartFile[] uploadFiles) throws Exception {
         List<UploadResponseDTO> resultDTOList = new ArrayList<>();
         
         for(MultipartFile file : uploadFiles){
             if(file.isEmpty()) continue;
+
+            // 파일 크기 체크
+            if(file.getSize() > MAX_FILE_SIZE) {
+                throw new RuntimeException("파일 크기가 너무 큽니다. 최대 10MB까지 업로드 가능합니다: " + file.getOriginalFilename());
+            }
 
             try{
                 String originalFilename = file.getOriginalFilename();

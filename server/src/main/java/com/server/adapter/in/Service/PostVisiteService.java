@@ -1,5 +1,7 @@
 package com.server.adapter.in.Service;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -50,10 +52,23 @@ public class PostVisiteService implements BaseService<PostVisiteRequestDTO, Post
     }
 
     public Long upVisite(){
-        PostVisite domain = postVisteRepository.findTopByOrderByRegDateDesc().orElse(null);
-        domain.upVisite();
+        LocalDate today = LocalDate.now();
+        String todayStr = today.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        
+        // 당일 방문자 수 로우가 있는지 확인
+        PostVisite domain = postVisteRepository.findByRegDate(todayStr).orElse(null);
+        
+        if (domain == null) {
+            // 당일 로우가 없으면 새로 생성
+            domain = PostVisite.builder()
+                    .visite(1L)
+                    .build();
+        } else {
+            // 당일 로우가 있으면 카운트 증가
+            domain.upVisite();
+        }
+        
         return postVisteRepository.save(domain).getVisite();
-
     }
 
     @Override

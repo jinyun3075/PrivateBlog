@@ -8,7 +8,6 @@ import com.server.adapter.in.Service.*;
 
 import lombok.RequiredArgsConstructor;
 
-import com.server.dto.req.*;
 import com.server.dto.res.*;
 
 @RequiredArgsConstructor
@@ -39,8 +38,8 @@ public class ClientPacade {
         return posts;
     }
 
-    public Long upView(Long view_id){
-        return postViewService.upView(view_id);
+    public Long upView(String post_id){
+        return postViewService.upView(post_id);
     }
 
     public Long upVisite(){
