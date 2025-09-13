@@ -84,6 +84,11 @@ public class AdminController {
         return new ResponseEntity<>(pacade.updateCategorys(reqs), HttpStatus.OK);
     }
 
+    @DeleteMapping("/category/delete/{id}")
+    public ResponseEntity<String> deleteCategory(@PathVariable Long category_id) {
+        return new ResponseEntity<>(pacade.deleteCategory(category_id), HttpStatus.OK);
+    }
+
     // 블로그 상태 값 저장
     @PostMapping("/state/insert")
     public ResponseEntity<PostStateResponseDTO> insertCategory(@RequestBody PostStateRequestDTO req) {

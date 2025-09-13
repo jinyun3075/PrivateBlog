@@ -8,7 +8,6 @@ import com.server.adapter.in.Service.*;
 
 import lombok.RequiredArgsConstructor;
 
-import com.server.dto.req.*;
 import com.server.dto.res.*;
 
 @RequiredArgsConstructor

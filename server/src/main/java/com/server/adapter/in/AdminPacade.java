@@ -5,14 +5,10 @@ import java.util.List;
 import org.springframework.stereotype.Component;
 
 import com.server.adapter.in.Service.*;
-import com.server.domain.Post;
-import com.server.domain.Role;
-
 import lombok.RequiredArgsConstructor;
 
 import com.server.dto.req.*;
 import com.server.dto.res.*;
-import com.server.util.entity.PostStateRole;
 @RequiredArgsConstructor
 @Component
 public class AdminPacade {
@@ -122,6 +118,11 @@ public class AdminPacade {
 
     public List<PostCategoryResponseDTO> updateCategorys(List<PostCategoryRequestDTO> reqs) {
         return categoryService.update(reqs);
+    }
+
+    public String deleteCategory(Long category_id) {
+        categoryService.delete(category_id);
+        return "Category with ID " + category_id + " deleted successfully.";
     }
 
     // 컨텐츠 상태

@@ -4,7 +4,6 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 import com.server.dto.req.PostContentRequestDTO;
-import com.server.dto.res.PostContentResponseDTO;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

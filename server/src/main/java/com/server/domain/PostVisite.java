@@ -3,7 +3,7 @@ package com.server.domain;
 import org.hibernate.annotations.ColumnDefault;
 
 import com.server.dto.req.PostVisiteRequestDTO;
-import com.server.dto.res.PostVisiteResponseDTO;
+
 import com.server.util.entity.BaseEntity;
 
 import jakarta.persistence.*;
