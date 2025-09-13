@@ -63,9 +63,9 @@ public class AdminController {
 
     //블로그 방문자수
 
-    @GetMapping("/viste/select/all")
-    public ResponseEntity<List<PostVisiteResponseDTO>> selectAllVisite() {
-        return new ResponseEntity<>(pacade.selectAllVisite(), HttpStatus.OK);
+    @GetMapping("/visit/select/all")
+    public ResponseEntity<List<PostVisitResponseDTO>> selectAllVisit() {
+        return new ResponseEntity<>(pacade.selectAllVisit(), HttpStatus.OK);
     }
 
     // 카테고리

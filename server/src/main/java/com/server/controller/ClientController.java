@@ -35,8 +35,8 @@ public class ClientController {
         return new ResponseEntity<>(pacade.upView(post_id), HttpStatus.OK);
     }
 
-    @PostMapping("/visite/up")
-    public ResponseEntity<Long> upVisite() {
-        return new ResponseEntity<>(pacade.upVisite(), HttpStatus.OK);
+    @PostMapping("/visit/up")
+    public ResponseEntity<Long> upVisit() {
+        return new ResponseEntity<>(pacade.upVisit(), HttpStatus.OK);
     }
 }
