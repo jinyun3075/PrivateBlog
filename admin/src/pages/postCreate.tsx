@@ -2,6 +2,8 @@ import styled from "styled-components";
 import { useState, useEffect } from "react";
 import MDEditor from "@uiw/react-md-editor";
 import axios from "axios";
+import Header from "../components/header/header";
+import { colors } from "../common/designSystem";
 
 interface Category {
   category_id: number;
@@ -24,6 +26,7 @@ const PostCreate = () => {
   const [uploadedImageUrl, setUploadedImageUrl] = useState<string | null>(null);
   const [username, setUsername] = useState<string>("");
   const [isUploadingContentImage, setIsUploadingContentImage] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   // API URL 상수
   const API_URL = process.env.REACT_APP_BACKEND_HOST || "http://localhost:3000";
@@ -160,6 +163,24 @@ const PostCreate = () => {
     }
   }, []);
 
+  // 드롭다운 외부 클릭 시 닫기
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (!target.closest('[data-dropdown]')) {
+        setIsDropdownOpen(false);
+      }
+    };
+
+    if (isDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isDropdownOpen]);
+
   const onChangeFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -258,108 +279,126 @@ const PostCreate = () => {
 
   return (
     <Container>
-      <Title>게시글 작성</Title>
+      
+      <Header title="게시글 작성">
+        <BtnWrapper>
+          <TempSave  onClick={saveDraft} disabled={isLoading}>임시저장</TempSave>
+          <Save onClick={createPost} disabled={isLoading}>등록</Save>
+        </BtnWrapper>
+      </Header>
 
-      <FormRow>
-        <Label>카테고리</Label>
-        <Select 
-          value={category} 
-          onChange={(e:React.ChangeEvent<HTMLSelectElement>) => setCategory(e.target.value)}
-          disabled={isLoadingCategories}
-        >
-          <option value="">
-            {isLoadingCategories ? "카테고리 로딩 중..." : "카테고리를 선택하세요."}
-          </option>
-          {categories.map((cat) => (
-            <option key={cat.category_id} value={cat.category_id.toString()}>
-              {cat.name}
-            </option>
-          ))}
-        </Select>
-      </FormRow>
+      <MainContents>
+        <FormRow>
+          <Label>카테고리</Label>
+          <SelectWrapper data-dropdown>
+            <SelectButton 
+              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+              disabled={isLoadingCategories}
+              $isOpen={isDropdownOpen}
+            >
+              <SelectText>
+                {isLoadingCategories 
+                  ? "카테고리 로딩 중..." 
+                  : category 
+                    ? categories.find(cat => cat.category_id.toString() === category)?.name || "카테고리를 설정하세요."
+                    : "카테고리를 설정하세요."
+                }
+              </SelectText>
+              <ArrowIcon 
+                src={isDropdownOpen ? "/img/icon_arrowUp.png" : "/img/icon_arrowDown.png"}
+              />
+            </SelectButton>
+            
+            {isDropdownOpen && (
+              <DropdownList>
+                {categories.map((cat) => (
+                  <DropdownItem
+                    key={cat.category_id}
+                    onClick={() => {
+                      setCategory(cat.category_id.toString());
+                      setIsDropdownOpen(false);
+                    }}
+                    $isSelected={category === cat.category_id.toString()}
+                  >
+                    {cat.name}
+                  </DropdownItem>
+                ))}
+              </DropdownList>
+            )}
+          </SelectWrapper>
+        </FormRow>
 
-      <FormRow>
-        <Label>대표 이미지</Label>
-        <ThumbBox>
-          {thumbnail ? (
-            <Thumb src={thumbnail} alt="thumbnail" />
-          ) : (
-            <ThumbPlaceholder>
-              {isUploadingImage ? "업로드 중..." : "+"}
-            </ThumbPlaceholder>
-          )}
-          <input 
-            type="file" 
-            accept="image/*" 
-            onChange={onChangeFile}
-            disabled={isUploadingImage}
+        <FormRow>
+          <Label>대표 이미지</Label>
+          <ThumbBox>
+            {thumbnail ? (
+              <Thumb src={thumbnail} alt="thumbnail" />
+            ) : (
+              <ThumbPlaceholder htmlFor="thumbnail-input">
+                {isUploadingImage ? "업로드 중..." : <img src="/img/icon_plus.png" />}
+              </ThumbPlaceholder>
+            )}
+            <input 
+              id="thumbnail-input"
+              type="file" 
+              accept="image/*" 
+              onChange={onChangeFile}
+              disabled={isUploadingImage}
+              style={{ display: 'none' }}
+            />
+            <Guide>
+              <li>대표 이미지는 최대 1개까지 설정할 수 있습니다.</li>
+              <li>pdf.png.jpg 형식의 파일만 등록 가능합니다.</li>
+              <li>이미지 업로드 시, 자동으로 사이즈(1200x600)가 조절됩니다.</li>
+              {/* - 확장자 : PNG, JPEG, JPG만 가능
+              <br />- 용량 : 최대 10MB
+              <br />- 권장 크기 : 1200 x 600 이상
+              <br />- 이미지 업로드 시, 자동으로 사이즈(1200x580)가 조절됩니다. */}
+            </Guide>
+          </ThumbBox>
+        </FormRow>
+
+        <FormRow>
+          <Label $title = {true}>제목</Label>
+          <Input
+            placeholder="제목을 입력하세요."
+            value={title}
+            onChange={(e:React.ChangeEvent<HTMLInputElement>) => setTitle(e.target.value)}
           />
-          <Guide>
-            - 확장자 : PNG, JPEG, JPG만 가능
-            <br />- 용량 : 최대 10MB
-            <br />- 권장 크기 : 1200 x 600 이상
-            <br />- 이미지 업로드 시, 자동으로 사이즈(1200x580)가 조절됩니다.
-          </Guide>
-        </ThumbBox>
-      </FormRow>
+        </FormRow>
 
-      <FormRow>
-        <Label>제목</Label>
-        <Input
-          placeholder="제목을 입력하세요."
-          value={title}
-          onChange={(e:React.ChangeEvent<HTMLInputElement>) => setTitle(e.target.value)}
-        />
-      </FormRow>
+        <EditorWrapper data-color-mode="light">
 
-      <EditorWrapper data-color-mode="light">
-        <EditorHeader>
           <Label>내용</Label>
-        </EditorHeader>
-        
-        <EditorContainer
-          onDragOver={handleDragOver}
-          onDrop={handleDrop}
-          $isUploading={isUploadingContentImage}
-        >
-          <MDEditor 
-            value={content}
-            onChange={(v:string) => setContent(v || "")}
-            height={480}
-            textareaProps={{
-              onPaste: handlePasteImage,
-            }}
-          />
-          {isUploadingContentImage && (
-            <UploadOverlay>
-              <UploadMessage>이미지 업로드 중...</UploadMessage>
-            </UploadOverlay>
-          )}
-        </EditorContainer>
-      </EditorWrapper>
+          
+          <EditorContainer
+            onDragOver={handleDragOver}
+            onDrop={handleDrop}
+            $isUploading={isUploadingContentImage}
+          >
+            <MDEditor 
+              value={content}
+              onChange={(v:string) => setContent(v || "")}
+              height={480}
+              textareaProps={{
+                onPaste: handlePasteImage,
+              }}
+            />
+            {isUploadingContentImage && (
+              <UploadOverlay>
+                <UploadMessage>이미지 업로드 중...</UploadMessage>
+              </UploadOverlay>
+            )}
+          </EditorContainer>
+        </EditorWrapper>
 
-      {error && (
-        <ErrorMessage>
-          {error}
-        </ErrorMessage>
-      )}
+        {error && (
+          <ErrorMessage>
+            {error}
+          </ErrorMessage>
+        )}
 
-      <Actions>
-        <Button 
-          type="button" 
-          onClick={saveDraft}
-          disabled={isLoading}
-        >
-          {isLoading ? "임시저장 중..." : "임시저장"}
-        </Button>
-        <PrimaryButton 
-          type="button" 
-          onClick={createPost}
-          disabled={isLoading}
-        >
-          {isLoading ? "등록 중..." : "등록"}
-        </PrimaryButton>
-      </Actions>
+      </MainContents>
     </Container>
   );
 };
@@ -369,98 +408,227 @@ const Container = styled.div`
   padding: 24px;
 `;
 
-const Title = styled.h1`
-  font-size: 18px;
-  font-weight: 600;
-  margin-bottom: 16px;
-`;
+const BtnWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  gap:15px;
+`
 
-const Subtitle = styled.h2`
-  font-size: 14px;
-  font-weight: 600;
-  margin: 16px 0 8px;
-`;
+const TempSave = styled.button`
+  font-family: 'Pretendard-SemiBold';
+  font-size: 16px;
+  padding:10px 0%;
+  width: 80px;
+  height: 46px;
+  border:1px solid ${colors.LightGray[400]};
+  border-radius: 4px;
+  color: ${colors.Black};
+  background-color: ${colors.White};
+`
+
+const Save = styled(TempSave)`
+  color: ${colors.White};
+  background-color: ${colors.Black};
+  border:none;
+`
+
+const MainContents = styled.div`
+  width: 100%;
+  padding:0 32 32 38px;
+  display: flex;
+  flex-direction: column;
+  gap:24px;
+`
 
 const FormRow = styled.div`
   display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  margin-bottom: 16px;
+  gap: 24px;
 `;
 
-const Label = styled.label`
-  width: 100px;
-  padding-top: 10px;
-  color: #111827;
+const Label = styled.div<{$title:boolean}>`
+  width: 88px;
+  height: 40px;
+  
+  display: flex;
+  align-items: center;
+
+  font-family: 'Pretendard-SemiBold';
+  font-size: 16px;
+  color: ${colors.Black};
+
+  position:${props=>props.$title && `relative`};
+
+  &::after{
+    position:absolute;
+    left:33px;
+    top:50%;
+    transform:translateY(-50%);
+    content:${props=>props.$title ? `""`:`none`};
+    width: 4px;
+    height: 4px;
+    border-radius:50%;
+    background-color:${colors.Error}
+  }
+`;
+
+const SelectWrapper = styled.div`
+  position: relative;
+  width: 320px;
+`;
+
+const SelectButton = styled.button<{ $isOpen: boolean }>`
+  width: 100%;
+  height: 40px;
+  padding: 0 12px;
+  border: 1px solid ${colors.LightGray[400]};
+  background-color: ${colors.White};
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  font-family: 'Pretendard-Regular';
+  font-size: 14px;
+  
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+`;
+
+const SelectText = styled.span`
+  font-family: 'Pretendard-Regular';
+  color: ${colors.Gray[200]};
   font-size: 14px;
 `;
 
-const Select = styled.select`
-  height: 40px;
-  min-width: 240px;
-  border: 1px solid #e5e7eb;
+const DropdownList = styled.div`
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin-top: 5px;
+  background-color: ${colors.White};
+  border: 1px solid ${colors.LightGray[300]};
   border-radius: 4px;
-  padding: 0 10px;
-  background: #fff;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  z-index: 10;
 `;
 
-const Input = styled.input`
+const DropdownItem = styled.div<{ $isSelected: boolean }>`
+  padding: 10px 12px;
   height: 40px;
-  flex: 1;
-  min-width: 320px;
-  border: 1px solid #e5e7eb;
-  border-radius: 4px;
-  padding: 0 12px;
+  cursor: pointer;
+  font-family: 'Pretendard-Regular';
+  font-size: 14px;
+  color: ${colors.Black};
+  background-color: ${props => props.$isSelected ? colors.LightGray[100] : 'transparent'};
+  
+  &:hover {
+    background-color: ${colors.LightGray[100]};
+  }
+  
+  &:first-child {
+    border-radius: 4px 4px 0 0;
+  }
+  
+  &:last-child {
+    border-radius: 0 0 4px 4px;
+  }
 `;
+
+const ArrowIcon = styled.img`
+  width: 16px;
+  height: 16px;
+  pointer-events: none;
+`
 
 const ThumbBox = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 16px;
 `;
+
+const Input = styled.input`
+  width: 100%;
+  height: 40px;
+  padding: 9px 16px;
+  border: 1px solid ${colors.LightGray[400]};
+  border-radius: 4px;
+  font-family: 'Pretendard-Regular';
+  font-size: 14px;
+  line-height: 1.6;
+  color: ${colors.Black};
+  
+  &::placeholder{
+    font-family: 'Pretendard-Regular';
+    font-size: 14px;
+    line-height: 1.6;
+    color: ${colors.Gray[200]};
+  }
+`;
+
+const ThumbPlaceholder = styled.label`
+  width: 320px;
+  height: 160px;
+  object-fit: cover;
+  border: 1px solid ${colors.LightGray[300]};
+  border-radius: 4px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+
+  img{
+    width: 32px;
+    height: 32px;
+  }
+  
+`
 
 const Thumb = styled.img`
-  width: 240px;
-  height: 144px;
+  width: 320px;
+  height: 160px;
   object-fit: cover;
-  border: 1px solid #e5e7eb;
+
   border-radius: 4px;
 `;
 
-const ThumbPlaceholder = styled.div`
-  width: 240px;
-  height: 144px;
-  border: 1px dashed #9ca3af;
-  color: #9ca3af;
-  display: grid;
-  place-items: center;
-  border-radius: 4px;
-  font-size: 28px;
-`;
 
-const Guide = styled.p`
-  color: #6b7280;
-  font-size: 12px;
-  line-height: 1.5;
+const Guide = styled.ul`
+  font-family: 'Pretendard-Regular';
+  color: ${colors.Gray[200]};
+  font-size: 14px;
+  line-height: 1.4;
+
+  padding-left:20px;
+
+  li{
+    position:relative;
+
+    &::before{
+    position:absolute;
+    left:-10px;
+    top:50%;
+    transform:translateY(-50%);
+    content:"";
+    width: 4px;
+    height: 4px;
+    border-radius:50%;
+    background-color:${colors.Gray[200]};
+  }
+  }
+
 `;
 
 const EditorWrapper = styled.div`
-  margin-top: 16px;
 `;
-
-const EditorHeader = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 8px;
-`;
-
 
 const EditorContainer = styled.div<{ $isUploading: boolean }>`
   position: relative;
-  border: 1px solid #e5e7eb;
+  border: 1px solid ${colors.LightGray[300]};
   border-radius: 4px;
-  background: #fff;
   
   ${props => props.$isUploading && `
     border-color: #1b7eff;
@@ -491,29 +659,6 @@ const UploadMessage = styled.div`
   font-weight: 500;
 `;
 
-const Actions = styled.div`
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-  margin-top: 20px;
-`;
-
-const Button = styled.button`
-  height: 40px;
-  padding: 0 16px;
-  border-radius: 4px;
-  background: #f3f4f6;
-`;
-
-const PrimaryButton = styled(Button)`
-  background: #1b7eff;
-  color: #fff;
-  
-  &:disabled {
-    background: #9ca3af;
-    cursor: not-allowed;
-  }
-`;
 
 const ErrorMessage = styled.div`
   background: #fef2f2;
