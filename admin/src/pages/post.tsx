@@ -1,8 +1,881 @@
-const Post = () => {
-  return(
-    <>Post </>
-  )
+import styled from "styled-components";
+import { useState, useEffect, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import Header from "../components/header/header";
+import { colors } from "../common/designSystem";
+import { usePosts } from "../hooks/usePosts";
+import usePagination from "../hooks/usePagination";
+import Pagination from "../components/pagination/pagination";
+import { PostType, Category } from "../common/type";
+
+interface FilterState {
+  startDate: string;
+  endDate: string;
+  postStatus: string;
+  category: string;
+  searchType: string;
+  searchTerm: string;
 }
 
+const Post = () => {
+  const navigate = useNavigate();
+  const { data: allPosts = [] } = usePosts();
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [filters, setFilters] = useState<FilterState>({
+    startDate: "",
+    endDate: "",
+    postStatus: "전체",
+    category: "전체",
+    searchType: "전체",
+    searchTerm: ""
+  });
+  const [filteredPosts, setFilteredPosts] = useState<PostType[]>([]);
+  const [isSearchPerformed, setIsSearchPerformed] = useState(false);
+  const [isFilterExpanded, setIsFilterExpanded] = useState(true);
+  const [dateErrors, setDateErrors] = useState<{start?: string, end?: string}>({});
+  const [activePeriodButton, setActivePeriodButton] = useState<string>("이번달");
+  const [selectedPosts, setSelectedPosts] = useState<string[]>([]);
 
-export default Post
+  // 카테고리 데이터 가져오기
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const { data } = await axios.get(`${process.env.REACT_APP_BACKEND_HOST}/api/client/category/select/all`);
+        setCategories(data);
+      } catch (error) {
+        console.error('카테고리 데이터 가져오기 실패:', error);
+      }
+    };
+    fetchCategories();
+  }, []);
+
+  // 날짜 범위 계산 함수들
+  const getDateRange = (period: string) => {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = today.getMonth();
+    const day = today.getDate();
+
+    switch (period) {
+      case "이번달":
+        return {
+          startDate: new Date(year, month, 1),
+          endDate: today
+        };
+      case "3개월":
+        const threeMonthsAgo = new Date(year, month - 2, 1);
+        return {
+          startDate: threeMonthsAgo,
+          endDate: today
+        };
+      case "6개월":
+        const sixMonthsAgo = new Date(year, month - 5, 1);
+        return {
+          startDate: sixMonthsAgo,
+          endDate: today
+        };
+      default:
+        return null;
+    }
+  };
+
+  // 기간 버튼 클릭 핸들러
+  const handlePeriodClick = (period: string) => {
+    const dateRange = getDateRange(period);
+    if (dateRange) {
+      setActivePeriodButton(period);
+      setDateErrors({}); // 오류 상태 초기화
+      setFilters(prev => ({
+        ...prev,
+        startDate: formatDate(dateRange.startDate),
+        endDate: formatDate(dateRange.endDate)
+      }));
+    }
+  };
+
+  // 날짜 포맷팅 함수
+  const formatDate = (date: Date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}.${month}.${day}`;
+  };
+
+  // 날짜 입력 핸들러
+  const handleDateChange = (type: 'start' | 'end', value: string) => {
+    const date = new Date(value);
+    const today = new Date();
+    today.setHours(23, 59, 59, 999); // 오늘의 끝까지
+    
+    // 직접 날짜 선택 시 고정 기간 버튼 해제
+    setActivePeriodButton("");
+    
+    // 오류 상태 초기화
+    setDateErrors(prev => ({ ...prev, [type]: undefined }));
+    
+    // 미래 날짜 체크
+    if (date > today) {
+      setDateErrors(prev => ({ ...prev, [type]: "미래 날짜는 지정할 수 없습니다." }));
+      return;
+    }
+
+    setFilters(prev => {
+      const newFilters = { ...prev };
+      const formattedDate = formatDate(date);
+      
+      if (type === 'start') {
+        newFilters.startDate = formattedDate;
+        
+        // 시작일이 종료일보다 이후인 경우 종료일을 시작일 +1일로 조정
+        if (newFilters.endDate) {
+          const endDate = new Date(newFilters.endDate.replace(/\./g, '-'));
+          if (date > endDate) {
+            const newEndDate = new Date(date);
+            newEndDate.setDate(newEndDate.getDate() + 1);
+            
+            // 조정된 종료일이 미래 날짜인 경우, 시작일과 종료일을 같게 설정
+            if (newEndDate > today) {
+              newFilters.endDate = formattedDate; // 시작일과 같게 설정
+            } else {
+              newFilters.endDate = formatDate(newEndDate);
+            }
+          }
+        }
+      } else {
+        newFilters.endDate = formattedDate;
+        
+        // 종료일이 시작일보다 이전인 경우 시작일을 종료일 -1일로 조정
+        if (newFilters.startDate) {
+          const startDate = new Date(newFilters.startDate.replace(/\./g, '-'));
+          if (date < startDate) {
+            const newStartDate = new Date(date);
+            newStartDate.setDate(newStartDate.getDate() - 1);
+            newFilters.startDate = formatDate(newStartDate);
+          }
+        }
+      }
+      
+      return newFilters;
+    });
+  };
+
+  // 검색 실행
+  const handleSearch = () => {
+    let filtered = [...allPosts];
+
+    // 날짜 필터링
+    if (filters.startDate && filters.endDate) {
+      const startDate = new Date(filters.startDate.replace(/\./g, '-'));
+      const endDate = new Date(filters.endDate.replace(/\./g, '-'));
+      endDate.setHours(23, 59, 59, 999); // 하루 끝까지 포함
+
+      filtered = filtered.filter(post => {
+        const postDate = new Date(post.regDate);
+        return postDate >= startDate && postDate <= endDate;
+      });
+    }
+
+    // 상태 필터링
+    if (filters.postStatus !== "전체") {
+      const isRegistered = filters.postStatus === "등록";
+      filtered = filtered.filter(post => {
+        // 임시저장은 use_yn이 false, 등록은 true로 가정
+        return isRegistered ? post.use_yn : !post.use_yn;
+      });
+    }
+
+    // 카테고리 필터링
+    if (filters.category !== "전체") {
+      filtered = filtered.filter(post => post.category.name === filters.category);
+    }
+
+    // 검색어 필터링
+    if (filters.searchTerm) {
+      filtered = filtered.filter(post => {
+        switch (filters.searchType) {
+          case "제목":
+            return post.title.toLowerCase().includes(filters.searchTerm.toLowerCase());
+          case "내용":
+            return post.content.content.toLowerCase().includes(filters.searchTerm.toLowerCase());
+          case "전체":
+          default:
+            return post.title.toLowerCase().includes(filters.searchTerm.toLowerCase()) ||
+                   post.content.content.toLowerCase().includes(filters.searchTerm.toLowerCase());
+        }
+      });
+    }
+
+    setFilteredPosts(filtered);
+    setIsSearchPerformed(true);
+  };
+
+  // 초기화
+  const handleReset = () => {
+    setFilters({
+      startDate: "",
+      endDate: "",
+      postStatus: "전체",
+      category: "전체",
+      searchType: "전체",
+      searchTerm: ""
+    });
+    setFilteredPosts([]);
+    setIsSearchPerformed(false);
+    setDateErrors({});
+    setActivePeriodButton("이번달");
+    // 초기화 시 이번달로 설정
+    handlePeriodClick("이번달");
+  };
+
+  // 필터 토글 핸들러
+  const handleFilterToggle = () => {
+    setIsFilterExpanded(!isFilterExpanded);
+  };
+
+  // 등록 버튼 클릭 핸들러
+  const handleGoToCreate = () => {
+    navigate('/post/create');
+  };
+
+  // 체크박스 핸들러
+  const handlePostSelect = (postId: string, isSelected: boolean) => {
+    if (isSelected) {
+      setSelectedPosts(prev => [...prev, postId]);
+    } else {
+      setSelectedPosts(prev => prev.filter(id => id !== postId));
+    }
+  };
+
+  // 전체 선택/해제 핸들러
+  const handleSelectAll = (isSelected: boolean) => {
+    if (isSelected) {
+      setSelectedPosts(currentPosts.map(post => post.post_id));
+    } else {
+      setSelectedPosts([]);
+    }
+  };
+
+  // 페이지네이션
+  const { currentPage, totalPages, currentPosts, goToPage } = usePagination(filteredPosts, 50);
+
+  // 초기 로드 시 이번달로 설정
+  useEffect(() => {
+    handlePeriodClick("이번달");
+  }, []);
+
+  return (
+    <Container>
+      <Header title="게시글 관리">
+        <GoToCreate onClick={handleGoToCreate}>등록</GoToCreate>
+      </Header>
+      
+      <MainContent>
+        {/* 필터 설정 */}
+        <FilterSection>
+          <FilterHeader>
+            <FilterTitle>필터 설정</FilterTitle>
+            <FilterToggle onClick={handleFilterToggle}>
+              <span>{isFilterExpanded ? "접기" : "펼치기"}</span>
+              <img src={isFilterExpanded ? "/img/icon_arrowUp.png" : "/img/icon_arrowDown.png"} />
+            </FilterToggle>
+          </FilterHeader>
+          
+          {isFilterExpanded && (
+            <SelectContainer>
+            <FilterDateRow>
+              <FilterItem>
+                <FilterLabel>기간</FilterLabel>
+                <DateInputs>
+                  <DateInputWrapper>
+                    <DateInput
+                      type="date"
+                      value={filters.startDate.replace(/\./g, '-')}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleDateChange('start', e.target.value)}
+                      $hasError={!!dateErrors.start}
+                      max={new Date().toISOString().split('T')[0]}
+                    />
+                    {dateErrors.start && <ErrorMessage>{dateErrors.start}</ErrorMessage>}
+                  </DateInputWrapper>
+                  <DateSeparator />
+                  <DateInputWrapper>
+                    <DateInput
+                      type="date"
+                      value={filters.endDate.replace(/\./g, '-')}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleDateChange('end', e.target.value)}
+                      $hasError={!!dateErrors.end}
+                      max={new Date().toISOString().split('T')[0]}
+                    />
+                    {dateErrors.end && <ErrorMessage>{dateErrors.end}</ErrorMessage>}
+                  </DateInputWrapper>
+                </DateInputs>
+
+                <PeriodButtons>
+                  <PeriodButton 
+                    $active={activePeriodButton === "이번달"}
+                    onClick={() => handlePeriodClick("이번달")}
+                  >
+                    이번달
+                  </PeriodButton>
+                  <PeriodButton 
+                    $active={activePeriodButton === "3개월"}
+                    onClick={() => handlePeriodClick("3개월")}
+                  >
+                    3개월
+                  </PeriodButton>
+                  <PeriodButton 
+                    $active={activePeriodButton === "6개월"}
+                    onClick={() => handlePeriodClick("6개월")}
+                  >
+                    6개월
+                  </PeriodButton>
+                </PeriodButtons>
+              </FilterItem>
+            </FilterDateRow>
+
+            <FilterSelectRow>
+              <FilterItem>
+                <FilterLabel>글 상태</FilterLabel>
+                <SelectWrapper>
+                  <Select
+                    value={filters.postStatus}
+                    onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setFilters(prev => ({ ...prev, postStatus: e.target.value }))}
+                  >
+                    <option value="전체">전체</option>
+                    <option value="등록">등록</option>
+                    <option value="임시저장">임시저장</option>
+                  </Select>
+                  <ArrowIcon src="/img/icon_arrowDown.png"/>
+                </SelectWrapper>
+              </FilterItem>
+
+              <FilterItem>
+                <FilterLabel>카테고리</FilterLabel>
+                <SelectWrapper>
+                  <Select
+                    value={filters.category}
+                    onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setFilters(prev => ({ ...prev, category: e.target.value }))}
+                  >
+                    <option value="전체">전체</option>
+                    {categories.map(category => (
+                      <option key={category.category_id} value={category.name}>
+                        {category.name}
+                      </option>
+                    ))}
+                  </Select>
+                  <ArrowIcon src="/img/icon_arrowDown.png"/>
+                </SelectWrapper>  
+              </FilterItem>
+
+              <FilterItem>
+                <FilterLabel>검색</FilterLabel>
+                <SelectWrapper>
+                  <Select
+                    value={filters.searchType}
+                    onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setFilters(prev => ({ ...prev, searchType: e.target.value }))}
+                  >
+                    <option value="전체">전체</option>
+                    <option value="제목">제목</option>
+                    <option value="내용">내용</option>
+                  </Select>
+                  <ArrowIcon src="/img/icon_arrowDown.png"/>
+                </SelectWrapper>
+                <SearchContainer>
+                  <SearchIcon src="/img/icon_search.png" alt="search" />
+                  <SearchInput
+                    type="text"
+                    placeholder="검색어를 입력하세요."
+                    value={filters.searchTerm}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFilters(prev => ({ ...prev, searchTerm: e.target.value }))}
+                  />
+                </SearchContainer>
+              </FilterItem>
+            </FilterSelectRow>
+            </SelectContainer>
+          )}
+
+          {isFilterExpanded && (
+            <ButtonRow>
+              <ResetButton onClick={handleReset}>초기화</ResetButton>
+              <SearchButton onClick={handleSearch}>검색</SearchButton>
+            </ButtonRow>
+          )}
+        </FilterSection>
+
+        {/* 게시글 목록 */}
+        <PostListSection>
+          <PostListHeader>
+            <div>
+              <PostListTitle>게시글 목록</PostListTitle>
+              {isSearchPerformed && (
+                <PostCount>총 <span>{filteredPosts.length}</span>개</PostCount>
+              )}
+            </div>
+            <DeleteButton 
+              disabled={selectedPosts.length === 0}
+              $disabled={selectedPosts.length === 0}
+              onClick={() => {
+                // TODO: 삭제 로직 구현
+                console.log('Selected posts to delete:', selectedPosts);
+              }}
+            >
+              삭제
+            </DeleteButton>
+          </PostListHeader>
+
+          <TableContainer>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHeaderCell width="32px"></TableHeaderCell>
+                  <TableHeaderCell width="180px">게시글 번호</TableHeaderCell>
+                  <TableHeaderCell width="180px">카테고리리</TableHeaderCell>
+                  <TableHeaderCell>제목</TableHeaderCell>
+                  <TableHeaderCell width="160px">상태</TableHeaderCell>
+                  <TableHeaderCell width="160px">작성자</TableHeaderCell>
+                  <TableHeaderCell width="160px">작성 일시</TableHeaderCell>
+                  <TableHeaderCell width="180px">관리</TableHeaderCell>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {isSearchPerformed && currentPosts.length > 0 ? (
+                  currentPosts.map((post) => (
+                    <TableRow key={post.post_id}>
+                      <TableCell>
+                        <Checkbox 
+                          type="checkbox" 
+                          checked={selectedPosts.includes(post.post_id)}
+                          onChange={(e: React.ChangeEvent<HTMLInputElement>) => handlePostSelect(post.post_id, e.target.checked)}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <TableText>{post.post_id}</TableText>
+                      </TableCell>
+                      <TableCell>
+                        <TableText>{post.category.name}</TableText>
+                      </TableCell>
+                      <TableCell>
+                        <TableText>{post.title}</TableText>
+                      </TableCell>
+                      <TableCell>
+                        <TableText>{post.content.state.state_id}</TableText>
+                      </TableCell>
+                      <TableCell>
+                        <TableText>{post.reg_user}</TableText>
+                      </TableCell>
+                      <TableCell>
+                        <TableText>{new Date(post.regDate).toLocaleDateString('ko-KR')}</TableText>
+                      </TableCell>
+                      <TableCell>
+                        <ChangeButton>수정정</ChangeButton>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : isSearchPerformed ? (
+                  <TableRow>
+                    <TableCell colSpan={5} style={{ textAlign: 'center', padding: '40px', color: '#666' }}>
+                      검색 결과가 없습니다.
+                    </TableCell>
+                  </TableRow>
+                ) : null}
+              </TableBody>
+            </Table>
+          </TableContainer>
+
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={goToPage}
+            noData={!isSearchPerformed || filteredPosts.length === 0}
+          />
+        </PostListSection>
+      </MainContent>
+    </Container>
+  );
+};
+
+export default Post;
+
+// Styled Components
+const Container = styled.div`
+  width: 100%;
+`;
+
+const MainContent = styled.div`
+  margin-top: -20px;           // header margin bottom 20 이 걸려있음
+  width: 100%;
+  padding: 0 32px;
+`;
+
+const FilterSection = styled.div`
+  border: 1px solid ${colors.LightGray[400]};
+  border-radius: 4px;
+  padding: 16px 24px;
+`;
+
+const FilterHeader = styled.header`
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+`
+const FilterTitle = styled.h3`
+  font-family: 'Pretendard-SemiBold';
+  font-size: 16px;
+  color: ${colors.Black};
+`;
+
+const FilterToggle= styled.div`
+  display: flex;
+  gap:4px;
+  align-items: center;
+  cursor: pointer;
+
+  span{
+    font-family: 'Pretendard-Medium';
+    font-size: 15px;
+    color:${colors.Black};
+  }
+  
+  img{
+    width: 16px;
+    height: 16px;
+  }
+`
+
+const SelectContainer = styled.div`
+  margin-top: 30px;
+
+  display: flex;
+  flex-direction: column;
+  gap:16px;
+
+`
+const FilterDateRow = styled.div`
+  width: 100%;
+`;
+
+const FilterSelectRow = styled.div`
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 16px;
+`;
+
+const FilterItem = styled.div`
+  width: 100%;
+  height: 40px;
+  display: flex;
+  align-items: center;
+`;
+
+const FilterLabel = styled.label`
+  width: 88px;
+  height: 36px;
+  padding:7px 0;
+  font-family: 'Pretendard-SemiBold';
+  font-size: 14px;
+  color: ${colors.Gray[0]};
+`;
+
+const DateInputs = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+`;
+
+const DateInputWrapper = styled.div`
+  position: relative;
+  display: flex;
+  flex-direction: column;
+`;
+
+const DateInput = styled.input<{ $hasError?: boolean }>`
+  width: 200px;
+  height: 100%;
+  font-family: 'Pretendard-Regular';
+  font-size: 14px;
+
+  padding:10px 12px;
+  
+  border: 1px solid ${props => props.$hasError ? '#ef4444' : colors.LightGray[300]};
+  border-radius: 4px;
+  cursor: pointer;
+
+  &:focus {
+    outline: none;
+    border-color: ${props => props.$hasError ? '#ef4444' : colors.Black};
+  }
+`;
+
+const ErrorMessage = styled.span`
+  position: absolute;
+  top: 100%;
+  left: 0;
+  font-family: 'Pretendard-Regular';
+  font-size: 12px;
+  color: #ef4444;
+  margin-top: 4px;
+  white-space: nowrap;
+`;
+
+const DateSeparator = styled.div`
+  width: 12px;
+  height: 1px;
+  background-color: ${colors.Gray[0]};
+`;
+
+const PeriodButtons = styled.div`
+  margin-left:16px;
+  height: 100%;
+
+  display: flex;
+  align-items: center;
+  gap: 16px;
+`;
+
+const PeriodButton = styled.button<{ $active: boolean }>`
+  padding: 7px 0;
+  width: 80px;
+  height: 100%;
+  text-align: center;
+  border: 1px solid ${props => props.$active ? colors.Black : colors.LightGray[400]};
+  border-radius: 4px;
+  background-color: ${props => props.$active && colors.Black};
+  color: ${props => props.$active ? colors.White : colors.Black};
+  font-family: 'Pretendard-SemiBold';
+  font-size: 16px;
+  cursor: pointer;
+  
+  /* &:hover {
+    background-color: ${props => props.$active ? colors.Black : '#f3f4f6'};
+  } */
+`;
+
+const SelectWrapper = styled.div`
+  position: relative;
+  width: 200px;
+  height: 40px;
+`
+const Select = styled.select`
+  padding: 10px 12px;
+  width: 100%;
+  height: 100%;
+  border: 1px solid ${colors.LightGray[400]};
+  border-radius: 4px;
+  font-family: 'Pretendard-Regular';
+  font-size: 14px;
+  appearance: none; 
+`;
+
+const ArrowIcon = styled.img`
+  position:absolute;
+  width: 16px;
+  height: 16px;
+  top:50%;
+  right: 12px;
+  transform: translateY(-50%);
+  pointer-events: none;
+`
+
+const SearchContainer = styled.div`
+  margin-left: 16px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap:16px;
+  width: 504px;
+  height: 100%;
+`;
+
+const SearchInput = styled.input`
+  font-family: 'Pretendard-Regular';
+  font-size: 14px;
+  line-height: 1.4;
+
+  &::placeholder{
+    color: ${colors.Gray[200]};
+  }
+
+  width: 100%;
+  height: 100%;
+  padding: 10px 42px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+`;
+
+const SearchIcon = styled.img`
+  position: absolute;
+  top: 12px;
+  left: 16px;
+  width: 16px;
+  height: 16px;
+  pointer-events: none;
+`;
+
+const ButtonRow = styled.div`
+  margin-top: 30px;
+  width: 100%;
+  
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+`;
+
+const ResetButton = styled.button`
+  width: 80px;
+  height: 40px;
+  padding: 7px 0;
+
+  border: 1px solid ${colors.LightGray[400]};
+  border-radius: 4px;
+
+  font-family: 'Pretendard-SemiBold';
+  color: ${colors.Black};
+  font-size: 16px;
+  cursor: pointer;
+
+`;
+
+const SearchButton = styled(ResetButton)`
+  background-color: ${colors.Black};
+  color: ${colors.White};
+`;
+
+const PostListSection = styled.div`
+  margin-top: 32px;
+`;
+
+const PostListHeader = styled.div`
+  width: 100%;
+  padding: 10px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+`;
+
+const PostListTitle = styled.h3`
+  font-family: 'Pretendard-SemiBold';
+  font-size: 16px;
+  color: ${colors.Black};
+`;
+
+const PostCount = styled.span`
+  font-family: 'Pretendard-Regular';
+  font-size: 16px;
+  color: ${colors.Gray[0]};
+
+  span{
+    color: ${colors.Black};
+  }
+`;
+
+
+const DeleteButton = styled.button<{ $disabled?: boolean }>`
+  padding: 8px 16px;
+  border: 1px solid ${props => props.$disabled ? '#e5e7eb' : '#d1d5db'};
+  border-radius: 4px;
+  background-color: ${props => props.$disabled ? '#f9fafb' : 'white'};
+  color: ${props => props.$disabled ? '#9ca3af' : colors.Black};
+  font-family: 'Pretendard-Medium';
+  font-size: 14px;
+  cursor: ${props => props.$disabled ? 'not-allowed' : 'pointer'};
+  
+  &:hover {
+    background-color: ${props => props.$disabled ? '#f9fafb' : '#f3f4f6'};
+  }
+`;
+
+const TableContainer = styled.div`
+  width: 100%;
+  /* border: 1px solid ${colors.LightGray[300]}; */
+`;
+
+const Table = styled.table`
+  width: 100%;
+  border-collapse: collapse;
+`;
+
+const TableHeader = styled.thead`
+  background-color: ${colors.LightGray[0]};
+  border-top: 1px solid ${colors.LightGray[300]};
+  border-bottom: 1px solid ${colors.LightGray[300]};
+`;
+
+const TableRow = styled.tr``;
+
+const TableHeaderCell = styled.th<{ width?: string }>`
+  padding: 16px;
+  text-align: left;
+  font-family: 'Pretendard-SemiBold';
+  font-size: 14px;
+  color: ${colors.Black};
+  width: ${props => props.width || 'auto'};
+  position: relative;
+  
+  &::before{
+    content:"";
+    position: absolute;
+    width: 1.2px;
+    height: 26px;
+    top:calc(50% - 13px);
+    left:0;
+    
+    background-color:${colors.LightGray[300]};
+  }
+  &:first-child {
+    &::before{
+      content: none;
+    }
+  }
+`;
+
+const TableBody = styled.tbody``;
+
+const TableCell = styled.td`
+  padding: 16.5px 15.5px;
+`;
+
+const ChangeButton = styled.button`
+  background-color: ${colors.White};
+  color: ${colors.Black};
+  text-align: center;
+  width: 80px;
+  height: 40px;
+  border: 1px solid ${colors.LightGray[400]};
+  border-radius: 4px;
+  font-family: 'Pretendard-SemiBold';
+  font-size: 16px;
+  cursor: pointer;
+`;
+
+const TableText = styled.p`
+  font-family: 'Pretendard-Regular';
+  font-size: 14px;
+  color: ${colors.Black};
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+`;
+
+const Checkbox = styled.input`
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+`;
+
+
+const GoToCreate = styled.button`
+  background-color: ${colors.Black};
+  width: 80px;
+  padding: 10px 0;
+  font-family: 'Pretendard-SemiBold';
+  font-size: 16px;
+  color: ${colors.White};
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+`;

@@ -24,7 +24,7 @@ const Root = () => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  // Redirect to login if not authenticated (except login route)
+  // 로그인 안돼있을 시 로그인 페이지로.
   useEffect(() => {
     const token = loadAccessToken();
     const isLoginRoute = location.pathname === '/login';
