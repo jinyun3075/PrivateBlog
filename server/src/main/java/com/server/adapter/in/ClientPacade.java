@@ -17,7 +17,7 @@ public class ClientPacade {
     private final CategoryService categoryService;
     private final PostContentService postContentService;
     private final PostViewService postViewService;
-    private final PostVisiteService postVisiteService;
+    private final PostVisitService postVisitService;
 
     public List<PostResponseDTO> selectPostList(Long state) {
         List<PostResponseDTO> posts = postService
@@ -42,8 +42,8 @@ public class ClientPacade {
         return postViewService.upView(post_id);
     }
 
-    public Long upVisite(){
-        return postVisiteService.upVisite();
+    public Long upVisit(){
+        return postVisitService.upVisit();
     }
 
     public List<PostCategoryResponseDTO> selectAllCategories() {

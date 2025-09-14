@@ -17,7 +17,7 @@ public class AdminPacade {
     private final PostContentService postContentService;
     private final PostContentStateService postContentStateService;
     private final PostViewService postViewService;
-    private final PostVisiteService postVisiteService;
+    private final PostVisitService postVisitService;
     private final MemberService memberService;
     private final RoleService roleService;
 
@@ -95,8 +95,8 @@ public class AdminPacade {
     }
 
     // 방문자수
-    public List<PostVisiteResponseDTO> selectAllVisite(){
-        return postVisiteService.findAll();
+    public List<PostVisitResponseDTO> selectAllVisit(){
+        return postVisitService.findAll();
     }
 
     // 카테고리
