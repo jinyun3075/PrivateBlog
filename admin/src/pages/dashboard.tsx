@@ -62,7 +62,7 @@ const Dashboard = () => {
 
   const getVisitData = async () => {
     try {
-      const { data } = await axios.get<VisitDataType[]>(`${process.env.REACT_APP_BACKEND_HOST}/api/admin/viste/select/all`); 
+      const { data } = await axios.get<VisitDataType[]>(`${process.env.REACT_APP_BACKEND_HOST}/api/admin/visit/select/all`); 
       return data;
     } catch (e) {
       console.log(e);
