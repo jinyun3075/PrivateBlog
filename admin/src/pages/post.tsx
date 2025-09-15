@@ -30,12 +30,11 @@ const Post = () => {
     searchType: "전체",
     searchTerm: ""
   });
-  const [filteredPosts, setFilteredPosts] = useState<PostType[]>([]);
-  const [isSearchPerformed, setIsSearchPerformed] = useState(false);
   const [isFilterExpanded, setIsFilterExpanded] = useState(true);
   const [dateErrors, setDateErrors] = useState<{start?: string, end?: string}>({});
   const [activePeriodButton, setActivePeriodButton] = useState<string>("이번달");
   const [selectedPosts, setSelectedPosts] = useState<string[]>([]);
+  const [hasSearched, setHasSearched] = useState(false);
 
   // 카테고리 데이터 가져오기
   useEffect(() => {
@@ -160,11 +159,14 @@ const Post = () => {
     });
   };
 
+  // 필터링된 포스트 데이터 (검색 버튼을 눌렀을 때만 업데이트)
+  const [filteredPosts, setFilteredPosts] = useState<PostType[]>([]);
+
   // 검색 실행
   const handleSearch = () => {
     let filtered = [...allPosts];
 
-    // 날짜 필터링
+    // 날짜 필터링 (regDate 사용)
     if (filters.startDate && filters.endDate) {
       const startDate = new Date(filters.startDate.replace(/\./g, '-'));
       const endDate = new Date(filters.endDate.replace(/\./g, '-'));
@@ -176,21 +178,18 @@ const Post = () => {
       });
     }
 
-    // 상태 필터링
+    // 상태 필터링 (content.state.state_id 사용: 1=등록, 2=임시저장)
     if (filters.postStatus !== "전체") {
-      const isRegistered = filters.postStatus === "등록";
-      filtered = filtered.filter(post => {
-        // 임시저장은 use_yn이 false, 등록은 true로 가정
-        return isRegistered ? post.use_yn : !post.use_yn;
-      });
+      const targetStateId = filters.postStatus === "등록" ? 1 : 2;
+      filtered = filtered.filter(post => post.content.state.state_id === targetStateId);
     }
 
-    // 카테고리 필터링
+    // 카테고리 필터링 (category.name 사용)
     if (filters.category !== "전체") {
       filtered = filtered.filter(post => post.category.name === filters.category);
     }
 
-    // 검색어 필터링
+    // 검색어 필터링 (title, content.content 사용)
     if (filters.searchTerm) {
       filtered = filtered.filter(post => {
         switch (filters.searchType) {
@@ -207,7 +206,7 @@ const Post = () => {
     }
 
     setFilteredPosts(filtered);
-    setIsSearchPerformed(true);
+    setHasSearched(true);
   };
 
   // 초기화
@@ -221,7 +220,7 @@ const Post = () => {
       searchTerm: ""
     });
     setFilteredPosts([]);
-    setIsSearchPerformed(false);
+    setHasSearched(false);
     setDateErrors({});
     setActivePeriodButton("이번달");
     // 초기화 시 이번달로 설정
@@ -258,11 +257,7 @@ const Post = () => {
 
   // 페이지네이션
   const { currentPage, totalPages, currentPosts, goToPage } = usePagination(filteredPosts, 50);
-
-  // 초기 로드 시 이번달로 설정
-  useEffect(() => {
-    handlePeriodClick("이번달");
-  }, []);
+  console.log(allPosts)
 
   return (
     <Container>
@@ -407,7 +402,7 @@ const Post = () => {
           <PostListHeader>
             <div>
               <PostListTitle>게시글 목록</PostListTitle>
-              {isSearchPerformed && (
+              {hasSearched && filteredPosts.length > 0 && (
                 <PostCount>총 <span>{filteredPosts.length}</span>개</PostCount>
               )}
             </div>
@@ -424,70 +419,101 @@ const Post = () => {
           </PostListHeader>
 
           <TableContainer>
+            {/* 고정된 테이블 헤더 */}
             <Table>
               <TableHeader>
                 <TableRow>
                   <TableHeaderCell width="32px"></TableHeaderCell>
-                  <TableHeaderCell width="180px">게시글 번호</TableHeaderCell>
-                  <TableHeaderCell width="180px">카테고리리</TableHeaderCell>
-                  <TableHeaderCell>제목</TableHeaderCell>
+                  <TableHeaderCell width="190px">게시글 번호</TableHeaderCell>
+                  <TableHeaderCell width="180px">카테고리</TableHeaderCell>
+                  <TableHeaderCell width="calc(100% - 1062px)">제목</TableHeaderCell>
                   <TableHeaderCell width="160px">상태</TableHeaderCell>
                   <TableHeaderCell width="160px">작성자</TableHeaderCell>
                   <TableHeaderCell width="160px">작성 일시</TableHeaderCell>
                   <TableHeaderCell width="180px">관리</TableHeaderCell>
                 </TableRow>
               </TableHeader>
-              <TableBody>
-                {isSearchPerformed && currentPosts.length > 0 ? (
-                  currentPosts.map((post) => (
-                    <TableRow key={post.post_id}>
-                      <TableCell>
-                        <Checkbox 
-                          type="checkbox" 
-                          checked={selectedPosts.includes(post.post_id)}
-                          onChange={(e: React.ChangeEvent<HTMLInputElement>) => handlePostSelect(post.post_id, e.target.checked)}
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <TableText>{post.post_id}</TableText>
-                      </TableCell>
-                      <TableCell>
-                        <TableText>{post.category.name}</TableText>
-                      </TableCell>
-                      <TableCell>
-                        <TableText>{post.title}</TableText>
-                      </TableCell>
-                      <TableCell>
-                        <TableText>{post.content.state.state_id}</TableText>
-                      </TableCell>
-                      <TableCell>
-                        <TableText>{post.reg_user}</TableText>
-                      </TableCell>
-                      <TableCell>
-                        <TableText>{new Date(post.regDate).toLocaleDateString('ko-KR')}</TableText>
-                      </TableCell>
-                      <TableCell>
-                        <ChangeButton>수정정</ChangeButton>
+            </Table>
+            
+            {/* 스크롤 가능한 테이블 바디 */}
+            <TableBodyContainer $isFilterExpanded={isFilterExpanded}>
+              <Table>
+                <TableBody>
+                  {!hasSearched ? (
+                    // 검색하지 않은 상태 - 빈 화면
+                    <TableRow>
+                      <TableCell style={{ height: isFilterExpanded ? "328px" : "600px", textAlign: 'center', verticalAlign: 'middle' }}>
+                        {/* 빈 화면 - 필터 상태에 따라 높이 조정 */}
                       </TableCell>
                     </TableRow>
-                  ))
-                ) : isSearchPerformed ? (
-                  <TableRow>
-                    <TableCell colSpan={5} style={{ textAlign: 'center', padding: '40px', color: '#666' }}>
-                      검색 결과가 없습니다.
-                    </TableCell>
-                  </TableRow>
-                ) : null}
-              </TableBody>
-            </Table>
+                  ) : currentPosts.length > 0 ? (
+                    // 검색 결과가 있는 경우
+                    currentPosts.map((post) => (
+                      <TableRow key={post.post_id}>
+                        <TableCell width="32px" style={{textAlign:"center" ,padding:"0"}}>
+                          <Checkbox 
+                            type="checkbox" 
+                            checked={selectedPosts.includes(post.post_id)}
+                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handlePostSelect(post.post_id, e.target.checked)}
+                          />
+                        </TableCell>
+                        <TableCell width="190px">
+                          <TableText>{post.post_id}</TableText>
+                        </TableCell>
+                        <TableCell width="180px">
+                          <TableText>{post.category.name}</TableText>
+                        </TableCell>
+                        <TableCell width="calc(100% - 1062px)">
+                          <TableText>{post.title}</TableText>
+                        </TableCell>
+                        <TableCell width="160px">
+                          <Badge 
+                            $isTemp={post.content.state.state_id===1}
+                            src={post.content.state.state_id === 1 ? "/img/badge_temp.png" : "/img/badge_active.png"} 
+                            alt={post.content.state.name}
+                          />
+                        </TableCell>
+                        <TableCell width="160px">
+                          <TableText>{post.reg_user}</TableText>
+                        </TableCell>
+                        <TableCell width="160px">
+                          <TableText>{new Date(post.regDate).toLocaleDateString('ko-KR')}</TableText>
+                        </TableCell>
+                        <TableCell width="180px" style={{marginRight:"-8px"}}>
+                          <ChangeButton>수정</ChangeButton>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  ) : (
+                    // 검색했지만 결과가 없는 경우
+                    <TableRow>
+                      <TableCell 
+                        style={{ 
+                          height: isFilterExpanded ? "328px" : "600px", 
+                          display:"flex", 
+                          justifyContent:"center" , 
+                          alignItems:"center",
+                          fontFace:'Pretendard-SemiBold',
+                          fontSize:"18px",
+                          letterSpacing:"-0.024em",
+                          color:colors.Gray[0] }}>
+                        검색 결과가 존재하지 않습니다.
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </TableBodyContainer>
           </TableContainer>
-
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={goToPage}
-            noData={!isSearchPerformed || filteredPosts.length === 0}
-          />
+          
+          <PageWrapper>
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={goToPage}
+              noData={!hasSearched || filteredPosts.length === 0}
+            />
+          </PageWrapper>
         </PostListSection>
       </MainContent>
     </Container>
@@ -754,6 +780,12 @@ const PostListHeader = styled.div`
   justify-content: space-between;
   align-items: center;
   gap: 12px;
+
+  div{
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
 `;
 
 const PostListTitle = styled.h3`
@@ -768,6 +800,7 @@ const PostCount = styled.span`
   color: ${colors.Gray[0]};
 
   span{
+    font-family: 'Pretendard-SemiBold';
     color: ${colors.Black};
   }
 `;
@@ -793,10 +826,23 @@ const TableContainer = styled.div`
   /* border: 1px solid ${colors.LightGray[300]}; */
 `;
 
+const TableBodyContainer = styled.div<{ $isFilterExpanded: boolean }>`
+  width: 100%;
+  max-height: ${props => props.$isFilterExpanded 
+    ? 'calc(100vh - 60px - 200px - 50px - 82px - 50px - 50px)' // 헤더 - 필터펼침 - 게시글헤더 - 페이지네이션 - 여백 - 테이블헤더높이
+    : 'calc(100vh - 60px - 60px - 50px - 82px - 50px - 50px)'  // 헤더 - 필터접힘 - 게시글헤더 - 페이지네이션 - 여백 - 테이블헤더높이
+  };
+  overflow-y: auto;
+  scrollbar-width: none;
+  box-sizing: border-box;
+`;
+
 const Table = styled.table`
   width: 100%;
   border-collapse: collapse;
-`;
+
+`
+;
 
 const TableHeader = styled.thead`
   background-color: ${colors.LightGray[0]};
@@ -804,15 +850,16 @@ const TableHeader = styled.thead`
   border-bottom: 1px solid ${colors.LightGray[300]};
 `;
 
-const TableRow = styled.tr``;
+const TableRow = styled.tr`
+  height: 56px;
+`;
 
 const TableHeaderCell = styled.th<{ width?: string }>`
-  padding: 16px;
-  text-align: left;
+  padding: 17px 0 17px 16px;
   font-family: 'Pretendard-SemiBold';
   font-size: 14px;
   color: ${colors.Black};
-  width: ${props => props.width || 'auto'};
+  width: ${props => props.width};
   position: relative;
   
   &::before{
@@ -832,11 +879,22 @@ const TableHeaderCell = styled.th<{ width?: string }>`
   }
 `;
 
-const TableBody = styled.tbody``;
 
-const TableCell = styled.td`
-  padding: 16.5px 15.5px;
+
+const TableBody = styled.tbody`
+
 `;
+
+const TableCell = styled.td<{width?:string}>`
+  width: ${props => props.width};
+  padding: 17px 0 17px 16px;
+  height: 56px;
+`;
+
+const Badge = styled.img<{$isTemp:boolean}>`
+  width: ${props=>props.$isTemp ? `68px`:`47px`};
+  height: 21px;
+`
 
 const ChangeButton = styled.button`
   background-color: ${colors.White};
@@ -851,10 +909,11 @@ const ChangeButton = styled.button`
   cursor: pointer;
 `;
 
-const TableText = styled.p`
+const TableText = styled.span`
   font-family: 'Pretendard-Regular';
   font-size: 14px;
   color: ${colors.Black};
+  line-height: 1.6;
 
   overflow: hidden;
   text-overflow: ellipsis;
@@ -865,9 +924,27 @@ const Checkbox = styled.input`
   width: 16px;
   height: 16px;
   cursor: pointer;
-`;
+  margin:0;
+  appearance: none;
+  background: url('/img/checkbox_off.png') no-repeat center / contain;
 
+  &:checked {
+    background-image: url('/img/checkbox_on.png');
+  }
+`
 
+const PageWrapper = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 82px;
+  div{
+    &:first-child{
+      margin: 0;    //Pagination 컴포넌트 margintop이 40으로 설정돼있음 
+    }
+  }        
+`
 const GoToCreate = styled.button`
   background-color: ${colors.Black};
   width: 80px;
