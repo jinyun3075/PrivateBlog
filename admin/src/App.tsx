@@ -47,7 +47,7 @@ const router = createBrowserRouter([
         element: <PostCreate />, 
       },
       {
-        path: 'post/update',
+        path: 'post/update/:id',
         element: <PostCreate />, 
       },
     ],

@@ -26,8 +26,8 @@ public class AdminController {
     }
 
     @GetMapping("/post/select/{id}")
-    public ResponseEntity<PostResponseDTO> selectPost(@PathVariable Long post_id) {
-        return new ResponseEntity<>(pacade.selectPost(post_id), HttpStatus.OK);
+    public ResponseEntity<PostResponseDTO> selectPost(@PathVariable String id) {
+        return new ResponseEntity<>(pacade.selectPost(id), HttpStatus.OK);
     }
 
     @PutMapping("/post/update")
