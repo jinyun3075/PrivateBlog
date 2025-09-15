@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Header from "../components/header/header";
@@ -35,6 +35,11 @@ const Post = () => {
   const [activePeriodButton, setActivePeriodButton] = useState<string>("이번달");
   const [selectedPosts, setSelectedPosts] = useState<string[]>([]);
   const [hasSearched, setHasSearched] = useState(false);
+  
+  // 커스텀 드롭다운 상태들
+  const [isPostStatusOpen, setIsPostStatusOpen] = useState(false);
+  const [isCategoryOpen, setIsCategoryOpen] = useState(false);
+  const [isSearchTypeOpen, setIsSearchTypeOpen] = useState(false);
 
   // 카테고리 데이터 가져오기
   useEffect(() => {
@@ -80,7 +85,7 @@ const Post = () => {
   };
 
   // 기간 버튼 클릭 핸들러
-  const handlePeriodClick = (period: string) => {
+  const handlePeriodClick = useCallback((period: string) => {
     const dateRange = getDateRange(period);
     if (dateRange) {
       setActivePeriodButton(period);
@@ -91,7 +96,45 @@ const Post = () => {
         endDate: formatDate(dateRange.endDate)
       }));
     }
+  }, []);
+
+  // 초기 렌더링 시 이번달로 설정
+  useEffect(() => {
+    handlePeriodClick("이번달");
+  }, [handlePeriodClick]);
+
+  // 커스텀 드롭다운 핸들러들
+  const handlePostStatusChange = (value: string) => {
+    setFilters(prev => ({ ...prev, postStatus: value }));
+    setIsPostStatusOpen(false);
   };
+
+  const handleCategoryChange = (value: string) => {
+    setFilters(prev => ({ ...prev, category: value }));
+    setIsCategoryOpen(false);
+  };
+
+  const handleSearchTypeChange = (value: string) => {
+    setFilters(prev => ({ ...prev, searchType: value }));
+    setIsSearchTypeOpen(false);
+  };
+
+  // 드롭다운 외부 클릭 시 닫기
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Element;
+      if (!target.closest('[data-dropdown]')) {
+        setIsPostStatusOpen(false);
+        setIsCategoryOpen(false);
+        setIsSearchTypeOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   // 날짜 포맷팅 함수
   const formatDate = (date: Date) => {
@@ -283,24 +326,34 @@ const Post = () => {
                 <FilterLabel>기간</FilterLabel>
                 <DateInputs>
                   <DateInputWrapper>
-                    <DateInput
-                      type="date"
-                      value={filters.startDate.replace(/\./g, '-')}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleDateChange('start', e.target.value)}
-                      $hasError={!!dateErrors.start}
-                      max={new Date().toISOString().split('T')[0]}
-                    />
+                    <CustomDateInput>
+                      <DateInput
+                        type="date"
+                        value={filters.startDate ? filters.startDate.replace(/\./g, '-') : ''}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleDateChange('start', e.target.value)}
+                        $hasError={!!dateErrors.start}
+                        max={new Date().toISOString().split('T')[0]}
+                      />
+                      <DateDisplay $hasError={!!dateErrors.start}>
+                        {filters.startDate || '시작일'}
+                      </DateDisplay>
+                    </CustomDateInput>
                     {dateErrors.start && <ErrorMessage>{dateErrors.start}</ErrorMessage>}
                   </DateInputWrapper>
                   <DateSeparator />
                   <DateInputWrapper>
-                    <DateInput
-                      type="date"
-                      value={filters.endDate.replace(/\./g, '-')}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleDateChange('end', e.target.value)}
-                      $hasError={!!dateErrors.end}
-                      max={new Date().toISOString().split('T')[0]}
-                    />
+                    <CustomDateInput>
+                      <DateInput
+                        type="date"
+                        value={filters.endDate ? filters.endDate.replace(/\./g, '-') : ''}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleDateChange('end', e.target.value)}
+                        $hasError={!!dateErrors.end}
+                        max={new Date().toISOString().split('T')[0]}
+                      />
+                      <DateDisplay $hasError={!!dateErrors.end}>
+                        {filters.endDate || '종료일'}
+                      </DateDisplay>
+                    </CustomDateInput>
                     {dateErrors.end && <ErrorMessage>{dateErrors.end}</ErrorMessage>}
                   </DateInputWrapper>
                 </DateInputs>
@@ -331,50 +384,104 @@ const Post = () => {
             <FilterSelectRow>
               <FilterItem>
                 <FilterLabel>글 상태</FilterLabel>
-                <SelectWrapper>
-                  <Select
-                    value={filters.postStatus}
-                    onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setFilters(prev => ({ ...prev, postStatus: e.target.value }))}
+                <CustomSelectWrapper data-dropdown>
+                  <CustomSelectButton 
+                    onClick={() => setIsPostStatusOpen(!isPostStatusOpen)}
+                    $isOpen={isPostStatusOpen}
                   >
-                    <option value="전체">전체</option>
-                    <option value="등록">등록</option>
-                    <option value="임시저장">임시저장</option>
-                  </Select>
-                  <ArrowIcon src="/img/icon_arrowDown.png"/>
-                </SelectWrapper>
+                    <span>{filters.postStatus}</span>
+                    <ArrowIcon src={isSearchTypeOpen ? "/img/icon_arrowUp.png" : "/img/icon_arrowDown.png"} $isOpen={isPostStatusOpen}/>
+                  </CustomSelectButton>
+                  {isPostStatusOpen && (
+                    <CustomDropdown>
+                      <DropdownOption 
+                        onClick={() => handlePostStatusChange("전체")}
+                        $isSelected={filters.postStatus === "전체"}
+                      >
+                        전체
+                      </DropdownOption>
+                      <DropdownOption 
+                        onClick={() => handlePostStatusChange("등록")}
+                        $isSelected={filters.postStatus === "등록"}
+                      >
+                        등록
+                      </DropdownOption>
+                      <DropdownOption 
+                        onClick={() => handlePostStatusChange("임시저장")}
+                        $isSelected={filters.postStatus === "임시저장"}
+                      >
+                        임시저장
+                      </DropdownOption>
+                    </CustomDropdown>
+                  )}
+                </CustomSelectWrapper>
               </FilterItem>
 
               <FilterItem>
                 <FilterLabel>카테고리</FilterLabel>
-                <SelectWrapper>
-                  <Select
-                    value={filters.category}
-                    onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setFilters(prev => ({ ...prev, category: e.target.value }))}
+                <CustomSelectWrapper data-dropdown>
+                  <CustomSelectButton 
+                    onClick={() => setIsCategoryOpen(!isCategoryOpen)}
+                    $isOpen={isCategoryOpen}
                   >
-                    <option value="전체">전체</option>
-                    {categories.map(category => (
-                      <option key={category.category_id} value={category.name}>
-                        {category.name}
-                      </option>
-                    ))}
-                  </Select>
-                  <ArrowIcon src="/img/icon_arrowDown.png"/>
-                </SelectWrapper>  
+                    <span>{filters.category}</span>
+                    <ArrowIcon src={isSearchTypeOpen ? "/img/icon_arrowUp.png" : "/img/icon_arrowDown.png"} $isOpen={isCategoryOpen}/>
+                  </CustomSelectButton>
+                  {isCategoryOpen && (
+                    <CustomDropdown>
+                      <DropdownOption 
+                        onClick={() => handleCategoryChange("전체")}
+                        $isSelected={filters.category === "전체"}
+                      >
+                        전체
+                      </DropdownOption>
+                      {categories.map(category => (
+                        <DropdownOption 
+                          key={category.category_id}
+                          onClick={() => handleCategoryChange(category.name)}
+                          $isSelected={filters.category === category.name}
+                        >
+                          {category.name}
+                        </DropdownOption>
+                      ))}
+                    </CustomDropdown>
+                  )}
+                </CustomSelectWrapper>
               </FilterItem>
 
               <FilterItem>
                 <FilterLabel>검색</FilterLabel>
-                <SelectWrapper>
-                  <Select
-                    value={filters.searchType}
-                    onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setFilters(prev => ({ ...prev, searchType: e.target.value }))}
+                <CustomSelectWrapper data-dropdown>
+                  <CustomSelectButton 
+                    onClick={() => setIsSearchTypeOpen(!isSearchTypeOpen)}
+                    $isOpen={isSearchTypeOpen}
                   >
-                    <option value="전체">전체</option>
-                    <option value="제목">제목</option>
-                    <option value="내용">내용</option>
-                  </Select>
-                  <ArrowIcon src="/img/icon_arrowDown.png"/>
-                </SelectWrapper>
+                    <span>{filters.searchType}</span>
+                    <ArrowIcon src={isSearchTypeOpen ? "/img/icon_arrowUp.png" : "/img/icon_arrowDown.png"}  $isOpen={isSearchTypeOpen}/>
+                  </CustomSelectButton>
+                  {isSearchTypeOpen && (
+                    <CustomDropdown>
+                      <DropdownOption 
+                        onClick={() => handleSearchTypeChange("전체")}
+                        $isSelected={filters.searchType === "전체"}
+                      >
+                        전체
+                      </DropdownOption>
+                      <DropdownOption 
+                        onClick={() => handleSearchTypeChange("제목")}
+                        $isSelected={filters.searchType === "제목"}
+                      >
+                        제목
+                      </DropdownOption>
+                      <DropdownOption 
+                        onClick={() => handleSearchTypeChange("내용")}
+                        $isSelected={filters.searchType === "내용"}
+                      >
+                        내용
+                      </DropdownOption>
+                    </CustomDropdown>
+                  )}
+                </CustomSelectWrapper>
                 <SearchContainer>
                   <SearchIcon src="/img/icon_search.png" alt="search" />
                   <SearchInput
@@ -441,11 +548,11 @@ const Post = () => {
                 <TableBody>
                   {!hasSearched ? (
                     // 검색하지 않은 상태 - 빈 화면
-                    <TableRow>
-                      <TableCell style={{ height: isFilterExpanded ? "328px" : "600px", textAlign: 'center', verticalAlign: 'middle' }}>
+                    <EmptyTableRow>
+                      <TableCell style={{ height: "100%", textAlign: 'center', verticalAlign: 'middle' }}>
                         {/* 빈 화면 - 필터 상태에 따라 높이 조정 */}
                       </TableCell>
-                    </TableRow>
+                    </EmptyTableRow>
                   ) : currentPosts.length > 0 ? (
                     // 검색 결과가 있는 경우
                     currentPosts.map((post) => (
@@ -480,16 +587,16 @@ const Post = () => {
                           <TableText>{new Date(post.regDate).toLocaleDateString('ko-KR')}</TableText>
                         </TableCell>
                         <TableCell width="180px" style={{marginRight:"-8px"}}>
-                          <ChangeButton>수정</ChangeButton>
+                          <ChangeButton onClick={() => navigate(`/post/update/${post.post_id}`)}>수정</ChangeButton>
                         </TableCell>
                       </TableRow>
                     ))
                   ) : (
                     // 검색했지만 결과가 없는 경우
-                    <TableRow>
+                    <EmptyTableRow>
                       <TableCell 
                         style={{ 
-                          height: isFilterExpanded ? "328px" : "600px", 
+                          height: "100%", 
                           display:"flex", 
                           justifyContent:"center" , 
                           alignItems:"center",
@@ -499,7 +606,7 @@ const Post = () => {
                           color:colors.Gray[0] }}>
                         검색 결과가 존재하지 않습니다.
                       </TableCell>
-                    </TableRow>
+                    </EmptyTableRow>
                   )}
                 </TableBody>
               </Table>
@@ -617,21 +724,59 @@ const DateInputWrapper = styled.div`
   flex-direction: column;
 `;
 
-const DateInput = styled.input<{ $hasError?: boolean }>`
+const CustomDateInput = styled.div`
+  position: relative;
   width: 200px;
+  height: 40px;
+`;
+
+const DateInput = styled.input<{ $hasError?: boolean }>`
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
   height: 100%;
+  opacity: 0;
+  cursor: pointer;
+  z-index: 2;
+  
+  /* 달력 아이콘을 클릭할 수 있도록 */
+  &::-webkit-calendar-picker-indicator {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    cursor: pointer;
+  }
+`;
+
+const DateDisplay = styled.div<{ $hasError?: boolean }>`
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  padding: 10px 12px;
   font-family: 'Pretendard-Regular';
   font-size: 14px;
-
-  padding:10px 12px;
-  
+  color: ${props => {
+    const text = props.children?.toString() || '';
+    return text.includes('시작일') || text.includes('종료일') ? colors.Gray[200] : colors.Black;
+  }};
   border: 1px solid ${props => props.$hasError ? '#ef4444' : colors.LightGray[300]};
   border-radius: 4px;
+  background-color: ${colors.White};
+  display: flex;
+  align-items: center;
   cursor: pointer;
+  transition: border-color 0.2s ease;
+  z-index: 1;
 
-  &:focus {
-    outline: none;
-    border-color: ${props => props.$hasError ? '#ef4444' : colors.Black};
+  &:hover {
+    border-color: ${props => props.$hasError ? '#ef4444' : colors.Gray[0]};
   }
 `;
 
@@ -684,26 +829,125 @@ const SelectWrapper = styled.div`
   width: 200px;
   height: 40px;
 `
+
 const Select = styled.select`
-  padding: 10px 12px;
+  padding: 10px 40px 10px 12px;
   width: 100%;
   height: 100%;
   border: 1px solid ${colors.LightGray[400]};
   border-radius: 4px;
   font-family: 'Pretendard-Regular';
   font-size: 14px;
-  appearance: none; 
+  color: ${colors.Black};
+  background-color: ${colors.White};
+  appearance: none;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.2s ease;
+
+  &:hover {
+    border-color: ${colors.Gray[0]};
+  }
+
+  &:focus {
+    border-color: ${colors.Black};
+  }
+
+  option {
+    padding: 10px 12px;
+    font-family: 'Pretendard-Regular';
+    font-size: 14px;
+    color: ${colors.Black};
+    background-color: ${colors.White};
+    border: none;
+    outline: none;
+
+    &:hover {
+      background-color: ${colors.LightGray[0]};
+    }
+
+    &:checked {
+      background-color: ${colors.LightGray[200]};
+      color: ${colors.Black};
+    }
+  }
 `;
 
-const ArrowIcon = styled.img`
-  position:absolute;
+const ArrowIcon = styled.img<{ $isOpen?: boolean }>`
+  position: absolute;
   width: 16px;
   height: 16px;
-  top:50%;
+  top: 50%;
   right: 12px;
   transform: translateY(-50%);
   pointer-events: none;
+
 `
+
+// 커스텀 드롭다운 스타일
+const CustomSelectWrapper = styled.div`
+  position: relative;
+  width: 200px;
+  height: 40px;
+`;
+
+const CustomSelectButton = styled.button<{ $isOpen: boolean }>`
+  width: 100%;
+  height: 100%;
+  padding: 0 12px;
+  border: 1px solid ${colors.LightGray[400]};
+  background-color: ${colors.White};
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  font-family: 'Pretendard-Regular';
+  font-size: 14px;
+
+  &:hover {
+    border-color: ${colors.Gray[0]};
+  }
+
+  &:focus {
+    border-color: ${colors.Black};
+  }
+`;
+
+const CustomDropdown = styled.div`
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin-top: 5px;
+  background-color: ${colors.White};
+  border: 1px solid ${colors.LightGray[300]};
+  border-radius: 4px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+`;
+
+const DropdownOption = styled.div<{ $isSelected: boolean }>`
+  padding: 10px 12px;
+  height: 40px;
+  cursor: pointer;
+  font-family: 'Pretendard-Regular';
+  font-size: 14px;
+  color: ${colors.Black};
+  background-color: ${props => props.$isSelected ? colors.LightGray[100] : 'transparent'};
+  
+  &:hover {
+    background-color: ${colors.LightGray[100]};
+  }
+  
+  &:first-child {
+    border-radius: 4px 4px 0 0;
+  }
+  
+  &:last-child {
+    border-radius: 0 0 4px 4px;
+  }
+`;
 
 const SearchContainer = styled.div`
   margin-left: 16px;
@@ -828,10 +1072,7 @@ const TableContainer = styled.div`
 
 const TableBodyContainer = styled.div<{ $isFilterExpanded: boolean }>`
   width: 100%;
-  max-height: ${props => props.$isFilterExpanded 
-    ? 'calc(100vh - 60px - 200px - 50px - 82px - 50px - 50px)' // 헤더 - 필터펼침 - 게시글헤더 - 페이지네이션 - 여백 - 테이블헤더높이
-    : 'calc(100vh - 60px - 60px - 50px - 82px - 50px - 50px)'  // 헤더 - 필터접힘 - 게시글헤더 - 페이지네이션 - 여백 - 테이블헤더높이
-  };
+  height: ${props => props.$isFilterExpanded ? "328px" : "616px"};
   overflow-y: auto;
   scrollbar-width: none;
   box-sizing: border-box;
@@ -852,6 +1093,10 @@ const TableHeader = styled.thead`
 
 const TableRow = styled.tr`
   height: 56px;
+`;
+
+const EmptyTableRow = styled.tr`
+  height: 100%;
 `;
 
 const TableHeaderCell = styled.th<{ width?: string }>`
