@@ -2,6 +2,7 @@ import styled from "styled-components";
 import { useState, useEffect } from "react";
 import MDEditor from "@uiw/react-md-editor";
 import axios from "axios";
+import { useParams } from "react-router-dom";
 import Header from "../components/header/header";
 import { colors } from "../common/designSystem";
 
@@ -13,7 +14,44 @@ interface Category {
   sort: number;
 }
 
+interface PostData {
+  post_id: string;
+  category: {
+    category_id: number;
+    name: string;
+    reg_user: string;
+    mod_user: string;
+    sort: number;
+  };
+  content: {
+    content_id: number;
+    post_id: string;
+    state: {
+      state_id: number;
+      name: string;
+    };
+    content: string;
+  };
+  postView: {
+    view_id: number;
+    post_id: string;
+    view: number;
+    regDate: string;
+  };
+  title: string;
+  thumbnail: string;
+  main_sort: number;
+  use_yn: boolean;
+  reg_user: string;
+  regDate: string;
+  modDate: string;
+}
+
 const PostCreate = () => {
+  const { id } = useParams<{ id: string }>();
+  const postId = id;
+  const isEditMode = Boolean(postId);
+  
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState("");
   const [thumbnail, setThumbnail] = useState<string | null>(null);
@@ -27,11 +65,11 @@ const PostCreate = () => {
   const [username, setUsername] = useState<string>("");
   const [isUploadingContentImage, setIsUploadingContentImage] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isLoadingPost, setIsLoadingPost] = useState(false);
+  const [isDraftPost, setIsDraftPost] = useState(false);
 
-  // API URL 상수
   const API_URL = process.env.REACT_APP_BACKEND_HOST || "http://localhost:3000";
 
-  // 카테고리 목록 가져오기
   const fetchCategories = async () => {
     setIsLoadingCategories(true);
     try {
@@ -43,6 +81,36 @@ const PostCreate = () => {
       setError("카테고리를 불러오는데 실패했습니다.");
     } finally {
       setIsLoadingCategories(false);
+    }
+  };
+
+  const fetchPostData = async (id: string) => {
+    setIsLoadingPost(true);
+    try {
+      const response = await axios.get(`${API_URL}/api/admin/post/select/${id}`);
+      const postData: PostData = response.data;
+      
+      setTitle(postData.title);
+      setCategory(postData.category.category_id.toString());
+      setContent(postData.content.content);
+      
+      const isDraft = postData.content.state.state_id === 2;
+      setIsDraftPost(isDraft);
+      
+      if (postData.thumbnail) {
+        const thumbnailUrl = postData.thumbnail.startsWith('http') 
+          ? postData.thumbnail 
+          : `${API_URL}${postData.thumbnail.startsWith('/') ? '' : '/'}${postData.thumbnail}`;
+        
+        setThumbnail(thumbnailUrl);
+        setUploadedImageUrl(postData.thumbnail);
+      }
+      
+    } catch (err) {
+      console.error("게시글 데이터 로드 실패:", err);
+      setError("게시글 데이터를 불러오는데 실패했습니다.");
+    } finally {
+      setIsLoadingPost(false);
     }
   };
 
@@ -119,32 +187,60 @@ const PostCreate = () => {
     setError(null);
 
     try {
-      const response = await axios.post(`${API_URL}/api/admin/post/insert`, {
+      if (isEditMode && postId) {
+        const response = await axios.put(`${API_URL}/api/admin/post/update`, {
+          post_id: postId,
           category_id: getCategoryId(category),
+          state_id: isDraft ? 2 : 1, // 임시저장은 2, 등록은 1
+          reg_user: username || "err",
           thumbnail: uploadedImageUrl || "",
           title: title.trim(),
-          reg_user: username || "err",
-          state_id: isDraft ? 2 : 1, // 임시저장은 2, 등록은 1
           content: content.trim(),
           main_sort: 0,
           use_yn: true
         });
 
-      if (response.status === 200) {
-        const message = isDraft ? "임시저장되었습니다." : "게시글이 성공적으로 등록되었습니다.";
-        alert(message);
+        if (response.status === 200) {
+          const message = isDraft ? "임시저장되었습니다." : "게시글이 성공적으로 수정되었습니다.";
+          alert(message);
 
-        if (!isDraft) {
-          setTitle("");
-          setCategory("");
-          setThumbnail(null);
-          setUploadedImageUrl(null);
-          setContent("");
+          if (!isDraft) {
+            setIsDraftPost(false);
+          }
+        }
+      } else {
+        // 생성 모드
+        const response = await axios.post(`${API_URL}/api/admin/post/insert`, {
+            category_id: getCategoryId(category),
+            thumbnail: uploadedImageUrl || "",
+            title: title.trim(),
+            reg_user: username || "err",
+            state_id: isDraft ? 2 : 1,
+            content: content.trim(),
+            main_sort: 0,
+            use_yn: true
+          });
+
+        if (response.status === 200) {
+          const message = isDraft ? "임시저장되었습니다." : "게시글이 성공적으로 등록되었습니다.";
+          alert(message);
+
+          if (!isDraft) {
+            setTitle("");
+            setCategory("");
+            setThumbnail(null);
+            setUploadedImageUrl(null);
+            setContent("");
+          }
         }
       }
     } catch (err) {
       console.error("게시글 저장 실패:", err);
-      const errorMessage = isDraft ? "임시저장에 실패했습니다." : "게시글 등록에 실패했습니다.";
+      const errorMessage = isDraft 
+        ? "임시저장에 실패했습니다." 
+        : isEditMode 
+          ? "게시글 수정에 실패했습니다." 
+          : "게시글 등록에 실패했습니다.";
       setError(`${errorMessage} 다시 시도해주세요.`);
     } finally {
       setIsLoading(false);
@@ -156,14 +252,16 @@ const PostCreate = () => {
 
   useEffect(() => {
     fetchCategories();
-    // 로컬 스토리지에서 username 가져오기
     const storedUsername = localStorage.getItem('@user_name');
     if (storedUsername) {
       setUsername(storedUsername);
     }
-  }, []);
+    
+    if (isEditMode && postId) {
+      fetchPostData(postId);
+    }
+  }, [isEditMode, postId]);
 
-  // 드롭다운 외부 클릭 시 닫기
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as HTMLElement;
@@ -280,28 +378,38 @@ const PostCreate = () => {
   return (
     <Container>
       
-      <Header title="게시글 작성">
+      <Header title={isEditMode ? "게시글 수정" : "게시글 작성"}>
         <BtnWrapper>
-          <TempSave  onClick={saveDraft} disabled={isLoading}>임시저장</TempSave>
-          <Save onClick={createPost} disabled={isLoading}>등록</Save>
+          {(!isEditMode || isDraftPost) && (
+            <TempSave onClick={saveDraft} disabled={isLoading || isLoadingPost}>임시저장</TempSave>
+          )}
+          <Save onClick={createPost} disabled={isLoading || isLoadingPost}>
+            {isEditMode ? (isDraftPost ? "등록" : "수정") : "등록"}
+          </Save>
         </BtnWrapper>
       </Header>
 
       <MainContents>
+        {isLoadingPost && (
+          <LoadingMessage>게시글 데이터를 불러오는 중...</LoadingMessage>
+        )}
+        
         <FormRow>
           <Label>카테고리</Label>
           <SelectWrapper data-dropdown>
             <SelectButton 
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-              disabled={isLoadingCategories}
+              disabled={isLoadingCategories || isLoadingPost}
               $isOpen={isDropdownOpen}
             >
               <SelectText>
                 {isLoadingCategories 
                   ? "카테고리 로딩 중..." 
-                  : category 
-                    ? categories.find(cat => cat.category_id.toString() === category)?.name || "카테고리를 설정하세요."
-                    : "카테고리를 설정하세요."
+                  : isLoadingPost
+                    ? "게시글 로딩 중..."
+                    : category 
+                      ? categories.find(cat => cat.category_id.toString() === category)?.name || "카테고리를 설정하세요."
+                      : "카테고리를 설정하세요."
                 }
               </SelectText>
               <ArrowIcon 
@@ -343,17 +451,13 @@ const PostCreate = () => {
               type="file" 
               accept="image/*" 
               onChange={onChangeFile}
-              disabled={isUploadingImage}
+              disabled={isUploadingImage || isLoadingPost}
               style={{ display: 'none' }}
             />
             <Guide>
               <li>대표 이미지는 최대 1개까지 설정할 수 있습니다.</li>
               <li>pdf.png.jpg 형식의 파일만 등록 가능합니다.</li>
               <li>이미지 업로드 시, 자동으로 사이즈(1200x600)가 조절됩니다.</li>
-              {/* - 확장자 : PNG, JPEG, JPG만 가능
-              <br />- 용량 : 최대 10MB
-              <br />- 권장 크기 : 1200 x 600 이상
-              <br />- 이미지 업로드 시, 자동으로 사이즈(1200x580)가 조절됩니다. */}
             </Guide>
           </ThumbBox>
         </FormRow>
@@ -364,6 +468,7 @@ const PostCreate = () => {
             placeholder="제목을 입력하세요."
             value={title}
             onChange={(e:React.ChangeEvent<HTMLInputElement>) => setTitle(e.target.value)}
+            disabled={isLoadingPost}
           />
         </FormRow>
 
@@ -668,6 +773,17 @@ const ErrorMessage = styled.div`
   border-radius: 4px;
   margin-bottom: 16px;
   font-size: 14px;
+`;
+
+const LoadingMessage = styled.div`
+  background: #f0f9ff;
+  border: 1px solid #bae6fd;
+  color: #0369a1;
+  padding: 12px;
+  border-radius: 4px;
+  margin-bottom: 16px;
+  font-size: 14px;
+  text-align: center;
 `;
 
 export default PostCreate;

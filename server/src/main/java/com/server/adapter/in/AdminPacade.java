@@ -49,8 +49,24 @@ public class AdminPacade {
         return res;
     }
 
-    public PostResponseDTO selectPost(Long post_id) {
-        return postService.findById(post_id);
+    public PostResponseDTO selectPost(String post_id) {
+        PostResponseDTO res = postService.findById(post_id);
+        if (res == null) {
+            return null;
+        }
+        
+        // 먼저 등록된 상태로 조회, 없으면 임시저장 상태로 조회
+        PostContentResponseDTO content = postContentService.findByPostIdAndStateId(post_id, 1L); // 등록된 상태
+        if (content == null) {
+            content = postContentService.findByPostIdAndStateId(post_id, 2L); // 임시저장 상태
+        }
+        
+        PostViewResponseDTO view = postViewService.findPostView(post_id);
+        
+        res.setContent(content);
+        res.setPostView(view);
+        
+        return res;
     }
 
     public List<PostResponseDTO> selectPostList(Long state) {
