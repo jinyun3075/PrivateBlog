@@ -1,6 +1,9 @@
 import styled from "styled-components";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import axios from "axios";
+import Header from "../components/header/header";
+import { colors } from "../common/designSystem";
+import ErrorModal from "../components/errorModal/errorModal";
 
 interface Category {
   category_id: number;
@@ -25,6 +28,7 @@ interface Post {
 const Category = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [showErrorModal,setShowErrorModal] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
   const [isAddingCategory, setIsAddingCategory] = useState(false);
@@ -37,10 +41,19 @@ const Category = () => {
   const [originalCategoryName, setOriginalCategoryName] = useState("");
   const [tempIdCounter, setTempIdCounter] = useState(0);
   const [categoryErrors, setCategoryErrors] = useState<{[key: number]: string}>({});
-  const [modifiedCategories, setModifiedCategories] = useState<{[key: number]: boolean}>({}); 
+  const [modifiedCategories, setModifiedCategories] = useState<{[key: number]: boolean}>({});
+  const [leftPanelHeight, setLeftPanelHeight] = useState<number>(336);
+  const leftPanelRef = useRef<HTMLDivElement>(null);
+  const [draggedCategoryId, setDraggedCategoryId] = useState<number | null>(null); 
 
   const API_URL = process.env.REACT_APP_BACKEND_HOST || "http://localhost:3000";
 
+  const updateLeftPanelHeight = () => {
+    if (leftPanelRef.current) {
+      const height = leftPanelRef.current.offsetHeight;
+      setLeftPanelHeight(height);
+    }
+  };
 
   const generateTempId = () => {
     const newTempId = tempIdCounter - 1; // 임시 ID 생성 (음수)
@@ -83,7 +96,8 @@ const Category = () => {
 
   const addCategory = async () => {
     if (categories.length >= 10) {
-      setError("카테고리는 최대 10개까지 생성할 수 있습니다.");
+      setError("최대 카테고리 한도 수를 넘었습니다.");
+      setShowErrorModal(true);
       return;
     }
 
@@ -93,7 +107,7 @@ const Category = () => {
     try {
       const newCategory = {
         category_id: generateTempId(),
-        name: "새로운 카테고리",
+        name: "카테고리명을 입력해 주세요.",
         reg_user: localStorage.getItem('@user_name') || 'admin',
         mod_user: localStorage.getItem('@user_name') || 'admin',
         sort: categories.length + 1
@@ -110,8 +124,8 @@ const Category = () => {
       }));
     
       setSelectedCategory(newCategory);
-      setEditedCategoryName("새로운 카테고리");
-      setOriginalCategoryName("새로운 카테고리");
+      setEditedCategoryName("카테고리명을 입력해 주세요.");
+      setOriginalCategoryName("카테고리명을 입력해 주세요.");
     } catch (err) {
       console.error("카테고리 추가 실패:", err);
       setError("카테고리 추가에 실패했습니다.");
@@ -263,6 +277,7 @@ const Category = () => {
 
     if (selectedCategory.post_count && selectedCategory.post_count > 0) {
       setError("게시글이 있는 카테고리는 삭제할 수 없습니다.");
+      setShowErrorModal(true);
       return;
     }
 
@@ -321,6 +336,7 @@ const Category = () => {
 
   const handleDragStart = (e: React.DragEvent, category: Category) => {
     e.dataTransfer.setData("text/plain", category.category_id.toString());
+    setDraggedCategoryId(category.category_id);
   };
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -331,10 +347,16 @@ const Category = () => {
     e.preventDefault();
     const draggedCategoryId = parseInt(e.dataTransfer.getData("text/plain"));
     
-    if (draggedCategoryId === targetCategory.category_id) return;
+    if (draggedCategoryId === targetCategory.category_id) {
+      setDraggedCategoryId(null);
+      return;
+    }
 
     const draggedCategory = categories.find(cat => cat.category_id === draggedCategoryId);
-    if (!draggedCategory) return;
+    if (!draggedCategory) {
+      setDraggedCategoryId(null);
+      return;
+    }
 
     const newCategories = categories.map(cat => {
       if (cat.category_id === draggedCategoryId) {
@@ -348,6 +370,7 @@ const Category = () => {
     const sortedCategories = newCategories.sort((a, b) => a.sort - b.sort);
     setCategories(sortedCategories);
     setHasChanges(true);
+    setDraggedCategoryId(null);
   };
 
   useEffect(() => {
@@ -364,89 +387,105 @@ const Category = () => {
     }
   }, [posts]);
 
+  useEffect(() => {
+    updateLeftPanelHeight();
+  }, [categories]);
+
+  useEffect(() => {
+    const handleResize = () => {
+      updateLeftPanelHeight();
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   return (
     <Container>
-      <Header>
-        <Title>카테고리 관리</Title>
+      <Header title="카테고리">
         <SaveButton onClick={saveAllCategories} disabled={!hasChanges || isSaving}>
           {isSaving ? "저장 중..." : "저장"}
         </SaveButton>
       </Header>
-
+ 
       <MainContent>
-        <LeftPanel>
-          <ActionButtons>
-            <AddButton 
-              onClick={addCategory} 
-              disabled={isAddingCategory || categories.length >= 10}
-            >
-              {isAddingCategory ? "추가 중..." : "추가"}
-            </AddButton>
-            <DeleteButton 
-              onClick={deleteCategory} 
-              disabled={!selectedCategory || isDeleting}
-            >
-              {isDeleting ? "삭제 중..." : "삭제"}
-            </DeleteButton>
-          </ActionButtons>
+        <ActionButtons>
+          <AddButton 
+            onClick={addCategory} 
+            disabled={isAddingCategory || categories.length >= 10}
+          >
+            {isAddingCategory ? "추가 중..." : "추가"}
+          </AddButton>
+          <DeleteButton 
+            onClick={deleteCategory} 
+            disabled={!selectedCategory || isDeleting}
+          >
+            {isDeleting ? "삭제 중..." : "삭제"}
+          </DeleteButton>
+        </ActionButtons>
 
-          <CategoryListHeader>
-            카테고리 전체 {categories.length}/10개
-          </CategoryListHeader>
 
-          <CategoryList>
-            {isLoading ? (
-              <LoadingMessage>카테고리를 불러오는 중...</LoadingMessage>
-            ) : (
-              categories.map((category) => (
-                <CategoryItem
-                  key={category.category_id}
-                  $isSelected={selectedCategory?.category_id === category.category_id}
-                  $isModified={category.isModified}
-                  onClick={() => handleCategorySelect(category)}
-                  draggable
-                  onDragStart={(e: React.DragEvent) => handleDragStart(e, category)}
-                  onDragOver={handleDragOver}
-                  onDrop={(e: React.DragEvent) => handleDrop(e, category)}
-                >
-                  <DragHandle>⋮⋮⋮</DragHandle>
-                  <CategoryName $isModified={modifiedCategories[category.category_id]}>{category.name}</CategoryName>
-                  <CategoryCount>{category.post_count || 0}</CategoryCount>
-                </CategoryItem>
-              ))
-            )}
-          </CategoryList>
-        </LeftPanel>
+        <PannelWrapper>
 
-          {selectedCategory && (
-          <RightPanel>
-              <CategoryInfoForm>
-                카테고리 정보
-                <InfoField>
-                  <Label>카테고리명</Label>
-                  <InfoInput
-                    value={editedCategoryName}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleCategoryNameChange(e.target.value)}
-                    placeholder="카테고리를 입력해 주세요."
-                    $hasError={!!fieldError}
-                  />
-                  {fieldError && (
-                    <FieldErrorMessage>{fieldError}</FieldErrorMessage>
-                  )}
-                </InfoField>
-                <InfoField>
-                  <Label>게시글 수</Label>
-                  <InfoValue>{selectedCategory.post_count || 0} 개</InfoValue>
-                </InfoField>
-              </CategoryInfoForm>
-          </RightPanel>
-          ) }
+          <LeftPanel ref={leftPanelRef}>
+            <CategoryListHeader>카테고리 전체 <span>{categories.length}</span></CategoryListHeader>
+
+            <CategoryList>
+              {isLoading ? (
+                <LoadingMessage>카테고리를 불러오는 중...</LoadingMessage>
+              ) : (
+                categories.map((category) => (
+                  <CategoryItem
+                    key={category.category_id}
+                    $isSelected={selectedCategory?.category_id === category.category_id}
+                    $isModified={category.isModified}
+                    $isDragging={draggedCategoryId === category.category_id}
+                    onClick={() => handleCategorySelect(category)}
+                    draggable
+                    onDragStart={(e: React.DragEvent) => handleDragStart(e, category)}
+                    onDragOver={handleDragOver}
+                    onDrop={(e: React.DragEvent) => handleDrop(e, category)}
+                    onDragEnd={() => setDraggedCategoryId(null)}
+                  >
+                    <DragHandle>⋮⋮⋮</DragHandle>
+                    <CategoryWrapper>
+                      <CategoryName $isModified={modifiedCategories[category.category_id]}>{category.name}</CategoryName>
+                      <CategoryCount>{category.post_count || 0}</CategoryCount>
+                    </CategoryWrapper>
+                  </CategoryItem>
+                ))
+              )}
+            </CategoryList>
+          </LeftPanel>
+
+          {selectedCategory ? (
+            <RightPanel $height={leftPanelHeight}>
+                <RightHeader>카테고리 정보</RightHeader>               
+                <CategoryInfoForm>
+                  <InfoField style={{position:"relative"}}>
+                    <Label>카테고리명</Label>
+                    <InfoInput
+                      value={editedCategoryName}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleCategoryNameChange(e.target.value)}
+                      placeholder="카테고리명을 입력해 주세요."
+                      $hasError={!!fieldError}
+                    />
+                    {fieldError && (
+                      <FieldErrorMessage>{fieldError}</FieldErrorMessage>
+                    )}
+                  </InfoField>
+                  <InfoField>
+                    <Label>게시글 수</Label>
+                    <InfoValue><span>{selectedCategory.post_count || 0}</span> 개</InfoValue>
+                  </InfoField>
+                </CategoryInfoForm>
+            </RightPanel>)
+          :<div style={{width:"calc(50% - 16px)", height: leftPanelHeight}} />}
+        </PannelWrapper>
       </MainContent>
 
-      {error && (
-        <ErrorMessage>
-          {error}
-        </ErrorMessage>
+      {error && showErrorModal && (
+        <ErrorModal title="삭제 오류" text={error} onClose={()=>setShowErrorModal(false)} />
       )}
     </Container>
   );
@@ -454,106 +493,234 @@ const Category = () => {
 
 const Container = styled.div`
   width: 100%;
-  padding: 24px;
 `;
 
-const Header = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16px;
-`;
+const SaveButton = styled.button<{disabled:boolean}>`
+  padding: 10px 0;
+  width: 80px;
+  height: 46px;
+  
+  color: ${props=>props.disabled?colors.White :colors.White};
+  background: ${ props=>props.disabled? colors.LightGray[300]:colors.Black};
 
-const Title = styled.h1`
-  font-size: 18px;
-  font-weight: 600;
-  color: #111827;
-`;
-
-const SaveButton = styled.button`
-  padding: 8px 16px;
-  border: 1px solid #e5e7eb;
   border-radius: 4px;
-  background: #f3f4f6;
-  color: #374151;
-  font-size: 14px;
-  cursor: pointer;
-  transition: all 0.2s;
+  background: ${colors.LightGray[300]};
+  font-family: "Pretendard-SemioBold";
+  font-size: 16px;
 
-  &:hover:not(:disabled) {
-    background: #e5e7eb;
-  }
-
-  &:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
 `;
 
 const MainContent = styled.div`
-  display: flex;
-  gap: 24px;
   height: calc(100vh - 200px);
+  padding:20px 32px;
 `;
 
+
+const ActionButtons = styled.div`
+  width: calc(50% - 16px);
+  display: flex;
+  justify-content: end;
+  gap: 15px;
+`;
+
+const AddButton = styled(SaveButton)`
+  color: ${colors.Black};
+  background: ${colors.White};
+  border: 1px solid ${colors.LightGray[400]};
+`;
+
+const DeleteButton = styled(AddButton)<{disabled:boolean}>`
+  color: ${props=>props.disabled?colors.White :colors.White};
+  background: ${ props=>props.disabled? colors.LightGray[300]:colors.Black};
+  border: none;
+`;
+
+const PannelWrapper = styled.div`
+  margin-top: 12px;
+  width: 100%;
+  display: flex;
+  gap:32px;
+`
 const LeftPanel = styled.div`
-  flex: 1;
-  display: flex;
-  flex-direction: column;
+  flex:1;
+  max-width: calc(50% - 16px);
+  height:auto;
 `;
 
-const RightPanel = styled.div`
-  flex: 1;
-  border: 1px solid #e5e7eb;
-  border-radius: 4px;
-  padding: 20px;
-  height: fit-content;
+const CategoryListHeader = styled.div`
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  gap:8px;
+
+  width: 100%;
+  height: 56px;
+
+  font-family: "Pretendard-SemioBold";
+  font-size: 16px;
+  color: ${colors.Black};
+  background-color: ${colors.LightGray[0]};
+  padding: 13.8px 70px;
+
+  border-top: 1px solid ${colors.LightGray[300]};
+  position: relative;
+  
+  span{
+    font-size: 14px;
+    color: ${colors.Gray[0]};
+    line-height: 1.6;
+  }
+
+  &::before{
+    content:"";
+    position: absolute;
+    width: 1.2px;
+    height: 26px;
+    top:calc(50% - 13px);
+    left:50.4px;
+    
+    background-color:${colors.LightGray[300]};
+  }
 `;
+
+const CategoryList = styled.div`
+  width: 100%;
+
+  &:first-child{
+    border-top: 1px solid ${colors.LightGray[300]};
+  }
+`;
+
+const CategoryItem = styled.div<{ $isSelected: boolean; $isModified?: boolean; $isDragging?: boolean }>`
+  width: 100%;
+  height: 56px;
+  display: flex;
+  background: ${props => {
+    if (props.$isDragging) return colors.LightGray[100]; // 드래그 중일 때 회색 배경
+    if (props.$isModified) return '#f3f4f6'; // 수정된 카테고리는 회색 배경
+    return props.$isSelected ? colors.LightGray[100] : '#fff';
+  }};
+  border-bottom: 1px solid ${props => props.$isSelected ? '#d1d5db' : colors.LightGray[300]};
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+  opacity: ${props => props.$isDragging ? 0.8 : 1};
+`;
+
+const DragHandle = styled.div`
+  width: 50.4px;
+  height: 100%;
+  color: ${colors.LightGray[400]};
+  padding:15.4px 13.2px;
+  user-select: none;
+`;
+
+const CategoryWrapper = styled.div`
+  width: calc(100% - 50.4px);
+  height: 100%;
+  display: flex;
+  align-items: center;
+  gap:8px;
+  padding:15.6px 19.2px;
+`
+const CategoryName = styled.span<{ $isModified?: boolean }>`
+  font-family: "Pretendard-Medium";
+  font-size: 16px;
+  line-height: 1.6;
+  color: ${props => props.$isModified ? colors.Gray[200] :colors.Black};
+`;
+
+const CategoryCount = styled.span`
+  font-family: "Pretendard-Medium";
+  font-size: 14px;
+  line-height: 1.6;
+  color: ${colors.Gray[0]};
+`;
+
+const LoadingMessage = styled.div`
+  text-align: center;
+  padding: 40px;
+  color: #6b7280;
+  font-size: 14px;
+`;
+
+
+const RightPanel = styled.div<{ $height: number }>`
+  flex:1;
+  max-width: calc(50% - 16px);
+  height: ${props => props.$height}px;
+  border: 1px solid ${colors.LightGray[300]};
+  border-radius: 4px;
+  padding: 20px 32px;
+`;
+
+
+const RightHeader = styled.header`
+  width: 100%;
+  font-family: "Pretendard-SemiBold";
+  font-size: 16px;
+  line-height: 1.6;
+`
 
 const CategoryInfoForm = styled.div`
+  margin-top: 36px;
+  width: 100%;
   display: flex;
   flex-direction: column;
   gap: 16px;
 `;
 
 const InfoField = styled.div`
+  width: 100%;
   display: flex;
-  flex-direction: column;
-  gap: 8px;
+  align-items: center;
+  gap: 24px;
 `;
 
 const Label = styled.label`
-  font-size: 14px;
-  font-weight: 500;
-  color: #374151;
+  padding: 7px 0;
+  width: 88px;
+  font-family: "Pretendard-SemiBold";
+  font-size: 16px;
+  color: ${colors.Gray[0]};
 `;
 
 const InfoInput = styled.input<{ $hasError?: boolean }>`
+  width: 100%;
   height: 40px;
-  border: 1px solid ${props => props.$hasError ? '#dc2626' : '#e5e7eb'};
+  
+  padding: 9px 16px;
+  
+  border: 1px solid ${props => props.$hasError ? colors.Error : colors.LightGray[400]};
   border-radius: 4px;
-  padding: 0 12px;
+  
+  font-family: "Pretendard-Regular";
   font-size: 14px;
-  color: #111827;
+  color: ${colors.Black};
+
+  &::placeholder{
+    color: ${colors.Gray[200]};
+  }
 
   &:focus {
     outline: none;
-    border-color: ${props => props.$hasError ? '#dc2626' : '#1b7eff'};
+    border-color: ${props => props.$hasError ? colors.Error : colors.Black};
   }
 `;
 
 const InfoValue = styled.div`
-  height: 40px;
+  width: 100%;
+  height: 20px;
+
   display: flex;
   align-items: center;
+
+  font-family: "Pretendard-Regular";
   font-size: 14px;
-  color: #6b7280;
-  background: #f3f4f6;
-  border: 1px solid #e5e7eb;
-  border-radius: 4px;
-  padding: 0 12px;
+  color: ${colors.Gray[0]};
+
+  span{
+    color: ${colors.Black};
+  }
 `;
 
 const NoSelectionContainer = styled.div`
@@ -588,9 +755,14 @@ const NoSelectionDescription = styled.p`
 `;
 
 const FieldErrorMessage = styled.div`
-  color: #dc2626;
-  font-size: 12px;
-  margin-top: 4px;
+  position: absolute;
+  bottom:-5px;
+  left:102px;        
+  transform: translateY(100%);
+  font-family: "Pretendard-Regular";
+  font-size: 10px;
+  color: ${colors.Error};
+
 `;
 
 const ErrorMessage = styled.div`
@@ -601,53 +773,6 @@ const ErrorMessage = styled.div`
   border-radius: 4px;
   margin-bottom: 16px;
   font-size: 14px;
-`;
-
-const ActionButtons = styled.div`
-  display: flex;
-  gap: 8px;
-  margin-bottom: 16px;
-`;
-
-const AddButton = styled.button`
-  padding: 8px 16px;
-  border: 1px solid #e5e7eb;
-  border-radius: 4px;
-  background: #fff;
-  color: #374151;
-  font-size: 14px;
-  cursor: pointer;
-  transition: all 0.2s;
-
-  &:hover:not(:disabled) {
-    background: #f9fafb;
-  }
-
-  &:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
-`;
-
-const DeleteButton = styled.button`
-  padding: 8px 16px;
-  border: 1px solid #e5e7eb;
-  border-radius: 4px;
-  background: #6b7280;
-  color: #fff;
-  font-size: 14px;
-  cursor: pointer;
-  transition: all 0.2s;
-
-  &:hover:not(:disabled) {
-    background: #4b5563;
-  }
-
-  &:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-    background: #9ca3af;
-  }
 `;
 
 const AddCategoryForm = styled.div`
@@ -667,74 +792,6 @@ const Input = styled.input`
     outline: none;
     border-color: #1b7eff;
   }
-`;
-
-const CategoryListHeader = styled.div`
-  font-size: 14px;
-  font-weight: 500;
-  color: #374151;
-  margin-bottom: 12px;
-  padding: 8px 0;
-`;
-
-const CategoryList = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-`;
-
-const CategoryItem = styled.div<{ $isSelected: boolean; $isModified?: boolean }>`
-  display: flex;
-  align-items: center;
-  padding: 12px 16px;
-  background: ${props => {
-    if (props.$isModified) return '#f3f4f6'; // 수정된 카테고리는 회색 배경
-    return props.$isSelected ? '#f3f4f6' : '#fff';
-  }};
-  border: 1px solid ${props => props.$isSelected ? '#d1d5db' : '#e5e7eb'};
-  border-radius: 4px;
-  cursor: pointer;
-  transition: all 0.2s;
-
-  &:hover {
-    background: #f9fafb;
-    border-color: #d1d5db;
-  }
-
-  &:active {
-    transform: scale(0.98);
-  }
-`;
-
-const DragHandle = styled.div`
-  color: #9ca3af;
-  font-size: 12px;
-  margin-right: 12px;
-  user-select: none;
-`;
-
-const CategoryName = styled.div<{ $isModified?: boolean }>`
-  flex: 1;
-  font-size: 14px;
-  color: ${props => props.$isModified ? '#9ca3af' : '#374151'};
-  font-weight: 500;
-`;
-
-const CategoryCount = styled.div`
-  font-size: 14px;
-  color: #6b7280;
-  background: #f3f4f6;
-  padding: 4px 8px;
-  border-radius: 12px;
-  min-width: 24px;
-  text-align: center;
-`;
-
-const LoadingMessage = styled.div`
-  text-align: center;
-  padding: 40px;
-  color: #6b7280;
-  font-size: 14px;
 `;
 
 export default Category;
