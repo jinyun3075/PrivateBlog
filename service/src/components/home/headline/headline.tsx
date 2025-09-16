@@ -1,5 +1,6 @@
 import styled from "styled-components"
 import { formatDate } from "../../../common/date"
+import { useMemo } from "react";
 
 type HeadlineItemProps = {
   thumbnail: string;
@@ -11,9 +12,14 @@ type HeadlineItemProps = {
 }
 
 const HeadlineItem = ({ thumbnail, category, title, desc, createdDate, author }: HeadlineItemProps) => {
+  
+
+
+  const thumbnailSrc = useMemo(()=>thumbnail ? `${process.env.REACT_APP_BACKEND_HOST}/${thumbnail}`:"/img/defaultThumbnail/defaultThumbnail.png",[thumbnail]);
+  
   return(
     <Container>
-      <Thumbnail src={thumbnail} />
+      <Thumbnail src={thumbnailSrc} />
       <Category>{category}</Category>
       <Title>{title}</Title>
       <Desc>{desc}</Desc>
@@ -25,7 +31,6 @@ const HeadlineItem = ({ thumbnail, category, title, desc, createdDate, author }:
 
 
 const Container = styled.div`
-  flex:1;
   cursor: pointer;
 `
 
@@ -46,6 +51,8 @@ const Category = styled.p`
 const Title = styled.p`
   margin-top: 10px;
 
+  min-height:78px;
+
 	font-family: 'Pretendard-Bold';
   font-size: 28px;
   letter-spacing: -0.024em;
@@ -60,6 +67,8 @@ const Title = styled.p`
 `
 const Desc = styled.p`
   margin-top: 10px;
+
+  min-height:52px;
 
   font-family: 'Pretendard-Regular';
   font-size: 16px;

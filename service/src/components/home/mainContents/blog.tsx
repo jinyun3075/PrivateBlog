@@ -1,5 +1,6 @@
 import styled from "styled-components"
 import { formatDate } from "../../../common/date"
+import { useEffect } from "react";
 
 interface BlogProps {
   category:string;
@@ -36,7 +37,6 @@ const Blog = ({category,title,desc,createdDate,author,viewer,imgSrc,textWrapperW
   //   <HighlightedText key={3}>react</HighlightedText>,
   //   "ive"
   // ]
-
   
 
   return(
@@ -57,7 +57,7 @@ const Blog = ({category,title,desc,createdDate,author,viewer,imgSrc,textWrapperW
         </Etc>
       </TextWrapper>
 
-      <Thumbnail src={`/img/${imgSrc || `defaultThumbnail/defaultThumbnail.png`}`}/>
+      <Thumbnail  src={ imgSrc ? `${process.env.REACT_APP_BACKEND_HOST}/${imgSrc}` : '/img/defaultThumbnail/defaultThumbnail.png' } />
     </Container>
   )
 }
@@ -98,6 +98,8 @@ const Title = styled.p`
 `
 const Desc = styled.p`
   margin-top: 8px;
+  min-height: 40px;
+  
   font-family: 'Pretendard-Regular';
   font-size: 12px;
   letter-spacing: 0;

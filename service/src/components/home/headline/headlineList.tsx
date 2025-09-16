@@ -25,7 +25,7 @@ const HeadlineList = () => {
         (headline.length>0 ||isError) ? headline.map((post: PostType) => (
           <HeadlineCardLink to={`/detail/${post.post_id}`} key={post.post_id}>
             <HeadlineItem 
-              thumbnail={`/img/${post.thumbnail}`}
+              thumbnail={post.thumbnail}
               category={post.category.name}
               title={post.title}
               desc={post.content.content}
@@ -50,6 +50,7 @@ const Container = styled.section`
 `
 
 const HeadlineCardLink = styled(Link)`
+  max-width: 373px;
   flex: 1;
   display: block;
   min-width: 0;
