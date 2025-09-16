@@ -57,7 +57,6 @@ const PostCreate = () => {
   const [thumbnail, setThumbnail] = useState<string | null>(null);
   const [content, setContent] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoadingCategories, setIsLoadingCategories] = useState(false);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
@@ -78,7 +77,7 @@ const PostCreate = () => {
       setCategories(response.data || []);
     } catch (err) {
       console.error("카테고리 로드 실패:", err);
-      setError("카테고리를 불러오는데 실패했습니다.");
+      alert("카테고리를 불러오는데 실패했습니다.");
     } finally {
       setIsLoadingCategories(false);
     }
@@ -108,7 +107,7 @@ const PostCreate = () => {
       
     } catch (err) {
       console.error("게시글 데이터 로드 실패:", err);
-      setError("게시글 데이터를 불러오는데 실패했습니다.");
+      alert("게시글 데이터를 불러오는데 실패했습니다.");
     } finally {
       setIsLoadingPost(false);
     }
@@ -137,7 +136,7 @@ const PostCreate = () => {
       return null;
     } catch (err) {
       console.error("이미지 업로드 실패:", err);
-      setError("이미지 업로드에 실패했습니다.");
+      alert("이미지 업로드에 실패했습니다.");
       return null;
     } finally {
       setIsUploadingImage(false);
@@ -162,7 +161,7 @@ const PostCreate = () => {
       return null;
     } catch (err) {
       console.error("이미지 업로드 실패:", err);
-      setError("이미지 업로드에 실패했습니다.");
+      alert("이미지 업로드에 실패했습니다.");
       return null;
     } finally {
       setIsUploadingContentImage(false);
@@ -171,20 +170,19 @@ const PostCreate = () => {
 
   const savePost = async (isDraft: boolean = false) => {
     if (!title.trim()) {
-      setError("제목을 입력해주세요.");
+      alert("제목을 입력해주세요.");
       return;
     }
     if (!category) {
-      setError("카테고리를 선택해주세요.");
+      alert("카테고리를 선택해주세요.");
       return;
     }
     if (!content.trim()) {
-      setError("내용을 입력해주세요.");
+      alert("내용을 입력해주세요.");
       return;
     }
 
     setIsLoading(true);
-    setError(null);
 
     try {
       if (isEditMode && postId) {
@@ -241,7 +239,7 @@ const PostCreate = () => {
         : isEditMode 
           ? "게시글 수정에 실패했습니다." 
           : "게시글 등록에 실패했습니다.";
-      setError(`${errorMessage} 다시 시도해주세요.`);
+      alert(`${errorMessage} 다시 시도해주세요.`);
     } finally {
       setIsLoading(false);
     }
@@ -284,12 +282,12 @@ const PostCreate = () => {
     if (!file) return;
     
     if (!file.type.startsWith('image/')) {
-      setError('이미지 파일만 업로드 가능합니다.');
+      alert('이미지 파일만 업로드 가능합니다.');
       return;
     }
 
     if (file.size > 10 * 1024 * 1024) {
-      setError('파일 크기는 10MB 이하여야 합니다.');
+      alert('파일 크기는 10MB 이하여야 합니다.');
       return;
     }
     
@@ -497,11 +495,6 @@ const PostCreate = () => {
           </EditorContainer>
         </EditorWrapper>
 
-        {error && (
-          <ErrorMessage>
-            {error}
-          </ErrorMessage>
-        )}
 
       </MainContents>
     </Container>
@@ -764,16 +757,6 @@ const UploadMessage = styled.div`
   font-weight: 500;
 `;
 
-
-const ErrorMessage = styled.div`
-  background: #fef2f2;
-  border: 1px solid #fecaca;
-  color: #dc2626;
-  padding: 12px;
-  border-radius: 4px;
-  margin-bottom: 16px;
-  font-size: 14px;
-`;
 
 const LoadingMessage = styled.div`
   background: #f0f9ff;
