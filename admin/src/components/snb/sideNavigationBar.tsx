@@ -67,7 +67,9 @@ const Sidebar = styled.aside<{$isHide:boolean}>`
 const Create = styled.button`
   width: 100%;
   height: 40px;
-  color:#FFFFFF;
+  font-family: 'Pretendard-SemiBold';
+  font-size: 14px;
+  color:${colors.White};
   background-color: ${colors.Black};
   border-radius: 4px;
   &:hover{
@@ -84,22 +86,34 @@ const MenuWrapper = styled.div`
 `
 
 const Menu = styled.div<{$active?: boolean}>`
+  width: 100%;
+  height: 40px;
   padding:9px 24px;
-  cursor: ${props=>props.$active && `pointer`};
+  cursor: pointer;
   color: ${colors.Black};
+  
+  font-family:${props=>props.$active? `'Pretendard-Bold'`:`'Pretendard-Regular'`};
+  font-size:14px;
 
   &:hover{
-    color:${props=>props.$active && `${colors.Gray[0]}`};
-    background-color: ${props=>props.$active && `${colors.LightGray[100]}`};
+    color:${colors.Gray[0]};
+    background-color: ${colors.LightGray[100]};
   }
-  font-family:${props=>props.$active? `'Pretendard-Bold'`:`'Pretendard-Regular'`};
+
 `
 
 const SubMenu = styled.div<{$active?: boolean}>`
-  padding:9px 0;
-  text-align: center;
-  cursor: pointer;
+
+  padding: 9px 42px;
+  width: 100%;
+  height: 40px;
   font-family:${props=>props.$active? `'Pretendard-Bold'`:`'Pretendard-Regular'`};
+  font-size:14px;
+  letter-spacing: 0;
+
+  cursor: pointer;
+  line-height: 1.6;
+
   &:hover{
     color:${colors.Gray[0]};
     background-color: ${colors.LightGray[100]};

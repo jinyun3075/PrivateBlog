@@ -292,9 +292,36 @@ const Post = () => {
   // 전체 선택/해제 핸들러
   const handleSelectAll = (isSelected: boolean) => {
     if (isSelected) {
+      // 현재 페이지의 모든 게시물 선택
       setSelectedPosts(currentPosts.map(post => post.post_id));
     } else {
+      // 모든 선택 해제
       setSelectedPosts([]);
+    }
+  };
+
+  // 게시물 삭제 핸들러
+  const handleDeletePosts = async () => {
+    if (selectedPosts.length === 0) return;
+
+    try {
+      // 선택된 게시물들을 하나씩 삭제
+      const deletePromises = selectedPosts.map(async (postId) => {
+        // const {data} = await axios.delete(`${process.env.REACT_APP_BACKEND_HOST}/api/admin/post/delete/${postId}`); // 여기 확인할 것  
+        // console.log(data);
+      });
+
+      // 모든 삭제 요청이 완료될 때까지 대기
+      const results = await Promise.all(deletePromises);
+      console.log('모든 삭제 결과:', results);
+
+
+      setSelectedPosts([]);
+      
+      window.location.reload();
+      
+    } catch (e) {
+      console.log(e);
     }
   };
 
@@ -332,7 +359,6 @@ const Post = () => {
                         value={filters.startDate ? filters.startDate.replace(/\./g, '-') : ''}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleDateChange('start', e.target.value)}
                         $hasError={!!dateErrors.start}
-                        max={new Date().toISOString().split('T')[0]}
                       />
                       <DateDisplay $hasError={!!dateErrors.start}>
                         {filters.startDate || '시작일'}
@@ -348,7 +374,6 @@ const Post = () => {
                         value={filters.endDate ? filters.endDate.replace(/\./g, '-') : ''}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleDateChange('end', e.target.value)}
                         $hasError={!!dateErrors.end}
-                        max={new Date().toISOString().split('T')[0]}
                       />
                       <DateDisplay $hasError={!!dateErrors.end}>
                         {filters.endDate || '종료일'}
@@ -516,10 +541,7 @@ const Post = () => {
             <DeleteButton 
               disabled={selectedPosts.length === 0}
               $disabled={selectedPosts.length === 0}
-              onClick={() => {
-                // TODO: 삭제 로직 구현
-                console.log('Selected posts to delete:', selectedPosts);
-              }}
+              onClick={handleDeletePosts}
             >
               삭제
             </DeleteButton>
@@ -530,7 +552,13 @@ const Post = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHeaderCell width="32px"></TableHeaderCell>
+                  <TableHeaderCell width="32px" style={{textAlign: "center", padding: "0"}}>
+                    <Checkbox 
+                      type="checkbox" 
+                      checked={selectedPosts.length > 0 && selectedPosts.length === currentPosts.length}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleSelectAll(e.target.checked)}
+                    />
+                  </TableHeaderCell>
                   <TableHeaderCell width="190px">게시글 번호</TableHeaderCell>
                   <TableHeaderCell width="180px">카테고리</TableHeaderCell>
                   <TableHeaderCell width="calc(100% - 1062px)">제목</TableHeaderCell>
@@ -543,13 +571,15 @@ const Post = () => {
             </Table>
             
             {/* 스크롤 가능한 테이블 바디 */}
-            <TableBodyContainer $isFilterExpanded={isFilterExpanded}>
+            <TableBodyContainer 
+                $isFilterExpanded = {isFilterExpanded} 
+                $notExistResult = {hasSearched && !currentPosts.length}>
               <Table>
                 <TableBody>
                   {!hasSearched ? (
                     // 검색하지 않은 상태 - 빈 화면
                     <EmptyTableRow>
-                      <TableCell style={{ height: "100%", textAlign: 'center', verticalAlign: 'middle' }}>
+                      <TableCell>
                         {/* 빈 화면 - 필터 상태에 따라 높이 조정 */}
                       </TableCell>
                     </EmptyTableRow>
@@ -1070,18 +1100,24 @@ const TableContainer = styled.div`
   /* border: 1px solid ${colors.LightGray[300]}; */
 `;
 
-const TableBodyContainer = styled.div<{ $isFilterExpanded: boolean }>`
+const TableBodyContainer = styled.div<{ $isFilterExpanded: boolean; $notExistResult:boolean; }>`
   width: 100%;
   height: ${props => props.$isFilterExpanded ? "328px" : "616px"};
   overflow-y: auto;
   scrollbar-width: none;
   box-sizing: border-box;
+
+  ${props=> props.$notExistResult && `
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  `}
 `;
 
 const Table = styled.table`
   width: 100%;
+  //height 100% 넣으면 게시물 1개일 때 높이 다 먹음
   border-collapse: collapse;
-
 `
 ;
 
@@ -1096,7 +1132,15 @@ const TableRow = styled.tr`
 `;
 
 const EmptyTableRow = styled.tr`
+  width: 100%;
   height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family:'Pretendard-SemiBold';
+  font-size:"18px";
+  letter-spacing:"-0.024em";
+  color:${colors.Gray[0]};
 `;
 
 const TableHeaderCell = styled.th<{ width?: string }>`
@@ -1106,6 +1150,7 @@ const TableHeaderCell = styled.th<{ width?: string }>`
   color: ${colors.Black};
   width: ${props => props.width};
   position: relative;
+  text-align: left;
   
   &::before{
     content:"";
@@ -1124,10 +1169,8 @@ const TableHeaderCell = styled.th<{ width?: string }>`
   }
 `;
 
-
-
 const TableBody = styled.tbody`
-
+  height: 100%;
 `;
 
 const TableCell = styled.td<{width?:string}>`

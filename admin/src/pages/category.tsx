@@ -504,9 +504,10 @@ const SaveButton = styled.button<{disabled:boolean}>`
   background: ${ props=>props.disabled? colors.LightGray[300]:colors.Black};
 
   border-radius: 4px;
-  background: ${colors.LightGray[300]};
   font-family: "Pretendard-SemioBold";
   font-size: 16px;
+  border: none;
+  cursor: ${props => props.disabled ? 'auto' : 'pointer'};
 
 `;
 

@@ -12,9 +12,9 @@ const BestBlog = ({ranking, category, date, author, title}:BestBlogProps) => {
   return(
     <Container>
       <BoldText>{ranking}</BoldText>
-      <RegularText>{category}</RegularText>
-      <RegularText>{date}</RegularText>
-      <RegularText>{author}</RegularText>
+      <Category>{category}</Category>
+      <Date>{date}</Date>
+      <Author>{author}</Author>
       <BoldText>{title}</BoldText>
     </Container>
   )
@@ -34,9 +34,21 @@ const BoldText = styled.span`
   color:${colors.Black};
 `
 
-const RegularText = styled.p`
+const Text = styled.p`
   font-family: 'Pretendard-Regular';
   font-size: 14px;
   color:${colors.Black};
+`
+
+const Category = styled(Text)`
+  min-width: 80px;
+`
+
+const Date = styled(Text)`
+  min-width: 75px;
+`
+
+const Author = styled(Text)`
+  min-width: 50px;
 `
 export default BestBlog
