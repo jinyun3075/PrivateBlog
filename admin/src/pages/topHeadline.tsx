@@ -36,6 +36,19 @@ const TopHeadline = () => {
     return headlines.sort((a: PostType, b: PostType) => a.main_sort - b.main_sort);
   }, [data]);
 
+  // 3개 슬롯을 모두 채우는 헤드라인 목록 생성 (빈 슬롯 포함)
+  const displayHeadlines = useMemo(() => {
+    const displayList: (PostType | null)[] = [];
+    
+    // 1, 2, 3번 슬롯을 순서대로 채움
+    for (let i = 1; i <= 3; i++) {
+      const existingHeadline = topHeadlines.find(headline => headline.main_sort === i);
+      displayList.push(existingHeadline || null);
+    }
+    
+    return displayList;
+  }, [topHeadlines]);
+
   // API functions
   const updateSinglePost = useCallback(async (post: PostType) => {
     try {
@@ -65,18 +78,36 @@ const TopHeadline = () => {
   const handleDragEnd = useCallback((result: DropResult) => {
     if (!result.destination) return;
 
-    const items = Array.from(topHeadlines);
-    const [reorderedItem] = items.splice(result.source.index, 1);
-    items.splice(result.destination.index, 0, reorderedItem);
+    const sourceIndex = result.source.index;
+    const destinationIndex = result.destination.index;
+    
+    const sourceItem = displayHeadlines[sourceIndex];
+    if (!sourceItem) return; // 빈 슬롯은 드래그할 수 없음
 
-    const updatedItems = items.map((item, index) => ({
-      ...item,
-      main_sort: index + 1
-    }));
-
-    setTopHeadlines(updatedItems);
+    // 드래그된 아이템의 main_sort를 목적지 인덱스 + 1로 설정
+    const updatedHeadlines = topHeadlines.map(headline => {
+      if (headline.post_id === sourceItem.post_id) {
+        return { ...headline, main_sort: destinationIndex + 1 };
+      }
+      return headline;
+    });
+    
+    // 목적지에 기존에 있던 아이템이 있다면 그 아이템을 원래 위치로 이동
+    const destinationItem = displayHeadlines[destinationIndex];
+    if (destinationItem) {
+      const finalHeadlines = updatedHeadlines.map(headline => {
+        if (headline.post_id === destinationItem.post_id) {
+          return { ...headline, main_sort: sourceIndex + 1 };
+        }
+        return headline;
+      });
+      setTopHeadlines(finalHeadlines);
+    } else {
+      setTopHeadlines(updatedHeadlines);
+    }
+    
     setHasChanges(true);
-  }, [topHeadlines]);
+  }, [topHeadlines, displayHeadlines]);
 
   const handleChangeClick = useCallback((index: number) => {
     setSelectedIndex(index);
@@ -86,10 +117,19 @@ const TopHeadline = () => {
   const handleSelectPost = useCallback((selectedPost: PostType) => {
     if (selectedIndex !== null) {
       const updatedHeadlines = [...topHeadlines];
-      updatedHeadlines[selectedIndex] = {
+      
+      // 기존에 같은 main_sort를 가진 헤드라인이 있다면 제거
+      const existingIndex = updatedHeadlines.findIndex(h => h.main_sort === selectedIndex + 1);
+      if (existingIndex !== -1) {
+        updatedHeadlines.splice(existingIndex, 1);
+      }
+      
+      // 새 헤드라인 추가
+      updatedHeadlines.push({
         ...selectedPost,
         main_sort: selectedIndex + 1
-      };
+      });
+      
       setTopHeadlines(updatedHeadlines);
       setHasChanges(true);
     }
@@ -119,18 +159,22 @@ const TopHeadline = () => {
         
         await Promise.all(disabledHeadlines.map(headline => updateSinglePost(headline)));
       } else {
-        // ON 상태: 현재 headline 상태를 서버에 반영
+        // ON 상태: 현재 상태를 서버에 반영
+        // 1. 기존 헤드라인 중 현재 표시되지 않는 것들은 main_sort를 0으로 설정
         const currentHeadlineIds = topHeadlines.map(headline => headline.post_id);
         const removedHeadlines = originalHeadlines.filter(headline => 
           !currentHeadlineIds.includes(headline.post_id)
         );
         
+        // 2. 현재 표시되는 헤드라인들의 main_sort 업데이트
+        const updatePromises = topHeadlines.map(headline => updateSinglePost(headline));
+        
+        // 3. 제거된 헤드라인들의 main_sort를 0으로 설정
         const removePromises = removedHeadlines.map(headline => 
           updateSinglePost({ ...headline, main_sort: 0 })
         );
-        const updatePromises = topHeadlines.map(headline => updateSinglePost(headline));
         
-        await Promise.all([...removePromises, ...updatePromises]);
+        await Promise.all([...updatePromises, ...removePromises]);
       }
       
       setHasChanges(false);
@@ -178,20 +222,45 @@ const TopHeadline = () => {
     <Droppable droppableId="topHeadlines" type="topHeadlines">
       {(provided) => (
         <TableBody ref={provided.innerRef} {...provided.droppableProps}>
-          {topHeadlines.map((headline, index) => (
-            <Draggable key={headline.post_id} draggableId={headline.post_id} index={index}>
-              {(provided, snapshot) => (
-                <TableRow
-                  ref={provided.innerRef}
-                  {...provided.draggableProps}
-                  $isDragging={snapshot.isDragging}
-                >
+          {displayHeadlines.map((headline, index) => {
+            const sortNumber = index + 1;
+            
+            if (headline) {
+              // 기존 헤드라인이 있는 경우
+              return (
+                <Draggable key={headline.post_id} draggableId={headline.post_id} index={index}>
+                  {(provided, snapshot) => (
+                    <TableRow
+                      ref={provided.innerRef}
+                      {...provided.draggableProps}
+                      $isDragging={snapshot.isDragging}
+                    >
+                      <TableCell>
+                        <DragHandle {...provided.dragHandleProps}>⋮⋮</DragHandle>
+                      </TableCell>
+                      <TableCell>{sortNumber}</TableCell>
+                      <TableCell>
+                        <TitleText>{headline.title}</TitleText>
+                      </TableCell>
+                      <TableCell>
+                        <ChangeButton onClick={() => handleChangeClick(index)}>
+                          변경
+                        </ChangeButton>
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </Draggable>
+              );
+            } else {
+              // 빈 슬롯인 경우
+              return (
+                <TableRow key={`empty-${sortNumber}`}>
                   <TableCell>
-                    <DragHandle {...provided.dragHandleProps}>⋮⋮</DragHandle>
+                    <DragHandle>⋮⋮</DragHandle>
                   </TableCell>
-                  <TableCell>{headline.main_sort}</TableCell>
+                  <TableCell>{sortNumber}</TableCell>
                   <TableCell>
-                    <TitleText>{headline.title}</TitleText>
+                    <EmptySlotText>헤드라인을 지정해 주세요</EmptySlotText>
                   </TableCell>
                   <TableCell>
                     <ChangeButton onClick={() => handleChangeClick(index)}>
@@ -199,9 +268,9 @@ const TopHeadline = () => {
                     </ChangeButton>
                   </TableCell>
                 </TableRow>
-              )}
-            </Draggable>
-          ))}
+              );
+            }
+          })}
           {provided.placeholder}
         </TableBody>
       )}
@@ -441,6 +510,12 @@ const TitleText = styled.div`
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+`;
+
+const EmptySlotText = styled.div`
+  font-family: 'Pretendard-Medium';
+  font-size: 16px;
+  color: ${colors.Gray[100]};
 `;
 
 export default TopHeadline;

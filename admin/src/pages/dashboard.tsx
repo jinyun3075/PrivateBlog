@@ -42,10 +42,45 @@ const Dashboard = () => {
   const getBestBlogs = () => {
     if (!data || data.length === 0) return [];
     
-    return data
-      .filter(post => post.postView && post.postView.view > 0)
-      .sort((a, b) => (b.postView?.view || 0) - (a.postView?.view || 0))
-      .slice(0, 5);
+    // 언어 감지 함수 (첫 글자 기준)
+    const detectLanguage = (text: string): 'english' | 'korean' | 'other' => {
+      if (!text || text.length === 0) return 'other';
+      
+      const firstChar = text.charAt(0);
+      
+      if (/[가-힣]/.test(firstChar)) return 'korean';
+      if (/[a-zA-Z]/.test(firstChar)) return 'english';
+      return 'other';
+    };
+
+    // 정렬 함수
+    const sortPosts = (a: any, b: any) => {
+      const aView = a.postView?.view || 0;
+      const bView = b.postView?.view || 0;
+      
+      // 1차: 조회수 내림차순
+      if (aView !== bView) return bView - aView;
+      
+      // 2차: 언어별 우선순위 (영어 > 한국어 > 기타)
+      const aLang = detectLanguage(a.title);
+      const bLang = detectLanguage(b.title);
+      
+      const languagePriority = { english: 1, korean: 2, other: 3 };
+      const langDiff = languagePriority[aLang] - languagePriority[bLang];
+      if (langDiff !== 0) return langDiff;
+      
+      // 3차: 같은 언어 내에서 사전순 정렬
+      if (aLang === 'english' && bLang === 'english') {
+        return a.title.localeCompare(b.title, 'en');
+      }
+      if (aLang === 'korean' && bLang === 'korean') {
+        return a.title.localeCompare(b.title, 'ko-KR');
+      }
+      
+      return 0;
+    };
+
+    return data.sort(sortPosts).slice(0, 5);
   };
 
   const getViewData = async () => {
@@ -155,10 +190,9 @@ const Dashboard = () => {
               />
             ))}
 
-            {/* {getBestBlogs().length === 0 && (
-            <div>
-              인기글이 없습니다 
-            </div>)} */}
+            {getBestBlogs().length === 0 && (
+            <div style={{height:"305px", width:"100%",border: `1px solid ${colors.LightGray[300]}`, borderRadius:"4px"}}>
+            </div>)}
 
 
           </BestBlogWrapper>
@@ -238,12 +272,11 @@ const PostHeader = styled(ViewHeaderTitle)`
 `
 
 const BestArea = styled.div`
-  min-height: 305px;
   margin-top: 32px;
+  margin-bottom: 63px;
   padding: 37px 32px;
   border: 1px solid ${colors.LightGray[300]};
   border-radius: 12px;
-  margin-bottom: 63px;  
 `
 
 const BestAreaHeader = styled.div`
@@ -254,7 +287,6 @@ const BestAreaHeader = styled.div`
 
 const BestBlogWrapper = styled.div`
   margin-top: 16px;
-
   width: 100%;
   display: flex;
   flex-direction: column;
