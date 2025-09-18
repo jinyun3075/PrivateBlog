@@ -11,6 +11,7 @@ import axios from "axios"
 import { loadAccessToken } from "../store/useAuth"
 
 const HEADLINE_SORT_RANGE = { min: 1, max: 3 } as const;
+const HEADLINE_SORT_RANGE_DISABLED = { min: 11, max: 13 } as const;
 const API_ENDPOINTS = {
   UPDATE_POST: '/api/admin/post/update'
 } as const;
@@ -30,10 +31,20 @@ const TopHeadline = () => {
   const sortedTopHeadlines = useMemo(() => {
     const headlines = data.filter((post: PostType) => 
       post.main_sort && 
-      post.main_sort >= HEADLINE_SORT_RANGE.min && 
-      post.main_sort <= HEADLINE_SORT_RANGE.max
+      ((post.main_sort >= HEADLINE_SORT_RANGE.min && post.main_sort <= HEADLINE_SORT_RANGE.max) ||
+       (post.main_sort >= HEADLINE_SORT_RANGE_DISABLED.min && post.main_sort <= HEADLINE_SORT_RANGE_DISABLED.max))
     );
-    return headlines.sort((a: PostType, b: PostType) => a.main_sort - b.main_sort);
+    
+    // 11, 12, 13 값을 1, 2, 3으로 변환하여 표시
+    const normalizedHeadlines = headlines.map(headline => {
+      if (headline.main_sort >= HEADLINE_SORT_RANGE_DISABLED.min && 
+          headline.main_sort <= HEADLINE_SORT_RANGE_DISABLED.max) {
+        return { ...headline, main_sort: headline.main_sort - 10 };
+      }
+      return headline;
+    });
+    
+    return normalizedHeadlines.sort((a: PostType, b: PostType) => a.main_sort - b.main_sort);
   }, [data]);
 
   // 3개 슬롯을 모두 채우는 헤드라인 목록 생성 (빈 슬롯 포함)
@@ -151,25 +162,30 @@ const TopHeadline = () => {
   const handleSave = useCallback(async () => {
     try {
       if (!isHeadlineEnabled) {
-        // OFF 상태: 모든 headline을 0으로 변경
+        // OFF 상태: 1, 2, 3을 11, 12, 13으로 변경
         const disabledHeadlines = originalHeadlines.map(headline => ({
           ...headline,
-          main_sort: 0
+          main_sort: headline.main_sort + 10
         }));
         
         await Promise.all(disabledHeadlines.map(headline => updateSinglePost(headline)));
       } else {
-        // ON 상태: 현재 상태를 서버에 반영
-        // 1. 기존 헤드라인 중 현재 표시되지 않는 것들은 main_sort를 0으로 설정
+        // ON 상태: 11, 12, 13을 1, 2, 3으로 복원하고 현재 상태를 서버에 반영
+        // 1. 기존에 11, 12, 13이었던 것들을 1, 2, 3으로 복원
+        const restoredHeadlines = originalHeadlines.map(headline => ({
+          ...headline,
+          main_sort: headline.main_sort
+        }));
+        
+        // 2. 현재 표시되는 헤드라인들의 main_sort 업데이트
+        const updatePromises = topHeadlines.map(headline => updateSinglePost(headline));
+        
+        // 3. 기존 헤드라인 중 현재 표시되지 않는 것들은 main_sort를 0으로 설정
         const currentHeadlineIds = topHeadlines.map(headline => headline.post_id);
         const removedHeadlines = originalHeadlines.filter(headline => 
           !currentHeadlineIds.includes(headline.post_id)
         );
         
-        // 2. 현재 표시되는 헤드라인들의 main_sort 업데이트
-        const updatePromises = topHeadlines.map(headline => updateSinglePost(headline));
-        
-        // 3. 제거된 헤드라인들의 main_sort를 0으로 설정
         const removePromises = removedHeadlines.map(headline => 
           updateSinglePost({ ...headline, main_sort: 0 })
         );
@@ -189,8 +205,19 @@ const TopHeadline = () => {
     if (sortedTopHeadlines.length > 0 && topHeadlines.length === 0) {
       setTopHeadlines(sortedTopHeadlines);
       setOriginalHeadlines(sortedTopHeadlines);
+      
+      // 초기 상태에서 11, 12, 13 값이 있으면 토글을 off로 설정
+      const hasDisabledHeadlines = data.some((post: PostType) => 
+        post.main_sort && 
+        post.main_sort >= HEADLINE_SORT_RANGE_DISABLED.min && 
+        post.main_sort <= HEADLINE_SORT_RANGE_DISABLED.max
+      );
+      
+      if (hasDisabledHeadlines) {
+        setIsHeadlineEnabled(false);
+      }
     }
-  }, [sortedTopHeadlines, topHeadlines.length]);
+  }, [sortedTopHeadlines, topHeadlines.length, data]);
 
   // Render helpers
   const renderTableHeader = () => (
