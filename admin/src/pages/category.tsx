@@ -1,9 +1,10 @@
 import styled from "styled-components";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import axios from "axios";
 import Header from "../components/header/header";
 import { colors } from "../common/designSystem";
 import ErrorModal from "../components/errorModal/errorModal";
+import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
 
 interface Category {
   category_id: number;
@@ -43,8 +44,7 @@ const Category = () => {
   const [categoryErrors, setCategoryErrors] = useState<{[key: number]: string}>({});
   const [modifiedCategories, setModifiedCategories] = useState<{[key: number]: boolean}>({});
   const [leftPanelHeight, setLeftPanelHeight] = useState<number>(336);
-  const leftPanelRef = useRef<HTMLDivElement>(null);
-  const [draggedCategoryId, setDraggedCategoryId] = useState<number | null>(null); 
+  const leftPanelRef = useRef<HTMLDivElement>(null); 
 
   const API_URL = process.env.REACT_APP_BACKEND_HOST || "http://localhost:3000";
 
@@ -334,44 +334,27 @@ const Category = () => {
     setFieldError(categoryError || null);
   };
 
-  const handleDragStart = (e: React.DragEvent, category: Category) => {
-    e.dataTransfer.setData("text/plain", category.category_id.toString());
-    setDraggedCategoryId(category.category_id);
-  };
+  const handleDragEnd = useCallback((result: DropResult) => {
+    if (!result.destination) return;
 
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-  };
-
-  const handleDrop = (e: React.DragEvent, targetCategory: Category) => {
-    e.preventDefault();
-    const draggedCategoryId = parseInt(e.dataTransfer.getData("text/plain"));
+    const sourceIndex = result.source.index;
+    const destinationIndex = result.destination.index;
     
-    if (draggedCategoryId === targetCategory.category_id) {
-      setDraggedCategoryId(null);
-      return;
-    }
+    if (sourceIndex === destinationIndex) return;
 
-    const draggedCategory = categories.find(cat => cat.category_id === draggedCategoryId);
-    if (!draggedCategory) {
-      setDraggedCategoryId(null);
-      return;
-    }
+    const newCategories = Array.from(categories);
+    const [reorderedItem] = newCategories.splice(sourceIndex, 1);
+    newCategories.splice(destinationIndex, 0, reorderedItem);
 
-    const newCategories = categories.map(cat => {
-      if (cat.category_id === draggedCategoryId) {
-        return { ...cat, sort: targetCategory.sort };
-      } else if (cat.category_id === targetCategory.category_id) {
-        return { ...cat, sort: draggedCategory.sort };
-      }
-      return cat;
-    });
+    // sort 값 업데이트
+    const updatedCategories = newCategories.map((category, index) => ({
+      ...category,
+      sort: index + 1
+    }));
 
-    const sortedCategories = newCategories.sort((a, b) => a.sort - b.sort);
-    setCategories(sortedCategories);
+    setCategories(updatedCategories);
     setHasChanges(true);
-    setDraggedCategoryId(null);
-  };
+  }, [categories]);
 
   useEffect(() => {
     const loadData = async () => {
@@ -430,32 +413,39 @@ const Category = () => {
           <LeftPanel ref={leftPanelRef}>
             <CategoryListHeader>카테고리 전체 <span>{categories.length}</span></CategoryListHeader>
 
-            <CategoryList>
-              {isLoading ? (
-                <LoadingMessage>카테고리를 불러오는 중...</LoadingMessage>
-              ) : (
-                categories.map((category) => (
-                  <CategoryItem
-                    key={category.category_id}
-                    $isSelected={selectedCategory?.category_id === category.category_id}
-                    $isModified={category.isModified}
-                    $isDragging={draggedCategoryId === category.category_id}
-                    onClick={() => handleCategorySelect(category)}
-                    draggable
-                    onDragStart={(e: React.DragEvent) => handleDragStart(e, category)}
-                    onDragOver={handleDragOver}
-                    onDrop={(e: React.DragEvent) => handleDrop(e, category)}
-                    onDragEnd={() => setDraggedCategoryId(null)}
-                  >
-                    <DragHandle>⋮⋮⋮</DragHandle>
-                    <CategoryWrapper>
-                      <CategoryName $isModified={modifiedCategories[category.category_id]}>{category.name}</CategoryName>
-                      <CategoryCount>{category.post_count || 0}</CategoryCount>
-                    </CategoryWrapper>
-                  </CategoryItem>
-                ))
-              )}
-            </CategoryList>
+            <DragDropContext onDragEnd={handleDragEnd}>
+              <Droppable droppableId="categories" type="categories">
+                {(provided) => (
+                  <CategoryList ref={provided.innerRef} {...provided.droppableProps}>
+                    {isLoading ? (
+                      <LoadingMessage>카테고리를 불러오는 중...</LoadingMessage>
+                    ) : (
+                      categories.map((category, index) => (
+                        <Draggable key={category.category_id} draggableId={category.category_id.toString()} index={index}>
+                          {(provided, snapshot) => (
+                            <CategoryItem
+                              ref={provided.innerRef}
+                              {...provided.draggableProps}
+                              $isSelected={selectedCategory?.category_id === category.category_id}
+                              $isModified={category.isModified}
+                              $isDragging={snapshot.isDragging}
+                              onClick={() => handleCategorySelect(category)}
+                            >
+                              <DragHandle {...provided.dragHandleProps}>⋮⋮</DragHandle>
+                              <CategoryWrapper>
+                                <CategoryName $isModified={modifiedCategories[category.category_id]}>{category.name}</CategoryName>
+                                <CategoryCount>{category.post_count || 0}</CategoryCount>
+                              </CategoryWrapper>
+                            </CategoryItem>
+                          )}
+                        </Draggable>
+                      ))
+                    )}
+                    {provided.placeholder}
+                  </CategoryList>
+                )}
+              </Droppable>
+            </DragDropContext>
           </LeftPanel>
 
           {selectedCategory ? (
@@ -608,11 +598,19 @@ const CategoryItem = styled.div<{ $isSelected: boolean; $isModified?: boolean; $
 `;
 
 const DragHandle = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 50.4px;
   height: 100%;
-  color: ${colors.LightGray[400]};
-  padding:15.4px 13.2px;
+  color: ${colors.Gray[100]};
+  cursor: grab;
   user-select: none;
+  touch-action: none;
+  
+  &:active {
+    cursor: grabbing;
+  }
 `;
 
 const CategoryWrapper = styled.div`
