@@ -154,6 +154,18 @@ const Category = () => {
       return newErrors;
     });
     
+    // 카테고리 목록을 즉시 업데이트
+    const updatedCategories = categories.map(cat => 
+      cat.category_id === selectedCategory.category_id 
+        ? { ...cat, name: newName, isModified: newName !== originalCategoryName }
+        : cat
+    );
+    setCategories(updatedCategories);
+    
+    // 선택된 카테고리도 업데이트
+    const updatedSelectedCategory = { ...selectedCategory, name: newName };
+    setSelectedCategory(updatedSelectedCategory);
+    
     if (newName !== originalCategoryName) {
       // 수정 상태를 별도로 관리
       setModifiedCategories(prev => ({
@@ -161,6 +173,17 @@ const Category = () => {
         [selectedCategory.category_id]: true
       }));
       setHasChanges(true);
+    } else {
+      // 원래 이름과 같으면 수정 상태 해제
+      setModifiedCategories(prev => {
+        const newModified = { ...prev };
+        delete newModified[selectedCategory.category_id];
+        return newModified;
+      });
+      
+      // 모든 카테고리가 원래 상태로 돌아갔는지 확인
+      const hasAnyChanges = Object.keys(modifiedCategories).length > 0;
+      setHasChanges(hasAnyChanges);
     }
   };
 
@@ -301,18 +324,13 @@ const Category = () => {
   };
 
   const handleCategorySelect = (category: Category) => {
-    if (selectedCategory && editedCategoryName !== originalCategoryName) {
-      const updatedCategories = categories.map(cat => 
-        cat.category_id === selectedCategory.category_id 
-          ? { ...cat, name: editedCategoryName }
-          : cat
-      );
-      setCategories(updatedCategories);
-    }
+    // 카테고리 목록에서 현재 선택된 카테고리의 이름을 가져옴 (실시간 업데이트된 이름)
+    const currentCategory = categories.find(cat => cat.category_id === category.category_id);
+    const currentName = currentCategory ? currentCategory.name : category.name;
     
-    setSelectedCategory(category);
-    setEditedCategoryName(category.name);
-    setOriginalCategoryName(category.name);
+    setSelectedCategory({ ...category, name: currentName });
+    setEditedCategoryName(currentName);
+    setOriginalCategoryName(currentName);
     
     // 해당 카테고리의 에러 상태 복원
     const categoryError = categoryErrors[category.category_id];

@@ -48,6 +48,10 @@ public class PostService implements BaseService<PostRequestDTO, PostResponseDTO,
     }
 
     public void delete(String id) {
+        Post post = postRepository.findById(id).orElse(null);
+        if (post == null) {
+            throw new IllegalArgumentException("Post not found with id: " + id);
+        }
         postRepository.deleteById(id);
     }
 

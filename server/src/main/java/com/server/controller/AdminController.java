@@ -25,9 +25,9 @@ public class AdminController {
         return new ResponseEntity<>(pacade.insertPost(dto), HttpStatus.OK);
     }
 
-    @GetMapping("/post/select/{id}")
-    public ResponseEntity<PostResponseDTO> selectPost(@PathVariable String id) {
-        return new ResponseEntity<>(pacade.selectPost(id), HttpStatus.OK);
+    @GetMapping("/post/select/{post_id}")
+    public ResponseEntity<PostResponseDTO> selectPost(@PathVariable String post_id) {
+        return new ResponseEntity<>(pacade.selectPost(post_id), HttpStatus.OK);
     }
 
     @PutMapping("/post/update")
@@ -35,7 +35,7 @@ public class AdminController {
         return new ResponseEntity<>(pacade.updatePost(dto), HttpStatus.OK);
     }
 
-    @DeleteMapping("/post/delete/{id}")
+    @DeleteMapping("/post/delete/{post_id}")
     public ResponseEntity<String> deletePost(@PathVariable String post_id) {
         return new ResponseEntity<>(pacade.deletePost(post_id), HttpStatus.OK);
     }
@@ -56,7 +56,7 @@ public class AdminController {
         return new ResponseEntity<>(pacade.selectViewAllView(), HttpStatus.OK);
     }
 
-    @GetMapping("/view/select/{id}")
+    @GetMapping("/view/select/{post_id}")
     public ResponseEntity<List<PostViewResponseDTO>> selectAllPostView(@PathVariable String post_id) {
         return new ResponseEntity<>(pacade.selectAllPostView(post_id), HttpStatus.OK);
     }
@@ -69,7 +69,7 @@ public class AdminController {
     }
 
     // 카테고리
-    @GetMapping("/category/select/{id}")
+    @GetMapping("/category/select/{category_id}")
     public ResponseEntity<PostCategoryResponseDTO> selectCategory(@PathVariable Long category_id) {
         return new ResponseEntity<>(pacade.selectCategory(category_id), HttpStatus.OK);
     }
@@ -84,8 +84,8 @@ public class AdminController {
         return new ResponseEntity<>(pacade.updateCategorys(reqs), HttpStatus.OK);
     }
 
-    @DeleteMapping("/category/delete/{id}")
-    public ResponseEntity<String> deleteCategory(@PathVariable("id") Long category_id) {
+    @DeleteMapping("/category/delete/{category_id}")
+    public ResponseEntity<String> deleteCategory(@PathVariable Long category_id) {
         return new ResponseEntity<>(pacade.deleteCategory(category_id), HttpStatus.OK);
     }
 

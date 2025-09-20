@@ -93,8 +93,12 @@ public class AdminPacade {
     }
 
     public String deletePost(String post_id) {
-        postService.delete(post_id);
-        return "Post with ID " + post_id + " deleted successfully.";
+        try {
+            postService.delete(post_id);
+            return "Post with ID " + post_id + " deleted successfully.";
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to delete post: " + e.getMessage());
+        }
     }
 
     // 조회수
