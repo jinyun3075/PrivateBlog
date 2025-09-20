@@ -55,6 +55,11 @@ const Category = () => {
     }
   };
 
+  const handleCloseErrorModal = () => {
+    setShowErrorModal(false);
+    setError(null);
+  };
+
   const generateTempId = () => {
     const newTempId = tempIdCounter - 1; // 임시 ID 생성 (음수)
     setTempIdCounter(newTempId);
@@ -89,6 +94,7 @@ const Category = () => {
     } catch (err) {
       console.error("카테고리 로드 실패:", err);
       setError("카테고리를 불러오는데 실패했습니다.");
+      setShowErrorModal(true);
     } finally {
       setIsLoading(false);
     }
@@ -107,7 +113,7 @@ const Category = () => {
     try {
       const newCategory = {
         category_id: generateTempId(),
-        name: "카테고리명을 입력해 주세요.",
+        name: "새로운 카테고리",
         reg_user: localStorage.getItem('@user_name') || 'admin',
         mod_user: localStorage.getItem('@user_name') || 'admin',
         sort: categories.length + 1
@@ -124,8 +130,8 @@ const Category = () => {
       }));
     
       setSelectedCategory(newCategory);
-      setEditedCategoryName("카테고리명을 입력해 주세요.");
-      setOriginalCategoryName("카테고리명을 입력해 주세요.");
+      setEditedCategoryName("새로운 카테고리");
+      setOriginalCategoryName("새로운 카테고리");
     } catch (err) {
       console.error("카테고리 추가 실패:", err);
       setError("카테고리 추가에 실패했습니다.");
@@ -283,10 +289,12 @@ const Category = () => {
         alert("카테고리가 저장되었습니다.");
       } else {
         setError("카테고리 저장에 실패했습니다.");
+        setShowErrorModal(true);
       }
     } catch (err) {
       console.error("카테고리 저장 실패:", err);
       setError("카테고리 저장에 실패했습니다.");
+      setShowErrorModal(true);
     } finally {
       setIsSaving(false);
     }
@@ -333,6 +341,7 @@ const Category = () => {
     } catch (err) {
       console.error("카테고리 삭제 실패:", err);
       setError("카테고리 삭제에 실패했습니다.");
+      setShowErrorModal(true);
     } finally {
       setIsDeleting(false);
     }
@@ -492,9 +501,9 @@ const Category = () => {
         </PannelWrapper>
       </MainContent>
 
-      {error && showErrorModal && (
-        <ErrorModal title="삭제 오류" text={error} onClose={()=>setShowErrorModal(false)} />
-      )}
+       {error && showErrorModal && (
+         <ErrorModal title="오류" text={error} onClose={handleCloseErrorModal} />
+       )}
     </Container>
   );
 };
