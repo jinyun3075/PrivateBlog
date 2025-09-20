@@ -45,7 +45,7 @@ const Post = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const { data } = await axios.get(`${process.env.REACT_APP_BACKEND_HOST}/api/client/category/select/all`);
+        const { data } = await axios.get(`/api/client/category/select/all`);
         setCategories(data);
       } catch (error) {
         console.error('카테고리 데이터 가져오기 실패:', error);

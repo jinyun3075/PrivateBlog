@@ -34,8 +34,35 @@ public class BaseConfiguration implements WebMvcConfigurer {
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/**")
+        // 클라이언트 API만 허용 (공개 API)
+        registry.addMapping("/api/client/**")
                 .allowedOriginPatterns("*")
+                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                .allowedHeaders("*")
+                .exposedHeaders("Content-Disposition", "Content-Type")
+                .allowCredentials(false)
+                .maxAge(3600);
+                
+        // 로그인 API만 허용
+        registry.addMapping("/api/member/login")
+                .allowedOriginPatterns("*")
+                .allowedMethods("POST", "OPTIONS")
+                .allowedHeaders("*")
+                .exposedHeaders("Content-Disposition", "Content-Type")
+                .allowCredentials(false)
+                .maxAge(3600);
+                
+        // 관리자 및 업로드 API는 특정 도메인만 허용
+        registry.addMapping("/api/admin/**")
+                .allowedOriginPatterns("http://localhost:*")
+                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                .allowedHeaders("*")
+                .exposedHeaders("Content-Disposition", "Content-Type")
+                .allowCredentials(true)
+                .maxAge(3600);
+                
+        registry.addMapping("/api/upload/**")
+                .allowedOriginPatterns("http://localhost:*")
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowedHeaders("*")
                 .exposedHeaders("Content-Disposition", "Content-Type")

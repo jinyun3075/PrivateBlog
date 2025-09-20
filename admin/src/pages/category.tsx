@@ -46,7 +46,7 @@ const Category = () => {
   const [leftPanelHeight, setLeftPanelHeight] = useState<number>(336);
   const leftPanelRef = useRef<HTMLDivElement>(null); 
 
-  const API_URL = process.env.REACT_APP_BACKEND_HOST || "http://localhost:3000";
+  const API_URL = "";
 
   const updateLeftPanelHeight = () => {
     if (leftPanelRef.current) {

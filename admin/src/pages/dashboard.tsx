@@ -86,7 +86,7 @@ const Dashboard = () => {
   const getViewData = async () => {
     try {
       const { data } = await axios.get<ViewDataType[]>(
-        `${process.env.REACT_APP_BACKEND_HOST}/api/admin/view/select/all`
+        `/api/admin/view/select/all`
       );
       return data;
     } catch (e) {
@@ -97,7 +97,7 @@ const Dashboard = () => {
 
   const getVisitData = async () => {
     try {
-      const { data } = await axios.get<VisitDataType[]>(`${process.env.REACT_APP_BACKEND_HOST}/api/admin/visit/select/all`); 
+      const { data } = await axios.get<VisitDataType[]>(`/api/admin/visit/select/all`); 
       return data;
     } catch (e) {
       console.log(e);
@@ -107,7 +107,7 @@ const Dashboard = () => {
 
   const getBackupPost = async () => {
     try{
-      const {data} = await axios.get(`${process.env.REACT_APP_BACKEND_HOST}/api/admin/post/select/tempList`);
+      const {data} = await axios.get(`/api/admin/post/select/tempList`);
       console.log(data);
       return data;
     }catch(e){

@@ -15,7 +15,7 @@ const HeadlineItem = ({ thumbnail, category, title, desc, createdDate, author }:
   
 
 
-  const thumbnailSrc = useMemo(()=>thumbnail ? `${process.env.REACT_APP_BACKEND_HOST}/${thumbnail}`:"/img/defaultThumbnail/defaultThumbnail.png",[thumbnail]);
+  const thumbnailSrc = useMemo(()=>thumbnail ? `/${thumbnail}`:"/img/defaultThumbnail/defaultThumbnail.png",[thumbnail]);
   
   return(
     <Container>

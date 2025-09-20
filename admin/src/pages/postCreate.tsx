@@ -67,7 +67,7 @@ const PostCreate = () => {
   const [isLoadingPost, setIsLoadingPost] = useState(false);
   const [isDraftPost, setIsDraftPost] = useState(false);
 
-  const API_URL = process.env.REACT_APP_BACKEND_HOST || "http://localhost:3000";
+  const API_URL = "";
 
   const fetchCategories = async () => {
     setIsLoadingCategories(true);

@@ -17,7 +17,7 @@ export const usePosts = () =>
         return mockPosts;
       }
 
-      const res = await axios.get(`${process.env.REACT_APP_BACKEND_HOST}/api/client/post/select/all`);
+      const res = await axios.get(`/api/client/post/select/all`);
       return res.data;
     },
     staleTime: 1000 * 60,

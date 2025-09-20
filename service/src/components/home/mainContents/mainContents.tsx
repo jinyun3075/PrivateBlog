@@ -20,7 +20,7 @@ const MainContents = () => {
   const getCategory = async() => {
     setLoading(true);
     try{
-      const res = await axios.get(`${process.env.REACT_APP_BACKEND_HOST}/api/client/category/select/all`);
+      const res = await axios.get(`/api/client/category/select/all`);
       console.log(res.data);
       setCategory([{ category_id: 0, name: "전체" } as CategoryType, ...res.data]);
     }catch(e){

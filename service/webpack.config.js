@@ -35,6 +35,13 @@ module.exports = {
           filename: 'fonts/[name][ext][query]', // 출력 디렉토리 및 파일 이름
         },
       },
+      {
+        test: /\.(png|jpe?g|gif|svg|ico)$/i,
+        type: 'asset/resource',
+        generator: {
+          filename: 'img/[name][ext][query]',
+        },
+      },
     ]
   },
   devServer: {

@@ -75,7 +75,7 @@ const TopHeadline = () => {
         use_yn: post.use_yn
       };
 
-      await axios.put(`${process.env.REACT_APP_BACKEND_HOST}${API_ENDPOINTS.UPDATE_POST}`, updateData, {
+      await axios.put(`${API_ENDPOINTS.UPDATE_POST}`, updateData, {
         headers: { Authorization: `Bearer ${token}` }
       });
       

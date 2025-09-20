@@ -50,7 +50,7 @@ const Detail = () => {
   return (
     <Container>
       <MainArea>
-        <Thumbnail src={ post.thumbnail ? `${process.env.REACT_APP_BACKEND_HOST}/${post.thumbnail}` :  getRandomThumbnail() } />
+        <Thumbnail src={ post.thumbnail ? `/${post.thumbnail}` :  getRandomThumbnail() } />
         <Category>{post.category.name}</Category>
         <Title>{post.title}</Title>
         <Etc>
