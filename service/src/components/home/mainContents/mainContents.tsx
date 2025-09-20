@@ -97,7 +97,7 @@ const MainContents = () => {
           <p>인기 게시글 <span>TOP 5</span></p>
         </BestBlogHeader>
         
-        {(currentPosts.length>0 ||isError) ? 
+        {(data.length>0 ||isError) ? 
           getTopPosts().map((post: PostType, idx: number) => (
             <BestBlog 
               key={post.post_id}

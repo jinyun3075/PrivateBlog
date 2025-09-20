@@ -86,6 +86,7 @@ const HeaderWrapper = styled.div<{$isSidebarOpen:boolean; $sidebarWidth:number;}
   top:0px;
   right:0;
   left:${props=>props.$isSidebarOpen ? props.$sidebarWidth:0}px;
+  z-index:1000;
 `
 
 const OutLetWrapper = styled.div`
