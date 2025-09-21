@@ -57,7 +57,7 @@ const Blog = ({category,title,desc,createdDate,author,viewer,imgSrc,textWrapperW
         </Etc>
       </TextWrapper>
 
-      <Thumbnail  src={ imgSrc ? `/${imgSrc}` : '/img/defaultThumbnail/defaultThumbnail.png' } />
+      <Thumbnail  src={ imgSrc || '/img/defaultThumbnail/defaultThumbnail.png' } />
     </Container>
   )
 }

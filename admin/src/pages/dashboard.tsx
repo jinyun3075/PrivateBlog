@@ -47,9 +47,12 @@ const Dashboard = () => {
       if (!text || text.length === 0) return 'other';
       
       const firstChar = text.charAt(0);
+      const firstCharCode = firstChar.charCodeAt(0);
       
-      if (/[가-힣]/.test(firstChar)) return 'korean';
-      if (/[a-zA-Z]/.test(firstChar)) return 'english';
+      // 한글 유니코드 범위: 0xAC00-0xD7AF
+      if (firstCharCode >= 0xAC00 && firstCharCode <= 0xD7AF) return 'korean';
+      // 영문자 범위: A-Z, a-z
+      if ((firstCharCode >= 65 && firstCharCode <= 90) || (firstCharCode >= 97 && firstCharCode <= 122)) return 'english';
       return 'other';
     };
 

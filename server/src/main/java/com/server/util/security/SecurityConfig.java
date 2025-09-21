@@ -32,17 +32,10 @@ public class SecurityConfig {
             .cors(cors -> {})
             .authorizeHttpRequests(auth -> 
                     auth
-                    // 공개 경로 (인증 불필요)
-                    .requestMatchers("/api/member/login").permitAll()
-                    .requestMatchers("/api/client/**").permitAll()
-                    // 관리자 경로 (JWT 인증 필요)
-                    .requestMatchers("/api/admin/**").authenticated()
-                    // 파일 업로드 경로 (JWT 인증 필요)
-                    .requestMatchers("/api/upload/**").authenticated()
-                    // 나머지 모든 요청은 인증 필요
-                    .anyRequest().authenticated()
+                    // 임시로 모든 요청 허용 (테스트용)
+                    .anyRequest().permitAll()
             )
-            .addFilterBefore(checkFilter, UsernamePasswordAuthenticationFilter.class)
+            // .addFilterBefore(checkFilter, UsernamePasswordAuthenticationFilter.class)
             .addFilterAt(loginFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

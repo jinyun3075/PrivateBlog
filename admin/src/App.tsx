@@ -1,7 +1,6 @@
 import styled from 'styled-components';
 import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import "./common/reset.css";
 import "./common/designSystem";
 import "@uiw/react-md-editor/markdown-editor.css";
 import "@uiw/react-markdown-preview/markdown.css";
@@ -53,7 +52,9 @@ const router = createBrowserRouter([
     ],
   }
   // errorElement:<Test />, 
-])
+], {
+  basename: '/admin'
+})
 
 
 const App = () => {

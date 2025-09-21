@@ -13,7 +13,7 @@ module.exports = {
   },
   output: {
     path: path.resolve(__dirname, 'dist'),
-    publicPath: '/',
+    publicPath: '/admin/',
   },
   resolve: {
     extensions: ['.tsx', '.ts', '.jsx', '.js']
@@ -31,16 +31,16 @@ module.exports = {
       },
       {
         test: /\.(woff|woff2|eot|ttf|otf)$/,
-        type: 'asset/resource', // 폰트 파일을 별도 파일로 처리
+        type: 'asset/resource',
         generator: {
-          filename: 'fonts/[name][ext][query]', // 출력 디렉토리 및 파일 이름
+          filename: 'fonts/[name][ext][query]',
         },
       },
       {
         test: /\.(png|jpe?g|gif|svg|ico)$/i,
-        type: 'asset/resource', // 이미지 파일을 별도 파일로 처리
+        type: 'asset/resource',
         generator: {
-          filename: 'img/[name][ext][query]', // 출력 디렉토리 및 파일 이름
+          filename: 'img/[name][ext][query]',
         },
       },
     ]
@@ -59,6 +59,11 @@ module.exports = {
         {
           from: 'public/img',
           to: 'img',
+          noErrorOnMissing: true
+        },
+        {
+          from: 'public/fonts',
+          to: 'fonts',
           noErrorOnMissing: true
         }
       ]

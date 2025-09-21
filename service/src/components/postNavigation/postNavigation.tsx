@@ -14,7 +14,7 @@ const PostNavigation = ({postDirection,imgSrc,title,createdDate,author,postId}:P
   return(
     <StyledLink to={`/detail/${postId}`}>
       <Container>
-        <Header><img src ={`/img/${imgSrc}`}/><span>{postDirection}</span></Header>
+        <Header><img src ={imgSrc}/><span>{postDirection}</span></Header>
 
         <Title>{title}</Title>
 

@@ -73,7 +73,7 @@ const Detail = () => {
         <PostNavigationWrapper>
           {prevPost && (
             <PostNavigation 
-              imgSrc="icon_arrowLeft.png" 
+              imgSrc="/img/icon_arrowLeft.png" 
               postDirection="이전글" 
               title={prevPost.title} 
               createdDate={formatDate(prevPost.regDate)} 
@@ -83,7 +83,7 @@ const Detail = () => {
 
           {nextPost && (
             <PostNavigation 
-              imgSrc="icon_arrowRight.png" 
+              imgSrc="/img/icon_arrowRight.png" 
               postDirection="다음글" 
               title={nextPost.title} 
               createdDate={formatDate(nextPost.regDate)} 
