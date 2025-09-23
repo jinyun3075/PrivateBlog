@@ -40,7 +40,7 @@ const TopHeadlinePopup = ({ onClose, onSelectPost, currentTopHeadlines }: TopHea
       <Container>
         <Header>
           <Title>게시글 변경</Title>
-          <CloseButton src="/img/icon_closeBtn.png" onClick={onClose} />
+          <CloseButton src="/admin/img/icon_closeBtn.png" onClick={onClose} />
         </Header>
         
         <Content>
@@ -237,10 +237,10 @@ const Checkbox = styled.input`
   height: 16px;
   cursor: pointer;
   appearance: none;
-  background: url('/img/checkbox_off.png') no-repeat center / contain;
+  background: url('/admin/img/checkbox_off.png') no-repeat center / contain;
 
   &:checked {
-    background-image: url('/img/checkbox_on.png');
+    background-image: url('/admin/img/checkbox_on.png');
   }
 `
 

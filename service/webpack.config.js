@@ -7,13 +7,13 @@ const CopyWebpackPlugin = require('copy-webpack-plugin');
 dotenv.config();
 
 module.exports = {
-  mode:"development",
+  mode: process.env.NODE_ENV === 'production' ? 'production' : 'development',
   entry: {
     main: './src/index.tsx'
   },
   output: {
     path: path.resolve(__dirname, 'dist'),
-    publicPath: '/',
+    publicPath: './',
   },
   resolve: {
     extensions: ['.tsx', '.ts', '.jsx', '.js']
@@ -62,6 +62,10 @@ module.exports = {
         {
           from: 'public/img',
           to: 'img'
+        },
+        {
+          from: 'public/pdf',
+          to: 'pdf'
         }
       ]
     }),

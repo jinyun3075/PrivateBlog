@@ -411,7 +411,7 @@ const PostCreate = () => {
                 }
               </SelectText>
               <ArrowIcon 
-                src={isDropdownOpen ? "/img/icon_arrowUp.png" : "/img/icon_arrowDown.png"}
+                src={isDropdownOpen ? "/admin/img/icon_arrowUp.png" : "/admin/img/icon_arrowDown.png"}
               />
             </SelectButton>
             
@@ -441,7 +441,7 @@ const PostCreate = () => {
               <Thumb src={thumbnail} alt="thumbnail" />
             ) : (
               <ThumbPlaceholder htmlFor="thumbnail-input">
-                {isUploadingImage ? "업로드 중..." : <img src="/img/icon_plus.png" />}
+                {isUploadingImage ? "업로드 중..." : <img src="/admin/img/icon_plus.png" />}
               </ThumbPlaceholder>
             )}
             <input 

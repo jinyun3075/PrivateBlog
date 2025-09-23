@@ -158,7 +158,7 @@ const Dashboard = () => {
               <Time>{lastUpdated}</Time>
               <RefreshArea onClick={fetchData}>
                 <RefreshTxt>새로고침</RefreshTxt>
-                <RefreshImg src="/img/icon_refresh.png" alt="refresh"/>
+                <RefreshImg src="/admin/img/icon_refresh.png" alt="refresh"/>
               </RefreshArea>
             </TimeAndRefresh>
           </ViewHeader>

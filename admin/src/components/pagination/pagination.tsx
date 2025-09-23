@@ -11,10 +11,10 @@ const Pagination = ({ currentPage, totalPages, onPageChange, noData }: Paginatio
   const isFirstPage = currentPage === 1;
   const isLastPage = currentPage === totalPages;
 
-  const leftArrowSrc = `/img/${(isFirstPage || noData) ? "arrowLeft_off.png" : "arrowLeft_on.png"}`;
-  const rightArrowSrc = `/img/${(isLastPage || noData) ? "arrowRight_off.png" : "arrowRight_on.png"}`;
-  const leftArrow2Src = `/img/${(isFirstPage || noData) ? "arrowLeft2_off.png" : "arrowLeft2_on.png"}`;
-  const rightArrow2Src = `/img/${(isLastPage || noData) ? "arrowRight2_off.png" : "arrowRight2_on.png"}`;
+  const leftArrowSrc = `/admin/img/${(isFirstPage || noData) ? "arrowLeft_off.png" : "arrowLeft_on.png"}`;
+  const rightArrowSrc = `/admin/img/${(isLastPage || noData) ? "arrowRight_off.png" : "arrowRight_on.png"}`;
+  const leftArrow2Src = `/admin/img/${(isFirstPage || noData) ? "arrowLeft2_off.png" : "arrowLeft2_on.png"}`;
+  const rightArrow2Src = `/admin/img/${(isLastPage || noData) ? "arrowRight2_off.png" : "arrowRight2_on.png"}`;
 
   const handleClickLeft = () => {
     if (!noData && currentPage > 1) onPageChange(currentPage - 1);

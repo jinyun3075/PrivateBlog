@@ -39,9 +39,9 @@ const GlobalHeader = ({isSidebarOpen,onToggle}:HeaderProps) => {
   return (
     <Container>
       <LeftArea>
-        {!isLoginPage && <ToggleButton src={`/img/${toggleImg}`} onClick={onToggle}/>}
+        {!isLoginPage && <ToggleButton src={`/admin/img/${toggleImg}`} onClick={onToggle}/>}
         <Link to={isLoggedIn ? "/dashboard" : "/login"}>
-          <MainLogo src="/img/mainLogo.png"/>
+          <MainLogo src="/admin/img/mainLogo.png"/>
         </Link>
       </LeftArea>
 
@@ -50,14 +50,14 @@ const GlobalHeader = ({isSidebarOpen,onToggle}:HeaderProps) => {
           <UserName>{userName} <span>님</span></UserName>
           <TimeArea>
             <div>
-              <ClockIcon src="/img/icon_clock.png" />
+              <ClockIcon src="/admin/img/icon_clock.png" />
               <SessionText>{formatTime(remainingSec)}</SessionText>
             </div>
             <ExtendButton onClick={handleExtend}>시간연장</ExtendButton>
           </TimeArea>
           <LogoutArea onClick={handleLogout}>
             <LogoutText>로그아웃</LogoutText>
-            <LogoutImg src="/img/icon_logout.png"/>
+            <LogoutImg src="/admin/img/icon_logout.png"/>
           </LogoutArea>
         </RightArea>
       )}

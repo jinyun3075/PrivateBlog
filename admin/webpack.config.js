@@ -7,13 +7,13 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 module.exports = {
-  mode:"development",
+  mode: process.env.NODE_ENV === 'production' ? 'production' : 'development',
   entry: {
     main: './src/index.tsx'
   },
   output: {
     path: path.resolve(__dirname, 'dist'),
-    publicPath: '/admin/',
+    publicPath: './',
   },
   resolve: {
     extensions: ['.tsx', '.ts', '.jsx', '.js']
