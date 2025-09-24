@@ -66,8 +66,10 @@ const PostCreate = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isLoadingPost, setIsLoadingPost] = useState(false);
   const [isDraftPost, setIsDraftPost] = useState(false);
+  const [titleError, setTitleError] = useState<string>("");
 
   const API_URL = "";
+  const MAX_TITLE_LENGTH = 100;
 
   const fetchCategories = async () => {
     setIsLoadingCategories(true);
@@ -169,16 +171,10 @@ const PostCreate = () => {
   };
 
   const savePost = async (isDraft: boolean = false) => {
-    if (!title.trim()) {
-      alert("제목을 입력해주세요.");
-      return;
-    }
-    if (!category) {
-      alert("카테고리를 선택해주세요.");
-      return;
-    }
-    if (!content.trim()) {
-      alert("내용을 입력해주세요.");
+    // 제목 검증
+    const titleValidationError = validateTitle(title);
+    if (titleValidationError) {
+      setTitleError(titleValidationError);
       return;
     }
 
@@ -373,6 +369,30 @@ const PostCreate = () => {
     e.target.value = '';
   };
 
+  const handleDeleteThumbnail = () => {
+    setThumbnail(null);
+    setUploadedImageUrl(null);
+  };
+
+  const validateTitle = (titleValue: string): string => {
+    if (!titleValue.trim()) {
+      return "필수 항목을 입력하세요";
+    }
+    if (titleValue.length > MAX_TITLE_LENGTH) {
+      return "제한 글자수를 초과하였습니다.";
+    }
+    return "";
+  };
+
+  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setTitle(value);
+    
+    // 실시간 검증
+    const error = validateTitle(value);
+    setTitleError(error);
+  };
+
   return (
     <Container>
       
@@ -438,7 +458,12 @@ const PostCreate = () => {
           <Label>대표 이미지</Label>
           <ThumbBox>
             {thumbnail ? (
-              <Thumb src={thumbnail} alt="thumbnail" />
+              <ThumbContainer>
+                <Thumb src={thumbnail} alt="thumbnail" />
+                <DeleteButton onClick={handleDeleteThumbnail} title="이미지 삭제">
+                  <img src="/admin/img/icon_closeBtn.png" alt="삭제" />
+                </DeleteButton>
+              </ThumbContainer>
             ) : (
               <ThumbPlaceholder htmlFor="thumbnail-input">
                 {isUploadingImage ? "업로드 중..." : <img src="/admin/img/icon_plus.png" />}
@@ -462,12 +487,16 @@ const PostCreate = () => {
 
         <FormRow>
           <Label $title = {true}>제목</Label>
-          <Input
-            placeholder="제목을 입력하세요."
-            value={title}
-            onChange={(e:React.ChangeEvent<HTMLInputElement>) => setTitle(e.target.value)}
-            disabled={isLoadingPost}
-          />
+          <InputWrapper>
+            <Input
+              placeholder="제목을 입력하세요."
+              value={title}
+              onChange={handleTitleChange}
+              disabled={isLoadingPost}
+              $hasError={!!titleError}
+            />
+            {titleError && <ErrorMessage>{titleError}</ErrorMessage>}
+          </InputWrapper>
         </FormRow>
 
         <EditorWrapper data-color-mode="light">
@@ -647,11 +676,17 @@ const ThumbBox = styled.div`
   gap: 16px;
 `;
 
-const Input = styled.input`
+const InputWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+`;
+
+const Input = styled.input<{ $hasError: boolean }>`
   width: 100%;
   height: 40px;
   padding: 9px 16px;
-  border: 1px solid ${colors.LightGray[400]};
+  border: 1px solid ${props => props.$hasError ? colors.Error : colors.LightGray[400]};
   border-radius: 4px;
   font-family: 'Pretendard-Regular';
   font-size: 14px;
@@ -664,6 +699,19 @@ const Input = styled.input`
     line-height: 1.6;
     color: ${colors.Gray[200]};
   }
+  
+  &:focus {
+    outline: none;
+    border-color: ${props => props.$hasError ? colors.Error : colors.Black};
+  }
+`;
+
+const ErrorMessage = styled.div`
+  margin-top: 4px;
+  font-family: 'Pretendard-Regular';
+  font-size: 12px;
+  color: ${colors.Error};
+  line-height: 1.4;
 `;
 
 const ThumbPlaceholder = styled.label`
@@ -685,12 +733,43 @@ const ThumbPlaceholder = styled.label`
   
 `
 
-const Thumb = styled.img`
+const ThumbContainer = styled.div`
+  position: relative;
   width: 320px;
   height: 160px;
-  object-fit: cover;
+`;
 
+const Thumb = styled.img`
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
   border-radius: 4px;
+`;
+
+const DeleteButton = styled.button`
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 24px;
+  height: 24px;
+  border: none;
+  border-radius: 50%;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.8);
+  }
+  
+  img {
+    width: 12px;
+    height: 12px;
+    filter: brightness(0) invert(1);
+  }
 `;
 
 
