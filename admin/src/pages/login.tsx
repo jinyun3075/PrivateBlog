@@ -43,7 +43,7 @@ const Login = () => {
     }
 
     try{
-      const {data} = await axios.post<LoginResponse>(`/api/member/login`,
+      const {data} = await axios.post<LoginResponse>(`${process.env.REACT_APP_BACKEND_HOST}/api/member/login`,
         {
           name: id,
           password: pw,

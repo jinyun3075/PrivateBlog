@@ -270,7 +270,10 @@ const TopHeadline = () => {
                         <TitleText>{headline.title}</TitleText>
                       </TableCell>
                       <TableCell>
-                        <ChangeButton onClick={() => handleChangeClick(index)}>
+                        <ChangeButton 
+                          onClick={() => handleChangeClick(index)}
+                          $isDragging={snapshot.isDragging}
+                        >
                           변경
                         </ChangeButton>
                       </TableCell>
@@ -362,6 +365,7 @@ const Container = styled.div`
 const SaveBtn = styled.button<{ disabled?: boolean }>`
   background-color: ${props => props.disabled ? colors.LightGray[300] : colors.Black};
   width: 80px;
+  height: 46px;
   padding: 10px 0;
   font-family: 'Pretendard-SemiBold';
   font-size: 16px;
@@ -519,7 +523,7 @@ const DragHandle = styled.div`
   }
 `;
 
-const ChangeButton = styled.button`
+const ChangeButton = styled.button<{ $isDragging?: boolean }>`
   background-color: ${colors.White};
   color: ${colors.Black};
   text-align: center;
@@ -530,6 +534,13 @@ const ChangeButton = styled.button`
   font-family: 'Pretendard-SemiBold';
   font-size: 16px;
   cursor: pointer;
+  ${props => props.$isDragging && `
+    position: absolute;
+    right: 150px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+  `}
 `;
 
 const TitleText = styled.div`

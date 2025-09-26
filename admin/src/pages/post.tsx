@@ -22,6 +22,8 @@ const Post = () => {
   const navigate = useNavigate();
   const { data: allPosts = [] } = usePosts();
   const [categories, setCategories] = useState<Category[]>([]);
+  const [tempPosts, setTempPosts] = useState<PostType[]>([]);
+  const [combinedPosts, setCombinedPosts] = useState<PostType[]>([]);
   const [filters, setFilters] = useState<FilterState>({
     startDate: "",
     endDate: "",
@@ -45,7 +47,7 @@ const Post = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const { data } = await axios.get(`/api/client/category/select/all`);
+        const { data } = await axios.get(`http://ifut2.ddns.net/api/client/category/select/all`);
         setCategories(data);
       } catch (error) {
         console.error('카테고리 데이터 가져오기 실패:', error);
@@ -53,6 +55,25 @@ const Post = () => {
     };
     fetchCategories();
   }, []);
+
+  // 임시저장 데이터 가져오기
+  useEffect(() => {
+    const fetchTempPosts = async () => {
+      try {
+        const { data } = await axios.get(`${process.env.REACT_APP_BACKEND_HOST}/api/admin/post/select/tempList`);
+        setTempPosts(data);
+      } catch (error) {
+        console.error('임시저장 데이터 가져오기 실패:', error);
+      }
+    };
+    fetchTempPosts();
+  }, []);
+
+  // 일반 데이터와 임시저장 데이터 합치기
+  useEffect(() => {
+    const combined = [...allPosts, ...tempPosts];
+    setCombinedPosts(combined);
+  }, [allPosts, tempPosts]);
 
   // 날짜 범위 계산 함수들
   const getDateRange = (period: string) => {
@@ -207,7 +228,7 @@ const Post = () => {
 
   // 검색 실행
   const handleSearch = () => {
-    let filtered = [...allPosts];
+    let filtered = [...combinedPosts];
 
     // 날짜 필터링 (regDate 사용)
     if (filters.startDate && filters.endDate) {
@@ -250,6 +271,7 @@ const Post = () => {
 
     setFilteredPosts(filtered);
     setHasSearched(true);
+    setSelectedPosts([]);
   };
 
   // 초기화
@@ -262,8 +284,7 @@ const Post = () => {
       searchType: "전체",
       searchTerm: ""
     });
-    setFilteredPosts([]);
-    setHasSearched(false);
+
     setDateErrors({});
     setActivePeriodButton("이번달");
     // 초기화 시 이번달로 설정
@@ -327,7 +348,6 @@ const Post = () => {
 
   // 페이지네이션
   const { currentPage, totalPages, currentPosts, goToPage } = usePagination(filteredPosts, 50);
-  console.log(allPosts)
 
   return (
     <Container>
@@ -534,9 +554,7 @@ const Post = () => {
           <PostListHeader>
             <div>
               <PostListTitle>게시글 목록</PostListTitle>
-              {hasSearched && filteredPosts.length > 0 && (
-                <PostCount>총 <span>{filteredPosts.length}</span>개</PostCount>
-              )}
+              <PostCount>총 <span>{filteredPosts.length}</span>개</PostCount>
             </div>
             <DeleteButton 
               disabled={selectedPosts.length === 0}
@@ -605,8 +623,8 @@ const Post = () => {
                         </TableCell>
                         <TableCell width="160px">
                           <Badge 
-                            $isTemp={post.content.state.state_id===1}
-                            src={post.content.state.state_id === 1 ? "/admin/img/badge_temp.png" : "/admin/img/badge_active.png"} 
+                            $isTemp={post.content.state.state_id===2}
+                            src={post.content.state.state_id === 2 ? "/img/badge_temp.png" : "/img/badge_active.png"} 
                             alt={post.content.state.name}
                           />
                         </TableCell>
@@ -1081,14 +1099,16 @@ const PostCount = styled.span`
 
 
 const DeleteButton = styled.button<{ $disabled?: boolean }>`
-  padding: 8px 16px;
+  width: 80px;
+  height: 46px;
+  padding: 10px 0;
   border: 1px solid ${props => props.$disabled ? '#e5e7eb' : '#d1d5db'};
   border-radius: 4px;
   background-color: ${props => props.$disabled ? '#f9fafb' : 'white'};
   color: ${props => props.$disabled ? '#9ca3af' : colors.Black};
-  font-family: 'Pretendard-Medium';
-  font-size: 14px;
-  cursor: ${props => props.$disabled ? 'not-allowed' : 'pointer'};
+  font-family: 'Pretendard-SemiBold';
+  font-size: 16px;
+  cursor: ${props => props.$disabled ? 'auto' : 'pointer'};
   
   &:hover {
     background-color: ${props => props.$disabled ? '#f9fafb' : '#f3f4f6'};
@@ -1214,10 +1234,10 @@ const Checkbox = styled.input`
   cursor: pointer;
   margin:0;
   appearance: none;
-  background: url('/admin/img/checkbox_off.png') no-repeat center / contain;
+  background: url('/img/checkbox_off.png') no-repeat center / contain;
 
   &:checked {
-    background-image: url('/admin/img/checkbox_on.png');
+    background-image: url('/img/checkbox_on.png');
   }
 `
 

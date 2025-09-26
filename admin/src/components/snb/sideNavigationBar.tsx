@@ -1,7 +1,7 @@
 import styled from "styled-components"
 import { useLocation, useNavigate } from "react-router-dom"
 import { colors } from "../../common/designSystem"
-import { MENU_CONFIG, SIDEBAR_WIDTH } from "../../common/constants";
+import { MENU_CONFIG, MenuItemType, SIDEBAR_WIDTH } from "../../common/constants";
 
 type SideNavigationBarProps = {
   isOpen: boolean;
@@ -26,7 +26,7 @@ const SideNavigationBar = ({ isOpen }: SideNavigationBarProps) => {
       <Create onClick={handleNavigate('/post/create')}>글쓰기</Create>
 
       <MenuWrapper>
-        {MENU_CONFIG.map((item) => (
+        {MENU_CONFIG.map((item:MenuItemType) => (
           <div key={item.label}>
             <Menu $active={isActive(item.path)} onClick={handleNavigate(item.path)}>
               {item.label}
@@ -89,15 +89,15 @@ const Menu = styled.div<{$active?: boolean}>`
   width: 100%;
   height: 40px;
   padding:9px 24px;
-  cursor: pointer;
+  cursor: ${props=>props.$active&&`pointer`};
   color: ${colors.Black};
   
   font-family:${props=>props.$active? `'Pretendard-Bold'`:`'Pretendard-Regular'`};
   font-size:14px;
 
   &:hover{
-    color:${colors.Gray[0]};
-    background-color: ${colors.LightGray[100]};
+    color:${props=>props.$active && colors.Gray[0]};
+    background-color: ${props=>props.$active && colors.LightGray[100]};
   }
 
 `

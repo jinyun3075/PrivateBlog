@@ -153,7 +153,7 @@ const Dashboard = () => {
       <MainContents>
         <ViewArea>
           <ViewHeader>
-            <ViewHeaderTitle>조회수/방문자수 현황황</ViewHeaderTitle>
+            <ViewHeaderTitle>조회수/방문자수 현황</ViewHeaderTitle>
             <TimeAndRefresh>
               <Time>{lastUpdated}</Time>
               <RefreshArea onClick={fetchData}>
@@ -175,7 +175,7 @@ const Dashboard = () => {
           <PostHeader>게시물 현황</PostHeader>
           <CardWrapper>
             <DashboardCard text={"총 발행 게시글"} number={formatNumber(data.length)} />
-            <DashboardCard text={"임시저장된 게시글글"} number={formatNumber(BackupPostCount)} />
+            <DashboardCard text={"임시저장된 게시글"} number={formatNumber(BackupPostCount)} />
           </CardWrapper>
         </PostArea>
 

@@ -41,7 +41,7 @@ const GlobalHeader = ({isSidebarOpen,onToggle}:HeaderProps) => {
       <LeftArea>
         {!isLoginPage && <ToggleButton src={`/admin/img/${toggleImg}`} onClick={onToggle}/>}
         <Link to={isLoggedIn ? "/dashboard" : "/login"}>
-          <MainLogo src="/admin/img/mainLogo.png"/>
+          <MainLogo src="/img/mainLogo.png"/>
         </Link>
       </LeftArea>
 
