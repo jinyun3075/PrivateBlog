@@ -52,7 +52,9 @@ const router = createBrowserRouter([
     ],
   }
   // errorElement:<Test />, 
-])
+], {
+  basename: '/admin'
+})
 
 
 const App = () => {

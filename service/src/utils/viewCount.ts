@@ -12,7 +12,7 @@ export const getCurrentSessionKey = () => {
 // 조회수 증가 API 호출
 export const incrementViewCount = async (postId: string) => {
   try {
-    await axios.post(`http://116.42.245.135/api/client/view/up/${postId}`);
+    await axios.post(`/api/client/view/up/${postId}`);
     console.log(`게시글 ${postId}의 조회수가 증가되었습니다.`);
   } catch (error) {
     console.error('조회수 증가 실패:', error);

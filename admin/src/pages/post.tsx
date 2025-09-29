@@ -47,7 +47,7 @@ const Post = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const { data } = await axios.get(`http://ifut2.ddns.net/api/client/category/select/all`);
+        const { data } = await axios.get(`/api/client/category/select/all`);
         setCategories(data);
       } catch (error) {
         console.error('카테고리 데이터 가져오기 실패:', error);
@@ -624,7 +624,7 @@ const Post = () => {
                         <TableCell width="160px">
                           <Badge 
                             $isTemp={post.content.state.state_id===2}
-                            src={post.content.state.state_id === 2 ? "/img/badge_temp.png" : "/img/badge_active.png"} 
+                            src={post.content.state.state_id === 2 ? "/admin/img/badge_temp.png" : "/admin/img/badge_active.png"} 
                             alt={post.content.state.name}
                           />
                         </TableCell>
@@ -1256,6 +1256,7 @@ const PageWrapper = styled.div`
 const GoToCreate = styled.button`
   background-color: ${colors.Black};
   width: 80px;
+  height: 40px;
   padding: 10px 0;
   font-family: 'Pretendard-SemiBold';
   font-size: 16px;

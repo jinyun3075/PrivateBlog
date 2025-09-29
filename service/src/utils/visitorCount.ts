@@ -3,7 +3,7 @@ import axios from 'axios';
 // 방문자 수 증가 API 호출
 export const incrementVisitorCount = async () => {
   try {
-    await axios.post('http://116.42.245.135/api/client/visit/up');
+    await axios.post('/api/client/visit/up');
     console.log('방문자 수가 증가되었습니다.');
   } catch (error) {
     console.error('방문자 수 증가 실패:', error);

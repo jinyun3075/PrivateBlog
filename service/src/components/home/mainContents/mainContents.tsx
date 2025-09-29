@@ -64,7 +64,7 @@ const MainContents = () => {
   const getCategory = async() => {
     setLoading(true);
     try{
-      const res = await axios.get(`http://116.42.245.135/api/client/category/select/all`);
+      const res = await axios.get(`/api/client/category/select/all`);
       console.log(res.data);
       setCategory([{ category_id: 0, name: "전체" } as CategoryType, ...res.data]);
     }catch(e){
