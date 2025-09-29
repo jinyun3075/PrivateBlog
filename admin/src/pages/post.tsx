@@ -23,7 +23,6 @@ const Post = () => {
   const { data: allPosts = [] } = usePosts();
   const [categories, setCategories] = useState<Category[]>([]);
   const [tempPosts, setTempPosts] = useState<PostType[]>([]);
-  const [combinedPosts, setCombinedPosts] = useState<PostType[]>([]);
   const [filters, setFilters] = useState<FilterState>({
     startDate: "",
     endDate: "",
@@ -47,7 +46,7 @@ const Post = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const { data } = await axios.get(`http://ifut2.ddns.net/api/client/category/select/all`);
+        const { data } = await axios.get(`/api/client/category/select/all`);
         setCategories(data);
       } catch (error) {
         console.error('카테고리 데이터 가져오기 실패:', error);
@@ -60,19 +59,20 @@ const Post = () => {
   useEffect(() => {
     const fetchTempPosts = async () => {
       try {
-        const { data } = await axios.get(`${process.env.REACT_APP_BACKEND_HOST}/api/admin/post/select/tempList`);
+        const { data } = await axios.get(`/api/admin/post/select/tempList`);
+
         setTempPosts(data);
       } catch (error) {
-        console.error('임시저장 데이터 가져오기 실패:', error);
+        console.error(error);
       }
     };
     fetchTempPosts();
   }, []);
 
   // 일반 데이터와 임시저장 데이터 합치기
-  useEffect(() => {
+  const combinedPosts = useMemo(() => {
     const combined = [...allPosts, ...tempPosts];
-    setCombinedPosts(combined);
+    return combined;
   }, [allPosts, tempPosts]);
 
   // 날짜 범위 계산 함수들
@@ -121,8 +121,17 @@ const Post = () => {
 
   // 초기 렌더링 시 이번달로 설정
   useEffect(() => {
-    handlePeriodClick("이번달");
-  }, [handlePeriodClick]);
+    const dateRange = getDateRange("이번달");
+    if (dateRange) {
+      setActivePeriodButton("이번달");
+      setDateErrors({}); // 오류 상태 초기화
+      setFilters(prev => ({
+        ...prev,
+        startDate: formatDate(dateRange.startDate),
+        endDate: formatDate(dateRange.endDate)
+      }));
+    }
+  }, []);
 
   // 커스텀 드롭다운 핸들러들
   const handlePostStatusChange = (value: string) => {
@@ -245,30 +254,44 @@ const Post = () => {
     // 상태 필터링 (content.state.state_id 사용: 1=등록, 2=임시저장)
     if (filters.postStatus !== "전체") {
       const targetStateId = filters.postStatus === "등록" ? 1 : 2;
-      filtered = filtered.filter(post => post.content.state.state_id === targetStateId);
+      filtered = filtered.filter(post => {
+        // 임시저장 데이터의 경우 content.state가 없을 수 있으므로 안전하게 처리
+        if (post.content && post.content.state && post.content.state.state_id) {
+          return post.content.state.state_id === targetStateId;
+        }
+        // 임시저장 데이터의 경우 다른 방식으로 구분할 수 있음
+        return false;
+      });
     }
 
     // 카테고리 필터링 (category.name 사용)
     if (filters.category !== "전체") {
-      filtered = filtered.filter(post => post.category.name === filters.category);
+      filtered = filtered.filter(post => {
+        // 임시저장 데이터의 경우 category 구조가 다를 수 있음
+        if (post.category && post.category.name) {
+          return post.category.name === filters.category;
+        }
+        return false;
+      });
     }
 
     // 검색어 필터링 (title, content.content 사용)
     if (filters.searchTerm) {
       filtered = filtered.filter(post => {
+        const searchTerm = filters.searchTerm.toLowerCase();
         switch (filters.searchType) {
           case "제목":
-            return post.title.toLowerCase().includes(filters.searchTerm.toLowerCase());
+            return post.title && post.title.toLowerCase().includes(searchTerm);
           case "내용":
-            return post.content.content.toLowerCase().includes(filters.searchTerm.toLowerCase());
+            return post.content && post.content.content && post.content.content.toLowerCase().includes(searchTerm);
           case "전체":
           default:
-            return post.title.toLowerCase().includes(filters.searchTerm.toLowerCase()) ||
-                   post.content.content.toLowerCase().includes(filters.searchTerm.toLowerCase());
+            const titleMatch = post.title && post.title.toLowerCase().includes(searchTerm);
+            const contentMatch = post.content && post.content.content && post.content.content.toLowerCase().includes(searchTerm);
+            return titleMatch || contentMatch;
         }
       });
     }
-
     setFilteredPosts(filtered);
     setHasSearched(true);
     setSelectedPosts([]);
@@ -328,21 +351,14 @@ const Post = () => {
     try {
       // 선택된 게시물들을 하나씩 삭제
       const deletePromises = selectedPosts.map(async (postId) => {
-        // const {data} = await axios.delete(`${process.env.REACT_APP_BACKEND_HOST}/api/admin/post/delete/${postId}`); // 여기 확인할 것  
-        // console.log(data);
+        const {data} = await axios.delete(`/api/admin/post/delete/${postId}`); // 여기 확인할 것  
       });
 
       // 모든 삭제 요청이 완료될 때까지 대기
       const results = await Promise.all(deletePromises);
-      console.log('모든 삭제 결과:', results);
-
-
       setSelectedPosts([]);
-      
       window.location.reload();
-      
     } catch (e) {
-      console.log(e);
     }
   };
 
