@@ -12,8 +12,9 @@ interface BlogProps {
   imgSrc?:string;
   textWrapperWith:number;
   searchKeyword?:string;
+  thumbnailNumber?:number;
 }
-const Blog = ({category,title,desc,createdDate,author,viewer,imgSrc,textWrapperWith,searchKeyword}:BlogProps) => {
+const Blog = ({category,title,desc,createdDate,author,viewer,imgSrc,textWrapperWith,searchKeyword,thumbnailNumber}:BlogProps) => {
   
   // 검색 키워드 하이라이트 함수
   const highlightText = (title: string, searchKeyword?: string) => {
@@ -57,12 +58,29 @@ const Blog = ({category,title,desc,createdDate,author,viewer,imgSrc,textWrapperW
         </Etc>
       </TextWrapper>
 
-      <Thumbnail  src={ imgSrc || '/img/defaultThumbnail/defaultThumbnail.png' } />
+      <ThumbnailContainer>
+        <Thumbnail src={ imgSrc || (thumbnailNumber ? `/img/defaultThumbnail/defaultThumbnail_square${thumbnailNumber}.png` : '/img/defaultThumbnail/defaultThumbnail_square1.png') } />
+      </ThumbnailContainer>
     </Container>
   )
 }
 
 
+const ThumbnailContainer = styled.div`
+  width: 150px;
+  height: 100%;
+  overflow: hidden;
+`
+
+const Thumbnail = styled.img`
+  width: 100%;
+  height: 100%;
+  font-size: 10px;
+  color:#767676;
+  transition: transform 0.3s ease;
+  object-fit: cover;
+  transform-origin: center;
+`
 
 const Container = styled.div`
   width: 100%;
@@ -70,6 +88,12 @@ const Container = styled.div`
   display: flex;
   justify-content: space-between;
   cursor: pointer;
+  
+  &:hover {
+    ${Thumbnail} {
+      transform: scale(1.1);
+    }
+  }
 `
 
 const TextWrapper = styled.div<{$textWrapperWith:number}>`
@@ -126,12 +150,6 @@ const Etc = styled.div`
   }
 `
 
-const Thumbnail = styled.img`
-  width: 150px;
-  height: 100%;
-  font-size: 10px;
-  color:#767676;
-`
 
 const ViewWrapper = styled.div`
   display: flex;

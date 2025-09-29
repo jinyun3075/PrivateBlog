@@ -7,6 +7,8 @@ import Detail from './pages/detail';
 import Search from './pages/search';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import Error from './pages/error';
+import { useEffect } from 'react';
+import { incrementVisitorCountOnceToday } from './utils/visitorCount';
 
 
 const router = createBrowserRouter([
@@ -35,6 +37,11 @@ const router = createBrowserRouter([
 const App = () => {
 
   const queryClient = new QueryClient();
+
+  // 사용자가 사이트에 접속할 때 방문자 수 증가 (하루에 한 번만)
+  useEffect(() => {
+    incrementVisitorCountOnceToday();
+  }, []);
 
   return (
     <Container>

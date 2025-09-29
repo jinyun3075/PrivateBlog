@@ -40,7 +40,7 @@ const SearchBar = ({placeholder}:SearchBarProps) => {
 
 const Container = styled.form`
   display: flex;
-  gap: 30px;          
+  gap: 15px;          
   height: 40px;
   z-index: 1000;
 
@@ -114,8 +114,14 @@ const Button = styled.button`
   font-family: 'Pretendard-Regular';
   font-size: 14px;
   color:#1E1E1E;
+  background-color: #FFFFFF;
   border: 1px solid #D1D5DB;
   border-radius:4px;
+
+  &:hover{
+    color:#FFFFFF;
+    background-color: #9747FF;
+  }
 `
 
 export default SearchBar

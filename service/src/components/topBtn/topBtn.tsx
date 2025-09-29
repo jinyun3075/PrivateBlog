@@ -49,10 +49,17 @@ const Container = styled.button`
 
   cursor: pointer;
   z-index: 1000;
-
   img {
     width: 50px;
     height: 50px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+    border-radius: 100%;
+    transition: box-shadow 0.3s ease;
+
+    &:hover{
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+      border-radius: 100%;
+    }
   }
 `;
 

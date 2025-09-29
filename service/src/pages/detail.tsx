@@ -1,25 +1,41 @@
 import styled from "styled-components";
 import { MainArea } from "../common/style";
-import { useParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 import PostNavigation, { PostNavigationProps } from "../components/postNavigation/postNavigation";
 import { PostType } from "../common/type";
 import { useEffect, useMemo } from "react";
 import { usePosts } from "../hooks/usePosts";
 import { formatDate } from "../common/date";
 import MDEditor from '@uiw/react-md-editor';
+import { incrementViewCountOncePerSession } from "../utils/viewCount";
 
 const Detail = () => {
 
   const {id:blogId} = useParams();
+  const [searchParams] = useSearchParams();
   const { data: posts = [] } = usePosts();
   const post = useMemo(() => posts.find((item:PostType) => item.post_id === blogId), [posts, blogId]);
   console.log(post);
 
-  // 기본 썸네일 랜덤 선택 함수
-  const getRandomThumbnail = () => {
-    const randomNum = Math.floor(Math.random() * 7) + 1; // 1~7 사이의 랜덤 숫자
-    return `/img/defaultThumbnail/defaultThumbnail${randomNum}.png`;
+  // URL에서 썸네일 번호 가져오기
+  const thumbnailNumber = searchParams.get('thumbnail');
+  
+  // 기본 썸네일 선택 함수 (썸네일 번호가 있으면 해당 번호 사용, 없으면 랜덤)
+  const getThumbnail = () => {
+    if (post?.thumbnail) {
+      return `/${post.thumbnail}`;
+    }
+    
+    const num = thumbnailNumber ? parseInt(thumbnailNumber) : Math.floor(Math.random() * 7) + 1;
+    return `/img/defaultThumbnail/defaultThumbnail${num}.png`;
   };
+
+  // 조회수 증가 (30분 단위로 한 번만)
+  useEffect(() => {
+    if (blogId) {
+      incrementViewCountOncePerSession(blogId);
+    }
+  }, [blogId]);
 
   // 이전글과 다음글 찾기
   const { prevPost, nextPost } = useMemo(() => {
@@ -50,7 +66,7 @@ const Detail = () => {
   return (
     <Container>
       <MainArea>
-        <Thumbnail src={ post.thumbnail ? `/${post.thumbnail}` :  getRandomThumbnail() } />
+        <Thumbnail src={getThumbnail()} />
         <Category>{post.category.name}</Category>
         <Title>{post.title}</Title>
         <Etc>

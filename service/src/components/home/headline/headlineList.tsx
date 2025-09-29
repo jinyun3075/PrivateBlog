@@ -46,9 +46,12 @@ const HeadlineList = () => {
               author={post.reg_user}
             />
           </HeadlineCardLink>)):
-            <a href={`/pdf/${randomHeadline.pdf}`} target="_blank" rel="noopener noreferrer">
+            <DefaultHeadlineWrapper>
               <DefaultHeadline src={`/img/defaultHeadline/${randomHeadline.image}.png`} alt="default headline" />
-            </a>
+              <a href={`/pdf/${randomHeadline.pdf}`} target="_blank" rel="noopener noreferrer">
+                <ButtonToPdf>포트폴리오 링크 열기</ButtonToPdf>
+              </a>
+            </DefaultHeadlineWrapper>
       }
     </Container>
   )
@@ -71,10 +74,35 @@ const HeadlineCardLink = styled(Link)`
   min-width: 0;
 `
 
-const DefaultHeadline = styled.img`
+const DefaultHeadlineWrapper = styled.div`
+  position: relative;
   width: 100%;
   height: 250px;
-  cursor:pointer;
+`
+
+const DefaultHeadline = styled.img`
+  width: 100%;
+  height: 100%;
+`
+
+const ButtonToPdf = styled.button`
+  position: absolute;
+  right: 84px;
+  bottom:50px;
+
+  width: 169px;
+  height: 42px;
+  padding:10px 0;
+
+	font-family: 'Pretendard-Medium';
+  font-size: 16px;
+  letter-spacing: -0.024em;
+  
+  color: #1e1e1e;
+  background-color: #FFFFFF;
+  border-radius: 36px;
+
+
 `
 
 export default HeadlineList

@@ -1,12 +1,12 @@
 import styled from "styled-components"
 import { MainArea } from "../common/style"
 import { useEffect, useState } from "react";
-import { DummyData, DummyDataType } from "../mockData/blogDummy";
-import { useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import usePagination from "../hooks/usePagination";
 import Blog from "../components/home/mainContents/blog";
 import Pagination from "../components/pagination/pagination";
 import { usePosts } from "../hooks/usePosts";
+import { PostType } from "../common/type";
 
 const Search = () => {
   const { data = [] } = usePosts();
@@ -44,19 +44,21 @@ const Search = () => {
 
         {filteredData.length ?
           <BlogList>
-            {currentPosts.map((post:any) => 
-              <Blog 
-                key={post.post_id || post.id} 
-                category={post.category?.name || post.category}
-                title = {post.title}
-                desc = {post.desc || post.content?.content}
-                createdDate = {post.regDate || post.createdDate}
-                author = {post.reg_user || post.author}
-                viewer = {post.postView?.view || post.viewer}
-                imgSrc = {post.thumbnail || post.imgSrc}
-                textWrapperWith={990}
-                searchKeyword={searchKeyword}
-              />)}
+            {currentPosts.map((post:PostType) => 
+              <Link to ={`/detail/${post.post_id}`}>
+                <Blog 
+                  key={post.post_id} 
+                  category={post.category.name}
+                  title = {post.title}
+                  desc = {post.content.content }
+                  createdDate = {post.regDate}
+                  author = {post.reg_user}
+                  viewer = {post.postView?.view}
+                  imgSrc = {post.thumbnail}
+                  textWrapperWith={990}
+                  searchKeyword={searchKeyword}
+                />
+              </Link>)}
           </BlogList>:
           <NoDataContainer>
             <BlogNotExist>검색 결과가 존재하지 않습니다.</BlogNotExist>
