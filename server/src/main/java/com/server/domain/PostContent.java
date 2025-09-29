@@ -3,16 +3,16 @@ package com.server.domain;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
-import com.server.dto.req.PostContentRequestDTO;
-
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity(name="TBL_POST_CONTENT")
 @Getter
+@Setter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
@@ -35,8 +35,8 @@ public class PostContent{
     @Column(nullable = false, length = 50000)
     private String content;
 
-    public void updateContent(PostContentRequestDTO req){
-        content = req.getContent();
+    public void updateContent(String content){
+        this.content = content;
     }
 }
 

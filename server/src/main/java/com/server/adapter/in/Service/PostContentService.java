@@ -35,7 +35,7 @@ public class PostContentService implements BaseService<PostContentRequestDTO, Po
         if (domain == null) {
             throw new IllegalArgumentException("PostContent not found with id: " + req.getContent_id());
         }
-        domain.updateContent(req);
+        domain.updateContent(req.getContent());
         return domainToEntity(postContentRepository.save(domain));
     }
 

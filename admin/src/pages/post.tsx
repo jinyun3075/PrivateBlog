@@ -1234,10 +1234,10 @@ const Checkbox = styled.input`
   cursor: pointer;
   margin:0;
   appearance: none;
-  background: url('/img/checkbox_off.png') no-repeat center / contain;
+  background: url('/admin/img/checkbox_off.png') no-repeat center / contain;
 
   &:checked {
-    background-image: url('/img/checkbox_on.png');
+    background-image: url('/admin/img/checkbox_on.png');
   }
 `
 

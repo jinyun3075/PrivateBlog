@@ -2,7 +2,7 @@ import styled from "styled-components";
 import { useState, useEffect } from "react";
 import MDEditor from "@uiw/react-md-editor";
 import axios from "axios";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import Header from "../components/header/header";
 import { colors } from "../common/designSystem";
 
@@ -49,6 +49,7 @@ interface PostData {
 
 const PostCreate = () => {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const postId = id;
   const isEditMode = Boolean(postId);
   
@@ -200,6 +201,8 @@ const PostCreate = () => {
 
           if (!isDraft) {
             setIsDraftPost(false);
+            // 수정 성공 시 게시글 목록으로 이동
+            navigate('/post');
           }
         }
       } else {
@@ -220,6 +223,10 @@ const PostCreate = () => {
           alert(message);
 
           if (!isDraft) {
+            // 등록 성공 시 게시글 목록으로 이동
+            navigate('/post');
+          } else {
+            // 임시저장 시 폼 초기화
             setTitle("");
             setCategory("");
             setThumbnail(null);

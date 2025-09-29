@@ -9,10 +9,12 @@ import org.springframework.stereotype.Service;
 import com.server.port.in.BaseService;
 import com.server.domain.Category;
 import com.server.domain.Post;
+import com.server.domain.PostContent;
 import com.server.dto.req.PostRequestDTO;
 import com.server.dto.res.PostCategoryResponseDTO;
 import com.server.dto.res.PostResponseDTO;
 import com.server.port.out.repository.CategoryRepository;
+import com.server.port.out.repository.PostContentRepository;
 import com.server.port.out.repository.PostRepository;
 
 import jakarta.transaction.Transactional;
@@ -23,6 +25,7 @@ import lombok.RequiredArgsConstructor;
 public class PostService implements BaseService<PostRequestDTO, PostResponseDTO, Post> {
     private final PostRepository postRepository;
     private final CategoryRepository categoryRepository;
+    private final PostContentRepository postContentRepository;
 
     @Override
     @Transactional
@@ -32,14 +35,27 @@ public class PostService implements BaseService<PostRequestDTO, PostResponseDTO,
     }
 
     @Override
+    @Transactional
     public PostResponseDTO update(PostRequestDTO req) {
         Post domain = postRepository.findById(req.getPost_id()).orElse(null);
         if (domain == null) {
             throw new IllegalArgumentException("Post not found with id: " + req.getPost_id());
         }
         Category category = categoryRepository.findById(req.getCategory_id()).orElse(null);
+        
+        // 상태에 맞는 PostContent를 찾아서 업데이트
+        PostContent content = postContentRepository.findByPost_PostIdAndState_StateId(req.getPost_id(), req.getState_id());
+        if (content == null) {
+            throw new IllegalArgumentException("PostContent not found with post_id: " + req.getPost_id() + " and state_id: " + req.getState_id());
+        }
+        content.updateContent(req.getContent());
         domain.updatePost(req, category);
-        return domainToEntity(postRepository.save(domain));
+        
+        // Post와 PostContent 모두 저장
+        postRepository.save(domain);
+        postContentRepository.save(content);
+        
+        return domainToEntity(domain);
     }
 
     @Override
