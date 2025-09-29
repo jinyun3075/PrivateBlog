@@ -21,5 +21,6 @@ export const usePosts = () =>
       const res = await axios.get(`/api/client/post/select/all`);
       return res.data;
     },
-    staleTime: 1000 * 60,
+    staleTime: 0, // 캐시를 즉시 만료시켜 항상 최신 데이터 가져오기
+    refetchOnWindowFocus: true, // 윈도우 포커스 시 자동 새로고침
   });
