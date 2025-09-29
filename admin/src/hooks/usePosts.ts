@@ -18,7 +18,7 @@ export const usePosts = () =>
         return mockPosts;
       }
 
-      const res = await axios.get(`/api/client/post/select/all`);
+      const res = await axios.get(`http://ifut2.ddns.net/api/client/post/select/all`);
       return res.data;
     },
     staleTime: 1000 * 60,

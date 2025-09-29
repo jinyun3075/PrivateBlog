@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
 import { Link, useOutletContext } from "react-router-dom";
 import styled from "styled-components"
 import Category from "./category";
@@ -17,10 +17,54 @@ const MainContents = () => {
   const [loading,setLoading] = useState<boolean>(false);
   const { data = [], isError } = usePosts();
   
+  // 드래그 관련 상태
+  const [isDragging, setIsDragging] = useState(false);
+  const [startX, setStartX] = useState(0);
+  const [scrollLeft, setScrollLeft] = useState(0);
+  const categoryWrapperRef = useRef<HTMLDivElement>(null);
+
+  // 포스트 ID를 기반으로 일관된 썸네일 번호 생성 (1~7)
+  const getThumbnailNumber = (postId: string) => {
+    let hash = 0;
+    for (let i = 0; i < postId.length; i++) {
+      const char = postId.charCodeAt(i);
+      hash = ((hash << 5) - hash) + char;
+      hash = hash & hash; // 32bit 정수로 변환
+    }
+    return Math.abs(hash) % 7 + 1; // 1~7 사이의 값
+  };
+
+  // 드래그 시작
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (!categoryWrapperRef.current) return;
+    setIsDragging(true);
+    setStartX(e.pageX - categoryWrapperRef.current.offsetLeft);
+    setScrollLeft(categoryWrapperRef.current.scrollLeft);
+  };
+
+  // 드래그 중
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging || !categoryWrapperRef.current) return;
+    e.preventDefault();
+    const x = e.pageX - categoryWrapperRef.current.offsetLeft;
+    const walk = (x - startX) * 2; // 스크롤 속도 조절
+    categoryWrapperRef.current.scrollLeft = scrollLeft - walk;
+  };
+
+  // 드래그 종료
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
+  // 마우스가 영역을 벗어났을 때 드래그 종료
+  const handleMouseLeave = () => {
+    setIsDragging(false);
+  };
+  
   const getCategory = async() => {
     setLoading(true);
     try{
-      const res = await axios.get(`/api/client/category/select/all`);
+      const res = await axios.get(`http://116.42.245.135/api/client/category/select/all`);
       console.log(res.data);
       setCategory([{ category_id: 0, name: "전체" } as CategoryType, ...res.data]);
     }catch(e){
@@ -54,7 +98,14 @@ const MainContents = () => {
     <Container>
 
       <BlogListWrapper>
-        <CategoryWrapper>
+        <CategoryWrapper
+          ref={categoryWrapperRef}
+          onMouseDown={handleMouseDown}
+          onMouseMove={handleMouseMove}
+          onMouseUp={handleMouseUp}
+          onMouseLeave={handleMouseLeave}
+          $isDragging={isDragging}
+        >
           {category.map((category: CategoryType) => 
             <Category 
               key = {category.category_id}
@@ -65,19 +116,26 @@ const MainContents = () => {
         </CategoryWrapper>
 
         <BlogList>
-          {(currentPosts.length>0 ||isError) ? currentPosts.map((post:PostType) => 
-            <Link to ={`/detail/${post.post_id}`} key={post.post_id} >
-              <Blog 
-                category={post.category.name}
-                title = {post.title}
-                desc = {post.content.content}
-                createdDate = {post.regDate}
-                author = {post.reg_user}
-                viewer = {post.postView.view}
-                imgSrc = {post.thumbnail}
-                textWrapperWith={600}
-              />
-            </Link>):
+          {(currentPosts.length>0 ||isError) ? currentPosts.map((post:PostType) => {
+            // 썸네일이 없을 때만 포스트 ID 기반으로 일관된 번호 생성
+            const thumbnailNumber = !post.thumbnail ? getThumbnailNumber(post.post_id) : undefined;
+            
+            return (
+              <Link to ={`/detail/${post.post_id}${thumbnailNumber ? `?thumbnail=${thumbnailNumber}` : ''}`} key={post.post_id} >
+                <Blog 
+                  category={post.category.name}
+                  title = {post.title}
+                  desc = {post.content.content}
+                  createdDate = {post.regDate}
+                  author = {post.reg_user}
+                  viewer = {post.postView.view}
+                  imgSrc = {post.thumbnail}
+                  textWrapperWith={600}
+                  thumbnailNumber={thumbnailNumber}
+                />
+              </Link>
+            );
+          }):
             <NotExistBlog>게시글이 존재하지 않습니다다</NotExistBlog>
           }
         </BlogList>
@@ -100,6 +158,7 @@ const MainContents = () => {
         {(data.length>0 ||isError) ? 
           getTopPosts().map((post: PostType, idx: number) => (
             <BestBlog 
+              postId = {post.post_id}
               key={post.post_id}
               ranking={idx + 1}
               title={post.title}
@@ -122,9 +181,25 @@ const Container = styled.section`
   gap:70px;
 `
 
-const CategoryWrapper = styled.div`
+const CategoryWrapper = styled.div<{$isDragging: boolean}>`
   display: flex;
   width: 810px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  gap: 0;
+  cursor: ${props => props.$isDragging ? 'grabbing' : 'grab'};
+  user-select: none;
+  
+  /* 스크롤바 숨기기 */
+  &::-webkit-scrollbar {
+    display: none;
+  }
+  
+  /* Firefox에서 스크롤바 숨기기 */
+  scrollbar-width: none;
+  
+  /* 드래그 중일 때 부드러운 스크롤 비활성화 */
+  scroll-behavior: ${props => props.$isDragging ? 'auto' : 'smooth'};
 `
 
 const BlogListWrapper = styled.div`

@@ -89,7 +89,7 @@ const Dashboard = () => {
   const getViewData = async () => {
     try {
       const { data } = await axios.get<ViewDataType[]>(
-        `/api/admin/view/select/all`
+        `http://116.42.245.135/api/admin/view/select/all`
       );
       return data;
     } catch (e) {
@@ -100,7 +100,7 @@ const Dashboard = () => {
 
   const getVisitData = async () => {
     try {
-      const { data } = await axios.get<VisitDataType[]>(`/api/admin/visit/select/all`); 
+      const { data } = await axios.get<VisitDataType[]>(`http://116.42.245.135/api/admin/visit/select/all`); 
       return data;
     } catch (e) {
       console.log(e);
@@ -110,7 +110,7 @@ const Dashboard = () => {
 
   const getBackupPost = async () => {
     try{
-      const {data} = await axios.get(`/api/admin/post/select/tempList`);
+      const {data} = await axios.get(`http://116.42.245.135/api/admin/post/select/tempList`);
       console.log(data);
       return data;
     }catch(e){
@@ -153,7 +153,7 @@ const Dashboard = () => {
       <MainContents>
         <ViewArea>
           <ViewHeader>
-            <ViewHeaderTitle>조회수/방문자수 현황황</ViewHeaderTitle>
+            <ViewHeaderTitle>조회수/방문자수 현황</ViewHeaderTitle>
             <TimeAndRefresh>
               <Time>{lastUpdated}</Time>
               <RefreshArea onClick={fetchData}>
@@ -175,7 +175,7 @@ const Dashboard = () => {
           <PostHeader>게시물 현황</PostHeader>
           <CardWrapper>
             <DashboardCard text={"총 발행 게시글"} number={formatNumber(data.length)} />
-            <DashboardCard text={"임시저장된 게시글글"} number={formatNumber(BackupPostCount)} />
+            <DashboardCard text={"임시저장된 게시글"} number={formatNumber(BackupPostCount)} />
           </CardWrapper>
         </PostArea>
 

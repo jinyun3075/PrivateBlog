@@ -1,19 +1,24 @@
+import { Link } from "react-router-dom";
 import styled from "styled-components"
 
 type BestBlogProps = {
   ranking: number;
   title: string;
   author: string;
+  postId:string;
 }
 
-const BestBlog = ({ ranking, title, author }: BestBlogProps) => {
+const BestBlog = ({ ranking, title, author, postId }: BestBlogProps) => {
   return(
     <Container>
       <Ranking>{ranking}</Ranking>
-      <Info>
-        <Title>{title}</Title>
-        <Author>{author}</Author>
-      </Info>
+      
+      <Link to ={`/detail/${postId}`}>
+        <Info>
+          <Title>{title}</Title>
+          <Author>{author}</Author>
+        </Info>
+      </Link>
     </Container>
   )
 }

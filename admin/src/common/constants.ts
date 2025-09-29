@@ -2,13 +2,13 @@
 // SNB 
 export const SIDEBAR_WIDTH = 216;
 
-export type MenuItem = {
+export type MenuItemType = {
   label: string;
   path?: string;
-  children?: MenuItem[];
+  children?: MenuItemType[];
 };
 
-export const MENU_CONFIG: MenuItem[] = [
+export const MENU_CONFIG: MenuItemType[] = [
   { label: "대시보드", path: "/dashboard" },
   {
     label: "노출관리",

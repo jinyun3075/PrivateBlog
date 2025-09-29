@@ -5,19 +5,43 @@ import SideNavigationBar from "../components/snb/sideNavigationBar";
 import GlobalHeader from "../components/gnb/globalHeader";
 import { loadAccessToken, useAuthStore } from "../store/useAuth";
 
+// localStorage 키 상수
+const SIDEBAR_STATE_KEY = 'sidebar_open_state';
+
 const HEADER_HEIGHT = 76;
 
 const Root = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { isLoggedIn, onLogout } = useAuthStore();
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  
+  // localStorage에서 사이드바 상태를 복원하거나 기본값 false 사용
+  const [isSidebarOpen, setIsSidebarOpen] = useState(() => {
+    try {
+      const savedState = localStorage.getItem(SIDEBAR_STATE_KEY);
+      return savedState ? JSON.parse(savedState) : false;
+    } catch{
+      console.log('fail to load sidebar state');
+      return false;
+    }
+  });
+  
+  
+  // 사이드바 상태가 변경될 때마다 localStorage에 저장
+  useEffect(() => {
+    try {
+      localStorage.setItem(SIDEBAR_STATE_KEY, JSON.stringify(isSidebarOpen));
+    } catch {
+      console.log('Failed to save sideBar')
+    }
+  }, [isSidebarOpen]);
+  
   const sidebarWidth =  useMemo<number>(()=>isSidebarOpen ? 216 : 0,[isSidebarOpen]);
-
+  
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === ']' || e.code === 'BracketRight') {
-        setIsSidebarOpen(prev => !prev);
+        setIsSidebarOpen((prev: boolean) => !prev);
       }
     };
     window.addEventListener('keydown', handleKeyDown);
@@ -29,6 +53,8 @@ const Root = () => {
     const token = loadAccessToken();
     const isLoginRoute = location.pathname === '/login';
     if (!token && !isLoginRoute) {
+      // 로그아웃 시 사이드바 상태 초기화
+      setIsSidebarOpen(false);
       navigate('/login', { replace: true });
       return;
     }
@@ -41,6 +67,8 @@ const Root = () => {
     const interval = setInterval(() => {
       const { sessionExpiresAt, onLogout } = useAuthStore.getState();
       if (sessionExpiresAt && Date.now() > sessionExpiresAt) {
+        // 세션 만료 시 사이드바 상태 초기화
+        setIsSidebarOpen(false);
         onLogout();
         navigate('/login', { replace: true });
       }
@@ -52,10 +80,14 @@ const Root = () => {
   return(
     <Container>
 
-      <HeaderWrapper $isSidebarOpen={isSidebarOpen} $sidebarWidth={sidebarWidth}>
+      <HeaderWrapper 
+        $isSidebarOpen={isSidebarOpen} 
+        $sidebarWidth={sidebarWidth}
+        $isLoginPage={location.pathname === '/login'}
+      >
         <GlobalHeader 
           isSidebarOpen={isSidebarOpen}
-          onToggle={() => setIsSidebarOpen(prev => !prev)}/>
+          onToggle={() => setIsSidebarOpen((prev: boolean) => !prev)}/>
       </HeaderWrapper>
 
       {location.pathname !== '/login' && (
@@ -64,7 +96,7 @@ const Root = () => {
         />
       )}
 
-      <OutLetWrapper style={{ marginLeft: `${sidebarWidth}px` }}>
+      <OutLetWrapper style={{ marginLeft: location.pathname === '/login' ? '0px' : `${sidebarWidth}px` }}>
         <Outlet />
       </OutLetWrapper>
 
@@ -79,13 +111,13 @@ const Container = styled.div`
   flex-direction: column;
 `
 
-const HeaderWrapper = styled.div<{$isSidebarOpen:boolean; $sidebarWidth:number;}>`
-  width: ${props=> props.$isSidebarOpen ? `calc(100% - ${props.$sidebarWidth})`:`100%`};
+const HeaderWrapper = styled.div<{$isSidebarOpen:boolean; $sidebarWidth:number; $isLoginPage:boolean;}>`
+  width: ${props=> props.$isLoginPage ? '100%' : (props.$isSidebarOpen ? `calc(100% - ${props.$sidebarWidth})` : '100%')};
   height:${HEADER_HEIGHT}px;
   position: fixed;
   top:0px;
   right:0;
-  left:${props=>props.$isSidebarOpen ? props.$sidebarWidth:0}px;
+  left:${props=>props.$isLoginPage ? '0px' : (props.$isSidebarOpen ? props.$sidebarWidth : 0)}px;
   z-index:1000;
 `
 

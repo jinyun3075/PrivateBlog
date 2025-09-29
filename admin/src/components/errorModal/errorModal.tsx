@@ -22,7 +22,7 @@ const ErrorModal = ({ title, text, onClose }: ErrorModalrProps) => {
 
 const Overlay = styled.div`
   position: fixed;
-  z-index: 999;
+  z-index: 9999;
   left: 0;
   top: 0;
   width: 100vw;
